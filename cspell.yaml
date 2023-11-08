@@ -1,0 +1,21 @@
+version: 0.2
+language: en
+words:
+  - scottbrodersen
+  - homegym
+  - goconvey
+  - hasher
+  - stretchr
+  - Debugf
+  - Warnf
+  - Infof
+  - healthnut
+  - logrus
+  - sirupsen
+  - workoutlog
+  - newevent
+  - upsert
+  - vnode
+ignoreRegExpList:
+  - /[a-z]*password[^\w]*/g
+  - /%s[a-zA-Z0-9]*/g

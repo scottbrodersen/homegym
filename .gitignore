@@ -1,0 +1,15 @@
+server/resources/**/.*
+server/secured/dist/
+bin
+# badger files
+*.mem
+*.vlog
+*.sst
+DISCARD
+KEYREGISTRY
+MANIFEST
+LOCK
+__debug*
+
+
+**/.DS_Store

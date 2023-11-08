@@ -1,0 +1,125 @@
+import { reactive, computed } from 'vue';
+import { pageSize } from './utils';
+
+export const eventStore = reactive({
+  events: [],
+
+  add(e) {
+    this.events.push(e);
+  },
+
+  update(e) {
+    for (let i = 0; i < this.events.length; i++) {
+      if (this.events[i].id === e.id) {
+        this.events[i] = e;
+        return;
+      }
+    }
+    throw Error('event not found');
+  },
+
+  addBulk(events) {
+    this.events = this.events.concat(events);
+  },
+
+  getLast() {
+    return this.events[this.events.length - 1];
+  },
+
+  setEventExercises(eventID, exerciseInstances) {
+    for (let i = 0; i < this.events.length; i++) {
+      if (this.events[i].id === eventID) {
+        this.events[i].exInstances = exerciseInstances;
+        return;
+      }
+    }
+    throw Error('event not found');
+  },
+
+  getByID(eventID) {
+    for (const e of this.events) {
+      if (e.id === eventID) {
+        return e;
+      }
+    }
+    return null;
+  },
+
+  getPage(pageNumber = 0) {
+    const start = pageNumber * pageSize;
+    const end = start + pageSize;
+    return this.events.slice(start, end);
+  },
+  getAll() {
+    const all = [];
+    for (const event of this.events.values()) {
+      all.push(event);
+    }
+    return all;
+  },
+});
+
+export const activityStore = reactive({
+  activities: new Map(),
+  add(activity) {
+    this.activities.set(activity.id, activity);
+  },
+  get(activityID) {
+    return this.activities.get(activityID);
+  },
+  getAll() {
+    const all = [];
+    for (const activity of this.activities.values()) {
+      all.push(activity);
+    }
+    return all;
+  },
+});
+
+export const exerciseTypeStore = reactive({
+  exerciseTypes: new Map(),
+  add(exerciseType) {
+    this.exerciseTypes.set(exerciseType.id, exerciseType);
+  },
+  get(exerciseTypeID) {
+    return this.exerciseTypes.get(exerciseTypeID);
+  },
+  getAll() {
+    const all = [];
+    for (const exerciseType of this.exerciseTypes.values()) {
+      all.push(exerciseType);
+    }
+    return all;
+  },
+});
+
+export const loginModalState = reactive({
+  isOpen: false,
+  opened() {
+    this.isOpen = true;
+  },
+  closed() {
+    this.isOpen = false;
+  },
+});
+
+export const metricState = reactive({
+  metric: true,
+  setMetric() {
+    this.metric = true;
+  },
+  setImperial() {
+    this.metric = false;
+  },
+});
+
+const weightUnit = computed(() => {
+  return metricState.metric ? 'kg' : 'lbs';
+});
+
+export const unitsState = reactive({
+  weight: weightUnit,
+  longDistance: 'km',
+  distance: 'm',
+  time: 'min',
+});
