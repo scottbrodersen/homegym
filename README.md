@@ -23,6 +23,9 @@ The app is in MVP state. It's been tested in Chrome on a MacBook Pro and on an A
 4. On the Activities page, define some activities and add exercises to them.
 5. On the Home page, add workout entries for the activities.
 
+<img src="./docs/exercises.png" style="width: 300px; margin-right:10px;" /> <img src="./docs/activities.png" style="width: 300px;" />
+<img src="./docs/log.png" style="width: 300px; margin-top:10px;" />
+
 ### Track Failed Reps
 
 Exercises that use sets and reps to express volume can optionally track failed attempts. Failed attempts is a useful metric for skill-based exercises such as the snatch and the clean and jerk.
