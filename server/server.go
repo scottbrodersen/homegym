@@ -89,8 +89,8 @@ func standardHeaders(header *http.Header) {
 	header.Add("Access-Control-Allow-Credentials", "true")
 }
 
-func StartUnsafe(shutdown shutdownAction) {
-	shutdown(http.ListenAndServe("0.0.0.0:80", NewRequestLogger(publicMux)))
+func StartUnsafe(shutdown shutdownAction, port int) {
+	shutdown(http.ListenAndServe(fmt.Sprintf("0.0.0.0:%d", port), NewRequestLogger(publicMux)))
 }
 
 func StartSafe(shutdown shutdownAction) {
