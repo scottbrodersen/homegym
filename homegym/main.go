@@ -25,6 +25,7 @@ func main() {
 	flag.Parse()
 
 	dbPath := ""
+	port := 0
 
 	switch *testModeFlag {
 	case false:
@@ -32,8 +33,10 @@ func main() {
 		if dbPath == "" {
 			dbPath = os.Getenv(dbPathEnv)
 		}
+		port = 80
 	case true:
 		dbPath = testDBPath
+		port = 3000
 	}
 
 	if dbPath == "" {
@@ -59,6 +62,6 @@ func main() {
 		}
 	}
 
-	server.StartUnsafe(server.DefaultShutdown)
+	server.StartUnsafe(server.DefaultShutdown, port)
 
 }

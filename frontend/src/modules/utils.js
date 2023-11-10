@@ -5,7 +5,7 @@ import {
   loginModalState,
 } from './state';
 import LoginModal from './../components/LoginModal.vue';
-import { Dialog } from 'quasar';
+import { Dialog, Notify } from 'quasar';
 import NewActivityModal from './../components/NewActivityModal.vue';
 import VolumeModal from './../components/VolumeModal.vue';
 
@@ -345,6 +345,19 @@ const storeEventExerciseInstances = async (
   }
 };
 
+const toast = (message, type) => {
+  const color = type == 'positive' ? 'green' : 'red';
+  const icon = type == 'positive' ? 'checkmark' : 'error';
+  Notify.create({
+    type: type,
+    color: color,
+    message: message,
+    icon: icon,
+    position: 'top-right',
+    timeout: 2000,
+  });
+};
+
 class ErrNotUnique extends Error {
   constructor(message) {
     super(message);
@@ -379,4 +392,5 @@ export {
   storeEvent,
   storeEventExerciseInstances,
   openVolumeModal,
+  toast,
 };

@@ -12,6 +12,7 @@
     storeEventExerciseInstances,
     ErrNotLoggedIn,
     fetchActivityExercises,
+    toast,
   } from '../modules/utils.js';
 
   const props = defineProps({
@@ -132,6 +133,7 @@
           eventStore.add(thisEvent.value);
           // event was just created so no exercises to update
         }
+        toast('Saved', 'positive');
       })
       .catch((e) => {
         if (e instanceof ErrNotLoggedIn) {
