@@ -66,19 +66,14 @@ var testExerciseInstance ExerciseInstance = ExerciseInstance{
 
 func TestExerciseTypes(t *testing.T) {
 	Convey("Given a table of ExerciseType values", t, func() {
-		type testED = struct {
-			Ed    ExerciseType
+		type testEtype = struct {
+			Etype ExerciseType
 			Valid bool
 		}
-		tests := []testED{
+		// initialize with invalid types
+		tests := []testEtype{
 			{
-				Ed: func() ExerciseType {
-					return testExerciseType()
-				}(),
-				Valid: true,
-			},
-			{
-				Ed: func() ExerciseType {
+				Etype: func() ExerciseType {
 					e := testExerciseType()
 					e.Name = ""
 					return e
@@ -86,7 +81,7 @@ func TestExerciseTypes(t *testing.T) {
 				Valid: false,
 			},
 			{
-				Ed: func() ExerciseType {
+				Etype: func() ExerciseType {
 					e := testExerciseType()
 					e.ID = ""
 					return e
@@ -94,7 +89,7 @@ func TestExerciseTypes(t *testing.T) {
 				Valid: false,
 			},
 			{
-				Ed: func() ExerciseType {
+				Etype: func() ExerciseType {
 					e := testExerciseType()
 					e.IntensityType = ""
 					return e
@@ -102,36 +97,44 @@ func TestExerciseTypes(t *testing.T) {
 				Valid: false,
 			},
 			{
-				Ed: func() ExerciseType {
+				Etype: func() ExerciseType {
 					e := testExerciseType()
 					e.VolumeType = ""
 					return e
 				}(),
 				Valid: false,
 			},
+			{
+				Etype: func() ExerciseType {
+					e := testExerciseType()
+					e.VolumeConstraint = 0
+					return e
+				}(),
+				Valid: false,
+			},
 		}
+		// add a valid type for each intensity type
 		for _, iType := range intensityTypes {
 			e := testExerciseType()
 			e.IntensityType = iType
 
-			tests = append(tests, testED{Ed: e, Valid: true})
+			tests = append(tests, testEtype{Etype: e, Valid: true})
 		}
+		// add a valid type for each volume type
 		for _, vType := range volumeTypes {
 			e := testExerciseType()
 			e.VolumeType = vType
-
-			tests = append(tests, testED{Ed: e, Valid: true})
-		}
-		for _, vc := range volumeConstraints {
-			e := testExerciseType()
-			e.VolumeConstraint = vc
-
-			tests = append(tests, testED{Ed: e, Valid: true})
+			if vType != "count" {
+				e.VolumeConstraint = 0
+			} else {
+				e.VolumeConstraint = 1
+			}
+			tests = append(tests, testEtype{Etype: e, Valid: true})
 		}
 
 		Convey("Then the validation is as expected", func() {
 			for _, v := range tests {
-				So(v.Ed.validate() == nil, ShouldEqual, v.Valid)
+				So(v.Etype.validate() == nil, ShouldEqual, v.Valid)
 			}
 
 		})
