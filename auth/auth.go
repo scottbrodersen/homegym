@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -34,16 +35,15 @@ type CryptoKey struct {
 }
 
 var Admin Role = "admin"
-var User Role = "healthnut"
+var User Role = "user"
 
 // Time of daily key rotation in format "hh:mm:ss".
-var keyRotationTime = "23:59:00"
-var secondsToDelayKeyDeletion = 300 // 5 minutes
-const tokenLifeInSeconds = 3000     // 5 mins -- extended for testing
+var keyRotationTime = "10:00:00"    // default, UTC
+var secondsToDelayKeyDeletion = 300 // 5 mins
+const tokenLifeInSeconds = 300      // 5 mins
 const sessionLifeInMinutes = 1440   // 24 hours
 
 // Set the time of the daily key rotation.
-// Default time is 23:59:00
 func SetKeyRotationTime(rotationTime string) error {
 	rx := regexp.MustCompile("^[0-9]{2}:[0-9]{2}:[0-9]{2}$")
 	if !rx.Match([]byte(rotationTime)) {
@@ -52,7 +52,7 @@ func SetKeyRotationTime(rotationTime string) error {
 		log.Info("using default rotation time.")
 		return err
 	}
-	log.Info("setting key rotation time to: ", rotationTime)
+	log.Info("key rotation time set to: ", rotationTime)
 	keyRotationTime = rotationTime
 	return nil
 }
@@ -67,8 +67,8 @@ var KeyTypes KeyUsage = KeyUsage{
 	Pepper: "pepper",
 }
 
+// InitiateKeyRotation starts the daily key rotation process.
 // Rotates keys immediately if no usable key is found.
-// Starts the daily key rotation
 func InitiateKeyRotation(keyType string) error {
 	// get current key and if there is none create one now
 	if keyType == KeyTypes.Token {
@@ -77,6 +77,7 @@ func InitiateKeyRotation(keyType string) error {
 			log.WithError(err).Error("failed to get signing key -- ignoring")
 		}
 		if signingKey == nil {
+			log.Warn("signing key not found; initiating key rotation immediately")
 			rotateKey(KeyTypes.Token)
 		}
 	}
@@ -87,14 +88,16 @@ func InitiateKeyRotation(keyType string) error {
 	return nil
 }
 
-// Gets all token keys and returns the (first) one with UserMeta of 0
+// getSigningKey returns the private key used for signing tokens.
+// Gets all token-signing keys and returns the (first) active key.
+// Returns nil when no active key is found.
 func getSigningKey() (*rsa.PrivateKey, error) {
-	active, _, err := dal.DB.GetKeys(KeyTypes.Token)
+	activeKeys, _, err := dal.DB.GetKeys(KeyTypes.Token)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read keys: %w", err)
 	}
 
-	for _, key := range active {
+	for _, key := range activeKeys {
 
 		keyRSA, err := byteSliceToRSAKey(key)
 		if err != nil {
@@ -141,12 +144,15 @@ func dailyKeyRotation(keyType string) {
 	})
 }
 
+// rotateKey rotates the key of a specific type.
+// Old keys are scheduled for deletion.
 func rotateKey(keyType string) error {
-	log.Info("rotating key")
+	log.Info(fmt.Sprintf("rotating %s key", keyType))
+
 	keyID := uuid.NewString()
 	newKey, err := generateRsaPrivate(2048)
 	if err != nil {
-		return fmt.Errorf("could not create new key: %w", err)
+		return fmt.Errorf("failed to create key: %w", err)
 	}
 
 	newKeyByte := rsaKeyToByteSlice(newKey)
@@ -156,11 +162,15 @@ func rotateKey(keyType string) error {
 		return err
 	}
 
-	_, existingKeys, err := dal.DB.GetKeys(keyType)
+	log.Info(fmt.Sprintf("%s key created; id %s", keyType, keyID))
+
+	// delete old key(s)
+	_, retiredKeys, err := dal.DB.GetKeys(keyType)
 	if err != nil {
 		return fmt.Errorf("failed to get keys during rotation: %w", err)
 	}
-	for id := range existingKeys {
+
+	for id := range retiredKeys {
 		deleteKeyAfterDuration(id, keyType, time.Second*time.Duration(secondsToDelayKeyDeletion))
 	}
 
@@ -168,15 +178,16 @@ func rotateKey(keyType string) error {
 }
 
 func deleteKeyAfterDuration(keyID, usage string, duration time.Duration) {
-	log.Info("scheduling deletion of key: ", usage)
+	log.Info(fmt.Sprintf("deletion of %s key scheduled in %s; id: %s", usage, duration.String(), keyID))
 
 	time.AfterFunc(duration, func() {
-		log.Info("deleting key on schedule: ", usage)
 
 		err := dal.DB.DeleteKey(keyID, usage)
 		if err != nil {
 			log.WithError(err).Errorf("failed to delete %s key", usage)
 		}
+		log.Info(fmt.Sprintf("deleted %s key on schedule; id: %s", usage, keyID))
+
 	})
 }
 
@@ -209,6 +220,8 @@ func byteSliceToRSAKey(byteKey []byte) (*rsa.PrivateKey, error) {
 /* PASSWORDS */
 type hashPasswordVersion func(string) (string, error)
 type validatePasswordVersion func(string, string) error
+
+// Version determines the hashing and validation functions to use
 type PasswordUtil struct {
 	Version string
 }
@@ -218,6 +231,8 @@ var (
 	errPwdLong  = "password too long"
 	errPwdWrong = "bad credentials"
 )
+
+// keep old function versions when adding a new one to use with old credentials
 var hashFunctions map[string]hashPasswordVersion = map[string]hashPasswordVersion{
 	"v1":   hashPasswordVersion1,
 	"mock": hashPasswordMock,
@@ -227,6 +242,8 @@ var validateFunctions map[string]validatePasswordVersion = map[string]validatePa
 	"mock": validatePasswordMock,
 }
 
+// LatestVersion returns the current version of hashing and validation functions that we're using
+// This version should be used with new credentials
 func LatestVersion() string {
 	return "v1"
 }
@@ -331,10 +348,10 @@ func tokenExpiryTime() *jwt.NumericDate {
 	return jwt.NewNumericDate(time.Now().Add(time.Second * time.Duration(tokenLifeInSeconds)))
 }
 
-// Authenticates user credentials.
+// IssueToken authenticates user credentials.
 // Creates a token.
 // Stores the session.
-// Returns the token string, sessionID, error
+// Returns the token string and sessionID
 func (a Authorizer) IssueToken(username string, pwd string) (*string, *string, error) {
 	_, pwdHash, pwdHashVersion, role, err := dal.DB.ReadUser(username)
 	if err != nil {
@@ -378,9 +395,8 @@ func (a Authorizer) IssueToken(username string, pwd string) (*string, *string, e
 	return &tokenStr, &sessionID, nil
 }
 
-// Checks if the user's session is valid.
-// Checks if the user's token is valid.
-// Returns a new token with updated expiry.
+// ValidateToken  checks whether a session is valid.
+// After validating the user's token, returns a new token with updated expiry.
 func (a Authorizer) ValidateToken(tokenString, sessionID string) (*string, error) {
 
 	username, expiry, err := dal.DB.GetSession(sessionID)
@@ -426,6 +442,7 @@ func (a Authorizer) ValidateToken(tokenString, sessionID string) (*string, error
 	if exp.Before(time.Now()) {
 		return nil, fmt.Errorf("token expired")
 	}
+
 	// refresh token
 	refreshedClaims := Claims{
 		jwt.RegisteredClaims{
@@ -453,6 +470,7 @@ func (a Authorizer) ValidateToken(tokenString, sessionID string) (*string, error
 	return &tokenStr, nil
 }
 
+// TokenClaims returns the claims in a JWT
 func (a Authorizer) TokenClaims(tokenString string) (Claims, error) {
 	parser := jwt.NewParser()
 	var c Claims = Claims{}
@@ -466,13 +484,14 @@ func (a Authorizer) TokenClaims(tokenString string) (Claims, error) {
 	if err != nil {
 		return Claims{}, fmt.Errorf("failed to parse token: %w", err)
 	}
+
 	err = json.Unmarshal(tokenByte, &c)
 	if err != nil {
 		return Claims{}, fmt.Errorf("failed to unmarshal claims: %w", err)
 
 	}
-	return c, nil
 
+	return c, nil
 }
 
 func endSessionAfterDuration(sessionID string, duration time.Duration) {
@@ -486,6 +505,7 @@ func endSessionAfterDuration(sessionID string, duration time.Duration) {
 	})
 }
 
+// CleanupSessions removes expired sessions.
 func CleanupSessions() {
 	expiryTimes, err := dal.DB.GetSessionExpiries()
 	if err != nil {
