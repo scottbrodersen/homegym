@@ -109,33 +109,39 @@ func getSigningKey() (*rsa.PrivateKey, error) {
 	return nil, nil
 }
 
-// Calculates the time until the next scheduled key rotation
-// Schedules the next key rotation.
-// Rinse and repeat.
+// dailyKeyRotation schedules the next key rotation.
+// Calculates the time until the next rotation and schedules the rotation execution.
+// This function is recursive so that once a rotation occurs, the next rotation is scheduled.
 func dailyKeyRotation(keyType string) {
+	// fallback
+	rotationDelay := time.Second * 0
+
 	now := time.Now().UTC()
-	y, m, d := now.Date()
 
-	mPrefix := ""
-	dPrefix := ""
+	h, m, s := now.Clock()
+	seconds := h*3600 + m*60 + s
 
-	if int(m) < 10 {
-		mPrefix = "0"
+	hmsSched := strings.Split(keyRotationTime, ":")
+	hSched, errH := strconv.Atoi(hmsSched[0])
+	mSched, errM := strconv.Atoi(hmsSched[1])
+	sSched, errS := strconv.Atoi(hmsSched[2])
+
+	if errH != nil || errM != nil || errS != nil {
+		log.Warn("error parsing key rotation time -- using fallback delay")
+	} else {
+		secondsSched := hSched*3600 + mSched*60 + sSched
+		secondsToRot := secondsSched - seconds
+
+		// if the scheduled time is in the past, do it tomorrow
+		if secondsToRot < 0 {
+			secondsToRot += 24 * 60 * 60
+		}
+		rotationDelay = time.Second * time.Duration(secondsToRot)
 	}
-	if d < 10 {
-		dPrefix = "0"
-	}
-	// 	RFC3339     = "2006-01-02T15:04:05Z07:00"
-	nextRotationTime, err := time.Parse(time.RFC3339, fmt.Sprintf("%d-%s%d-%s%dT%sZ", y, mPrefix, m, dPrefix, d, keyRotationTime))
-	if err != nil {
-		log.WithError(err).Error("failed to calculate time of next key rotation")
-	}
 
-	duration := time.Second * time.Duration(nextRotationTime.Unix()-now.Unix())
-	log.Info(fmt.Sprintf("Scheduling key rotation to occur in %s", duration.String()))
+	log.Info(fmt.Sprintf("Scheduling %s key rotation to occur in %s", keyType, rotationDelay.String()))
 
-	time.AfterFunc(duration, func() {
-		log.Info("rotating key on schedule: ", keyType)
+	time.AfterFunc(rotationDelay, func() {
 		err := rotateKey(keyType)
 		if err != nil {
 			log.WithError(err).Error("failed to rotate key")
