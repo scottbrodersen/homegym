@@ -39,8 +39,8 @@ var User Role = "user"
 
 // Time of daily key rotation in format "hh:mm:ss".
 var keyRotationTime = "10:00:00"    // default, UTC
-var secondsToDelayKeyDeletion = 300 // 5 mins
-const tokenLifeInSeconds = 300      // 5 mins
+var secondsToDelayKeyDeletion = 600 // 10 mins
+const tokenLifeInSeconds = 600      // 10 mins
 const sessionLifeInMinutes = 1440   // 24 hours
 
 // Set the time of the daily key rotation.

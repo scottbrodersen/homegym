@@ -174,6 +174,7 @@
             dense
             autofocus
             counter
+            v-focus
             @keyup.enter="scope.set"
           />
         </q-popup-edit>

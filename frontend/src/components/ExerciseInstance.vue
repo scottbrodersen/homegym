@@ -122,7 +122,7 @@
         @update:model-value="setExerciseType"
       />
     </div>
-    <div v-else :class="styles.exName">{{ exerciseName }}</div>
+    <div v-else :class="[styles.exName]">{{ exerciseName }}</div>
     <div v-if="props.writable" :class="[styles.blockPadSm]">
       <q-btn
         v-show="!!exerciseName"
@@ -135,9 +135,17 @@
   </div>
   <div :class="[styles.blockPadMed]">
     <div
-      :class="[styles.exPart, styles.horiz]"
+      :class="[styles.horiz, styles.alignCenter]"
       v-for="(part, partIndex) in instance.parts"
     >
+      <div :class="[styles.sibSpMed]" v-if="props.writable">
+        <q-btn
+          round
+          icon="delete"
+          color="primary"
+          @click="toDelete = partIndex"
+        />
+      </div>
       <ExerciseIntensity
         :class="[styles.sibSpMed]"
         :intensity="part.intensity"
@@ -164,7 +172,7 @@
         <div>
           <q-btn
             round
-            icon="edit"
+            icon="arrow_right_alt"
             color="primary"
             @click="
               openVolumeModal(
@@ -177,19 +185,11 @@
             "
           />
         </div>
-        <div>
-          <q-btn
-            round
-            icon="delete"
-            color="primary"
-            @click="toDelete = partIndex"
-          />
-        </div>
       </div>
     </div>
   </div>
   <q-dialog v-model="confirmDelete">
-    <q-card>
+    <q-card dark>
       <q-card-section class="q-pt-none">
         Are you sure you want to delete the exercise?
       </q-card-section>

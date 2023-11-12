@@ -22,6 +22,8 @@
       filled
       dense
       dark
+      v-focus
+      v-select
       @update:model-value="emit('update', intensity)"
     />
   </div>

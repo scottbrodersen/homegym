@@ -213,6 +213,7 @@
           label="Exercise Name"
           :readonly="state == states.READ_ONLY"
           dark
+          v-focus
         />
         <q-select
           v-model="currentExerciseType.intensityType"
