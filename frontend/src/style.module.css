@@ -131,6 +131,7 @@ button:focus-visible {
   border: 1px solid var(--hg-mid);
   border-radius: var(--hg-small);
 }
+
 .sibSpxSmall + .sibSpxSmall {
   margin-left: var(--hg-xsmall);
 }
@@ -173,25 +174,30 @@ button:focus-visible {
   min-width: var(--hg-xlg);
   width: 100%;
 }
+
 .listTitle {
   font-size: 1.25em;
   font-weight: var(--hg-bold-weight);
 }
+
 .grid2Col {
   display: grid;
   grid-template-columns: [leftCol] 45% [spacer] 5% [rightCol] 45%;
   column-gap: var(--hg-small);
   row-gap: var(--hg-small);
 }
+
 .colTitleWrapper {
   display: flex;
   align-self: end;
   align-items: center;
   grid-row: 1;
 }
+
 .leftColumn {
   grid-column: leftCol;
 }
+
 .listRow {
   grid-row: 2;
 }
@@ -221,14 +227,17 @@ header {
 .eventsTable th {
   font-size: 1.25em;
 }
+
 .eventsTable tbody td {
   font-size: 1em;
 }
+
 .eventsTable td,
 .eventsTable th {
   padding: var(--hg-small);
   text-align: center;
 }
+
 .eventsTable th:first-child,
 .eventsTable td:first-child {
   max-width: 25px;
@@ -238,19 +247,23 @@ header {
   font-family: 'Material Icons';
 }
 
-.eventsTable td:last-child {
-  width: var(--hg-xsmall);
+.eventsTable td:last-child,
+.eventsTable th:last-child {
+  width: 0px;
+  padding: 1px;
 }
 
 .eventsTable td.expanded {
   font-family: var(--font-family);
   font-size: 1em;
 }
+
 .eventsTable td.expanded a {
   position: absolute;
   right: 25px;
   top: 25px;
 }
+
 .eventsTable td.expanded > a + div {
   line-height: 3em;
   border-bottom: 1px solid var(--hg-mid);
@@ -287,6 +300,7 @@ header {
 .selExercise {
   width: 140px;
 }
+
 .inputIntensity {
   width: 7em;
 }
@@ -316,12 +330,15 @@ header {
 .hgRepFail {
   line-height: 30px;
 }
+
 .hgRepGood {
   color: white;
 }
+
 .hgRepFail {
   color: red;
 }
+
 .repCountSet {
   color: white;
   display: flex;
@@ -336,23 +353,17 @@ header {
   font-size: 1em;
   font-weight: var(--hg-bold-weight);
   margin: 0px;
-
   display: flex;
   justify-content: flex-start;
   align-items: baseline;
   padding: 0px;
 }
+
 .exName {
   color: var(--hg-yellow);
   font-weight: var(--hg-bold-weight);
   width: 80px;
   overflow-wrap: break-word;
-}
-
-.exPart {
-  display: flex;
-  align-items: flex-start;
-  padding: 6px;
 }
 
 .volume {
@@ -376,8 +387,9 @@ header {
 }
 
 main {
-  padding: 8px 0px 8px 0px;
+  margin-top: var(--hg-med);
 }
+
 @media (prefers-color-scheme: light) {
   :root {
     color: var(--hg-white);
@@ -390,6 +402,7 @@ main {
     background-color: #f9f9f9;
   }
 }
+
 @media (prefers-color-scheme: dark) {
   :root {
     color: var(--hg-white);

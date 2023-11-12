@@ -97,7 +97,13 @@
   <q-dialog ref="dialogRef" @hide="onDialogHide">
     <q-card class="q-dialog-plugin">
       <q-form>
-        <q-input v-model="name" filled type="text" label="Activity Name" />
+        <q-input
+          v-model="name"
+          filled
+          v-focus
+          type="text"
+          label="Activity Name"
+        />
       </q-form>
 
       <q-card-actions align="right">

@@ -92,7 +92,7 @@
 
 <template>
   <q-dialog ref="dialogRef" @hide="onDialogHide">
-    <q-card class="q-dialog-plugin">
+    <q-card dark class="q-dialog-plugin">
       <div
         :class="[
           styles.horiz,
@@ -102,13 +102,12 @@
           styles.dark,
         ]"
       >
-        <div>
+        <div :class="[styles.exName]">
           {{ exerciseType.name }}
         </div>
-        <div>
+        <div :class="[styles.exName]">
           {{ exerciseType.intensityType }}:
           {{ props.intensity }}
-
           {{ unitsState[exerciseType.intensityType] }}
         </div>
         <div>
@@ -128,6 +127,8 @@
             type="number"
             filled
             dark
+            v-focus
+            v-select
             style="width: 100px"
             @update:model-value="
               (value) => {
@@ -173,7 +174,7 @@
           </div>
         </div>
       </div>
-      <q-card-actions align="right">
+      <q-card-actions dark align="between" :class="[styles.blockBorder]">
         <q-btn color="primary" label="Done" @click="onOKClick" />
         <q-btn color="primary" label="Cancel" @click="onDialogCancel" />
       </q-card-actions>
