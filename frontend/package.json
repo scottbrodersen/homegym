@@ -4,9 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build --mode development",
-    "preview": "vite preview"
+    "dev": "vite build --mode dev",
+    "build": "vite build --mode prod"
   },
   "dependencies": {
     "@quasar/extras": "^1.16.5",
