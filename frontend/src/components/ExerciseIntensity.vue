@@ -9,10 +9,16 @@
   });
   const emit = defineEmits(['update']);
   const intensity = ref(props.intensity);
+
+  // if this is a bodyweight execise, set intensity to 1
+  if (props.type == 'bodyweight') {
+    emit('update', 1);
+  }
 </script>
 <template>
-  <div v-if="props.writable">
+  <div v-if="props.writable && props.type != 'bodyweight'">
     <q-input
+      v-show="props.type != 'bodyweight'"
       :class="[styles.inputIntensity]"
       :label="props.type"
       stack-label
@@ -27,10 +33,15 @@
       @update:model-value="emit('update', intensity)"
     />
   </div>
-  <div v-else :class="[styles.horiz]">
+  <div v-else-if="props.type != 'bodyweight'" :class="[styles.horiz]">
     <div :class="[styles.intensity, styles.sibSpxSmall]">
       {{ props.intensity.toFixed(1) }}
     </div>
     <div :class="[styles.sibSpxSmall]">{{ unitsState[props.type] }}</div>
+  </div>
+  <div v-else>
+    <div :class="[styles.intensity, styles.sibSpxSmall]">
+      {{ props.type }}
+    </div>
   </div>
 </template>

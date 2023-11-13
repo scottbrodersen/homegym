@@ -75,6 +75,22 @@ func TestExerciseTypes(t *testing.T) {
 			{
 				Etype: func() ExerciseType {
 					e := testExerciseType()
+					e.IntensityType = "unsupported"
+					return e
+				}(),
+				Valid: false,
+			},
+			{
+				Etype: func() ExerciseType {
+					e := testExerciseType()
+					e.VolumeType = "unsupported"
+					return e
+				}(),
+				Valid: false,
+			},
+			{
+				Etype: func() ExerciseType {
+					e := testExerciseType()
 					e.Name = ""
 					return e
 				}(),
