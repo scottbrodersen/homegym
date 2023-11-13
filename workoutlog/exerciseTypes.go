@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"regexp"
+	"slices"
 )
 
 // Defines an exercise
@@ -23,7 +24,7 @@ type ExerciseType struct {
 // 2 is restricted to either 1 or 0 (success/failure)
 var volumeConstraints []int = []int{0, 1, 2}
 var volumeTypes []string = []string{"count", "distance", "time"}
-var intensityTypes []string = []string{"weight", "distance", "hrZone", "rpe", "percentOfMax"}
+var intensityTypes []string = []string{"weight", "distance", "hrZone", "rpe", "percentOfMax", "bodyweight"}
 
 func (e ExerciseType) CreateInstance() ExerciseInstance {
 	return ExerciseInstance{
@@ -33,13 +34,22 @@ func (e ExerciseType) CreateInstance() ExerciseInstance {
 }
 
 // validateInstance ensures intensity and volume values are valid for the exercise type
+// It also massages data for some types:
+//   - scale-based intensity values are stripped of decimals
+//   - distance and weight intensity values are truncated to single decimals
+//   - bodyweight intensity values are set to 1
+//   - non-rep-based volume values are truncated to single decimals
 func (et ExerciseType) validateInstance(ei *ExerciseInstance) error {
 	for i, segment := range ei.Segments {
+		// Validate intenstiy values
 		if segment.Intensity <= 0 {
 			return fmt.Errorf("intensity must be greater than zero")
 		}
 
 		switch et.IntensityType {
+
+		case "bodyweight":
+			ei.Segments[i].Intensity = 1
 		case "weight":
 			fallthrough
 		case "distance":
@@ -58,6 +68,7 @@ func (et ExerciseType) validateInstance(ei *ExerciseInstance) error {
 			ei.Segments[i].Intensity = float32(math.Floor(float64(segment.Intensity)))
 		}
 
+		// Validate volume values
 		for j, set := range segment.Volume {
 
 			if len(set) == 0 {
@@ -114,36 +125,23 @@ func (e ExerciseType) validate() error {
 		return fmt.Errorf("id cannot be empty")
 	}
 
-	if e.IntensityType == "" {
-		return fmt.Errorf("intensity type cannot be empty")
+	if slices.Index(intensityTypes, e.IntensityType) < 0 {
+		return fmt.Errorf("invalid intensity type: %s", e.IntensityType)
 	}
 
-	for i, n := range intensityTypes {
-		if e.IntensityType == n {
-			break
-		}
-		if i == len(intensityTypes)-1 {
-			return fmt.Errorf("invalid intensity type: %s", e.IntensityType)
-		}
+	if slices.Index(volumeTypes, e.VolumeType) < 0 {
+		return fmt.Errorf("invalid volume type: %s", e.VolumeType)
 	}
 
-	if e.VolumeType == "" {
-		return fmt.Errorf("volume type cannot be empty")
-	}
-
-	for i, n := range volumeTypes {
-		if e.VolumeType == n {
-			break
-		}
-		if i == len(volumeTypes)-1 {
-			return fmt.Errorf("invalid volume type: %s", e.VolumeType)
-		}
+	if slices.Index(volumeConstraints, e.VolumeConstraint) < 0 {
+		return fmt.Errorf("invalid volume constraint: %d", e.VolumeConstraint)
 	}
 
 	if e.VolumeType == "count" {
 		if e.VolumeConstraint != 1 && e.VolumeConstraint != 2 {
 			return fmt.Errorf("invalid volume constraint: %d", e.VolumeConstraint)
 		}
+
 	} else {
 		if e.VolumeConstraint != 0 {
 			return fmt.Errorf("invalid volume constraint: %d", e.VolumeConstraint)

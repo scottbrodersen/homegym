@@ -105,7 +105,10 @@
         <div :class="[styles.exName]">
           {{ exerciseType.name }}
         </div>
-        <div :class="[styles.exName]">
+        <div
+          v-if="exerciseType.intensityType != 'bodyweight'"
+          :class="[styles.exName]"
+        >
           {{ exerciseType.intensityType }}:
           {{ props.intensity }}
           {{ unitsState[exerciseType.intensityType] }}

@@ -12,7 +12,15 @@ import VolumeModal from './../components/VolumeModal.vue';
 const pageSize = 10;
 const fetchPageSize = 20;
 
-const intensityTypes = ['weight', 'RPE', 'percentOfMax', 'hrZone', 'distance'];
+const intensityTypes = [
+  'weight',
+  'bodyweight',
+  'RPE',
+  'percentOfMax',
+  'hrZone',
+  'distance',
+];
+
 const volumeTypes = ['count', 'time', 'distance'];
 
 const fetchEventPage = async (eventID = '', date = null) => {
