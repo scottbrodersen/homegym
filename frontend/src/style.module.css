@@ -382,6 +382,10 @@ header {
   margin-left: var(--hg-small);
 }
 
+.timeInput {
+  max-width: 60px;
+}
+
 #wrapper {
   max-width: 540px;
 }
