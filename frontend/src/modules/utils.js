@@ -21,6 +21,23 @@ const intensityTypes = [
   'distance',
 ];
 
+const intensityTypeProps = {
+  hrZone: {
+    mask: '#',
+    validate: (value) => {
+      return /^[1-5]$/.test(value);
+    },
+    decimals: 0,
+    prefx: 'HR Zone',
+  },
+  default: {
+    validate: (value) => {
+      return /^[0-9]+\.?[0-9]?$/.test(value);
+    },
+    decimals: 1,
+  },
+};
+
 const volumeTypes = ['count', 'time', 'distance'];
 
 const fetchEventPage = async (eventID = '', date = null) => {
@@ -390,6 +407,7 @@ export {
   login,
   fetchActivityExercises,
   intensityTypes,
+  intensityTypeProps,
   volumeTypes,
   addExerciseType,
   updateExerciseType,

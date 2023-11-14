@@ -3,6 +3,7 @@
   import { activityStore, exerciseTypeStore } from '../modules/state.js';
   import ExerciseIntensity from './ExerciseIntensity.vue';
   import VolumeReps from './VolumeReps.vue';
+  import VolumeTime from './VolumeTime.vue';
   import styles from '../style.module.css';
   import { openVolumeModal } from '../modules/utils.js';
   /*
@@ -93,6 +94,21 @@
     }
   };
 
+  const addSegments = () => {
+    if (
+      exerciseTypeStore.get(instance.value.typeID).intensityType == 'hrZone'
+    ) {
+      for (let i = 1; i < 6; i++) {
+        instance.value.parts.push({
+          intensity: i,
+          volume: [0],
+        });
+      }
+    } else {
+      instance.value.parts.push({ intensity: 0, volume: [] });
+    }
+  };
+
   const deleteSegment = () => {
     instance.value.parts.splice(toDelete.value, 1);
     toDelete.value = null;
@@ -129,7 +145,7 @@
         round
         color="primary"
         icon="add"
-        @click="instance.parts.push({ intensity: 0, volume: [] })"
+        @click="addSegments"
       />
     </div>
   </div>
@@ -137,6 +153,7 @@
     <div
       :class="[styles.horiz, styles.alignCenter]"
       v-for="(part, partIndex) in instance.parts"
+      :key="partIndex"
     >
       <div :class="[styles.sibSpMed]" v-if="props.writable">
         <q-btn
@@ -154,22 +171,23 @@
         @update="(value) => updateIntensity(value, partIndex)"
       />
       <div
-        :class="[
-          styles.volume,
-          styles.sibSpMed,
-          isCountReps ? styles.repCountSet : '',
-        ]"
+        v-if="exerciseTypeStore.get(instance.typeID).volumeType == 'count'"
+        :class="[styles.sibSpMed, styles.horiz, styles.alignCenter]"
       >
-        <VolumeReps
-          v-for="(set, index) in part.volume"
-          :reps="set"
-          :volume-constraint="
-            exerciseTypeStore.get(instance.typeID).volumeConstraint
-          "
-        />
-      </div>
-      <div :class="[styles.actionsArray, styles.mlAuto]" v-if="props.writable">
-        <div>
+        <div :class="[styles.volume, isCountReps ? styles.repCountSet : '']">
+          <VolumeReps
+            v-for="(set, index) in part.volume"
+            :key="index"
+            :reps="set"
+            :volume-constraint="
+              exerciseTypeStore.get(instance.typeID).volumeConstraint
+            "
+          />
+        </div>
+        <div
+          :class="[styles.actionsArray, styles.mlAuto]"
+          v-if="props.writable"
+        >
           <q-btn
             round
             icon="arrow_right_alt"
@@ -185,6 +203,17 @@
             "
           />
         </div>
+      </div>
+      <div v-else :class="[styles.sibSpMed]">
+        <VolumeTime
+          :time="part.volume[0][0]"
+          :writable="props.writable"
+          @update="
+            (value) => {
+              updateVolume({ volume: [[value]], segmentIndex: partIndex });
+            }
+          "
+        />
       </div>
     </div>
   </div>
