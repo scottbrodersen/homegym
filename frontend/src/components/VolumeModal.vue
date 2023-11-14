@@ -32,13 +32,6 @@
       segmentIndex: props.segmentIndex,
     };
 
-    // transform volume values as needed before emitting
-    // volume.value.forEach((vol, i) => {
-    //   if (exerciseType.volumeConstraint === 1) {
-    //     volume.value[i] = repCountToBinaryReps(vol);
-    //   }
-    // });
-
     perfObj.volume = volume.value;
 
     onDialogOK(perfObj);
@@ -77,16 +70,6 @@
       }
       volume.value[index] = vol;
     }
-  };
-
-  // Transforms a rep count to the format used for storing
-  const repCountToBinaryReps = (count) => {
-    const arr = new Array();
-    for (let i = 0; i < count; i++) {
-      arr.push(1);
-    }
-
-    return arr;
   };
 </script>
 
