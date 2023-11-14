@@ -24,6 +24,7 @@
     activityId: String,
     writable: Boolean,
   });
+
   const emit = defineEmits(['update']);
 
   if (!!!props.activityId && !!!props.exerciseInstance.index) {
@@ -34,11 +35,13 @@
 
   // model
   const instance = ref(JSON.parse(JSON.stringify(props.exerciseInstance)));
+
   // initialize an empty instance
   if (!!!instance.value.typeID) {
     instance.value.typeID = '';
     instance.value.parts = [];
   }
+
   const exerciseNames = ref([]);
   const exerciseName = ref('');
   const eTypeIDs = [];
@@ -76,6 +79,7 @@
 
   // index of instance segment to delete
   const toDelete = ref(null);
+
   // model for delete confirmation dialog
   const confirmDelete = computed(() => {
     if (toDelete.value != null) {
@@ -125,6 +129,7 @@
     emit('update', instance.value);
   };
 </script>
+
 <template>
   <div :class="[styles.horiz]">
     <div v-if="props.writable">
