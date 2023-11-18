@@ -121,6 +121,8 @@ func dailyKeyRotation(keyType string) {
 	h, m, s := now.Clock()
 	seconds := h*3600 + m*60 + s
 
+	log.Debug(fmt.Sprintf("Key rotation time is set to %s", keyRotationTime))
+
 	hmsSched := strings.Split(keyRotationTime, ":")
 	hSched, errH := strconv.Atoi(hmsSched[0])
 	mSched, errM := strconv.Atoi(hmsSched[1])
@@ -133,7 +135,7 @@ func dailyKeyRotation(keyType string) {
 		secondsToRot := secondsSched - seconds
 
 		// if the scheduled time is in the past, do it tomorrow
-		if secondsToRot < 0 {
+		if secondsToRot <= 0 {
 			secondsToRot += 24 * 60 * 60
 		}
 		rotationDelay = time.Second * time.Duration(secondsToRot)
