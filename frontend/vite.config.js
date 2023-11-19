@@ -1,6 +1,8 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { quasar, transformAssetUrls } from '@quasar/vite-plugin';
+import { sassTrue } from 'sass';
 
 export default defineConfig(({ command, mode }) => {
   const config = {
@@ -21,6 +23,15 @@ export default defineConfig(({ command, mode }) => {
       outDir: '../server/secured/dist',
       manifest: 'homegym-manifest.json',
       emptyOutDir: true,
+    },
+    test: {
+      reporters: ['verbose', 'json'],
+      outputFile: './test_results/test-output.json',
+      environment: 'jsdom',
+      environmentOptions: {
+        url: 'http://localhost:3000',
+      },
+      globals: true,
     },
   };
 
