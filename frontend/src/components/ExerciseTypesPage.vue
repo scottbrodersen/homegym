@@ -6,6 +6,7 @@
     updateExerciseType,
     intensityTypes,
     volumeTypes,
+    openCompositionModal,
   } from '../modules/utils';
   import styles from '../style.module.css';
   import { computed, ref, onBeforeMount } from 'vue';
@@ -17,11 +18,18 @@
       intensityType: '',
       volumeType: '',
       volumeConstraint: 1,
+      composition: {},
     };
   };
 
   // local state for selected activity
   const currentExerciseType = ref(emptyType());
+  const setComposition = (composition) => {
+    currentExerciseType.value.composition = structuredClone(composition);
+  };
+
+  // model for checkbox
+  const isComposite = ref(false);
 
   const states = {
     READ_ONLY: 0,
@@ -42,14 +50,6 @@
     if (
       !currentExerciseType.value.intensityType ||
       !currentExerciseType.value.volumeType
-    ) {
-      return false;
-    }
-
-    if (
-      currentExerciseType.value.volumeType == 'count' &&
-      (currentExerciseType.value.volumeConstraint !== 1 ||
-        currentExerciseType.value.volumeConstraint !== 2)
     ) {
       return false;
     }
@@ -81,6 +81,12 @@
       currentExerciseType.value,
       exerciseType
     );
+
+    if (!!currentExerciseType.value.composition) {
+      isComposite.value = true;
+    } else {
+      isComposite.value = false;
+    }
   };
 
   const setNewState = () => {
@@ -94,6 +100,13 @@
       currentExerciseType.value.volumeConstraint =
         currentExerciseType.value.volumeType === 'count' ? 1 : 0;
     }
+    // if volume type is not count, make sure volume constraint is 0
+    // and composite is empty
+    if (currentExerciseType.volumeType === 'count') {
+      currentExerciseType.volumeConstraint = 0;
+      currentExerciseType.composition = {};
+    }
+
     // if id, update existing
     // no id, create new and handle the returned id
     try {
@@ -148,6 +161,7 @@
   });
 </script>
 <template>
+  {{ currentExerciseType }}
   <div :class="[styles.grid2Col]">
     <div :class="[styles.colTitleWrapper, styles.leftColumn]">
       <div :class="[styles.listTitle, styles.sibSpSmall]">Exercises</div>
@@ -166,6 +180,7 @@
       <q-list :class="[styles.listStd]" bordered separator>
         <q-item
           clickable
+          dense
           :disable="state != states.READ_ONLY"
           v-for="[id, exType] in exerciseTypeStore.exerciseTypes"
           :key="id"
@@ -205,7 +220,7 @@
       >
         Select an exercise
       </div>
-      <div v-else>
+      <div v-else :class="[styles.vert]">
         <q-input
           v-model="currentExerciseType.name"
           filled
@@ -240,9 +255,52 @@
           :false-value="Number('1')"
           :toggle-indeterminate="false"
           label="Track Failed reps"
-          :disable="state == states.READ_ONLY"
+          :disable="state == states.READ_ONLY || isComposite"
           dark
         />
+        <div :class="[styles.horiz]">
+          <q-checkbox
+            v-show="currentExerciseType.volumeType === 'count'"
+            v-model="isComposite"
+            label="Composite exercise"
+            :disable="
+              state == states.READ_ONLY ||
+              currentExerciseType.volumeConstraint == 2
+            "
+            dark
+          />
+          <div
+            v-show="isComposite && currentExerciseType.volumeType === 'count'"
+            :class="[styles.maxRight, styles.blockPadSm]"
+          >
+            <q-btn
+              round
+              icon="arrow_right_alt"
+              :disable="
+                state == states.READ_ONLY ||
+                currentExerciseType.volumeConstraint == 2
+              "
+              color="primary"
+              @click="
+                openCompositionModal(
+                  currentExerciseType.id,
+                  currentExerciseType.composition,
+                  setComposition
+                )
+              "
+              size="0.65em"
+            />
+          </div>
+        </div>
+        <div
+          v-show="isComposite && currentExerciseType.volumeType === 'count'"
+          :class="[styles.blockPadSm, styles.compShow]"
+        >
+          <div v-for="(value, key) in currentExerciseType.composition">
+            {{ exerciseTypeStore.get(key).name }} x
+            {{ value }}
+          </div>
+        </div>
         <div v-show="state != states.READ_ONLY" :class="[styles.horiz]">
           <q-btn
             color="primary"
