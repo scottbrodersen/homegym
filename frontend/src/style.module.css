@@ -358,7 +358,9 @@ header {
   align-items: baseline;
   padding: 0px;
 }
-
+.compositesDialog {
+  max-width: var(--hg-xxxlg);
+}
 .exName {
   color: var(--hg-yellow);
   font-weight: var(--hg-bold-weight);
@@ -384,6 +386,14 @@ header {
 
 .timeInput {
   max-width: 60px;
+}
+
+.compRep {
+  max-width: 3em;
+}
+
+.compShow {
+  margin-left: var(--hg-lg);
 }
 
 #wrapper {

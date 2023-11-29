@@ -26,7 +26,7 @@ func TestHandleEvents(t *testing.T) {
 		Notes:      "test note",
 	}
 
-	testExType := testExerciseType()
+	testExType := testExerciseTypeNonComposite()
 
 	testInstance := workoutlog.ExerciseInstance{
 		TypeID:   testExType.ID,

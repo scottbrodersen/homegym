@@ -8,6 +8,7 @@ import LoginModal from './../components/LoginModal.vue';
 import { Dialog, Notify } from 'quasar';
 import NewActivityModal from './../components/NewActivityModal.vue';
 import VolumeModal from './../components/VolumeModal.vue';
+import CompositionModal from './../components/CompositionModal.vue';
 
 const pageSize = 10;
 const fetchPageSize = 20;
@@ -198,6 +199,17 @@ const openVolumeModal = (
     })
     .onCancel(() => {})
     .onDismiss(() => {});
+};
+
+const openCompositionModal = (exerciseTypeID, composition, callback) => {
+  Dialog.create({
+    component: CompositionModal,
+    componentProps: { exerciseID: exerciseTypeID, composition: composition },
+  })
+    .onOk((composition) => {
+      callback(composition);
+    })
+    .onCancel(() => {});
 };
 
 const login = async (id, pwd) => {
@@ -419,4 +431,5 @@ export {
   storeEventExerciseInstances,
   openVolumeModal,
   toast,
+  openCompositionModal,
 };

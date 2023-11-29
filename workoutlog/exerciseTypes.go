@@ -10,12 +10,14 @@ import (
 // Defines an exercise
 // Factory for ExerciseInstance
 // Translates instances between the user interface and the db
+// Composition indicates that an exercise is composed of other exercises. Limited to Count types.
 type ExerciseType struct {
-	Name             string `json:"name"`
-	ID               string `json:"id"`
-	IntensityType    string `json:"intensityType"`    // for UI
-	VolumeType       string `json:"volumeType"`       // for data type interpretation and validation
-	VolumeConstraint int    `json:"volumeConstraint"` // for ui, not generally useful for aerobic activities
+	Name             string         `json:"name"`
+	ID               string         `json:"id"`
+	IntensityType    string         `json:"intensityType"`    // for UI
+	VolumeType       string         `json:"volumeType"`       // for data type interpretation and validation
+	VolumeConstraint int            `json:"volumeConstraint"` // for ui, not generally useful for aerobic activities
+	Composition      map[string]int `json:"composition"`      // key is exercise ID, value is number of reps
 }
 
 // Indicates the type of values that can be expressed for volumes
@@ -116,7 +118,7 @@ func (e ExerciseType) validate() error {
 		return fmt.Errorf("name cannot be empty")
 	}
 
-	namerxp := regexp.MustCompile(`^[a-zA-Z0-9_\-&$*@. ]+$`)
+	namerxp := regexp.MustCompile(`^[a-zA-Z0-9_\-&$*@. \+]+$`)
 	if ok := namerxp.MatchString(e.Name); !ok {
 		return fmt.Errorf("name can include letters, digits, _, -, &, $, *, @, ., and spaces")
 	}
@@ -145,6 +147,12 @@ func (e ExerciseType) validate() error {
 	} else {
 		if e.VolumeConstraint != 0 {
 			return fmt.Errorf("invalid volume constraint: %d", e.VolumeConstraint)
+		}
+	}
+
+	if e.Composition != nil {
+		if e.VolumeType != "count" && e.VolumeConstraint != 1 {
+			return fmt.Errorf("composites must use the count volume type with volume constraint of 1")
 		}
 	}
 

@@ -36,9 +36,6 @@ func TestHandleActivities(t *testing.T) {
 		mockActivityManager := newMockActivityAdmin()
 		workoutlog.ActivityManager = mockActivityManager
 
-		mockExerciseManager := workoutlog.NewMockExerciseManager()
-		workoutlog.ExerciseManager = mockExerciseManager
-
 		db := dal.NewMockDal()
 		dal.DB = db
 
