@@ -161,7 +161,6 @@
   });
 </script>
 <template>
-  {{ currentExerciseType }}
   <div :class="[styles.grid2Col]">
     <div :class="[styles.colTitleWrapper, styles.leftColumn]">
       <div :class="[styles.listTitle, styles.sibSpSmall]">Exercises</div>

@@ -15,7 +15,7 @@
   }
 
   exerciseTypeStore.exerciseTypes.forEach((value, key) => {
-    if (key != props.exerciseID) {
+    if (key != props.exerciseID && !!!value.composition) {
       exerciseList.value.push(value);
     }
   });
