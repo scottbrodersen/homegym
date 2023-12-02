@@ -7,6 +7,7 @@
     intensityTypes,
     volumeTypes,
     openCompositionModal,
+    openVariationModal,
   } from '../modules/utils';
   import styles from '../style.module.css';
   import { computed, ref, onBeforeMount } from 'vue';
@@ -19,6 +20,7 @@
       volumeType: '',
       volumeConstraint: 1,
       composition: {},
+      basis: '',
     };
   };
 
@@ -27,9 +29,18 @@
   const setComposition = (composition) => {
     currentExerciseType.value.composition = structuredClone(composition);
   };
+  const setBasis = (id) => {
+    currentExerciseType.value.basis = id;
+    if (id == '') {
+      isVariation.value = false;
+    }
+  };
 
-  // model for checkbox
+  // model for composition checkbox
   const isComposite = ref(false);
+
+  // model for variation checkbox
+  const isVariation = ref(false);
 
   const states = {
     READ_ONLY: 0,
@@ -82,11 +93,8 @@
       exerciseType
     );
 
-    if (!!currentExerciseType.value.composition) {
-      isComposite.value = true;
-    } else {
-      isComposite.value = false;
-    }
+    isComposite.value = !!currentExerciseType.value.composition ? true : false;
+    isVariation.value = !!currentExerciseType.value.basis ? true : false;
   };
 
   const setNewState = () => {
@@ -102,9 +110,18 @@
     }
     // if volume type is not count, make sure volume constraint is 0
     // and composite is empty
-    if (currentExerciseType.volumeType === 'count') {
-      currentExerciseType.volumeConstraint = 0;
-      currentExerciseType.composition = {};
+    if (currentExerciseType.value.volumeType !== 'count') {
+      currentExerciseType.value.volumeConstraint = 0;
+      currentExerciseType.value.composition = {};
+    }
+
+    // if not a composite or variation, make sure the associated references are empty
+    if (!isComposite.value) {
+      currentExerciseType.value.composition = {};
+    }
+
+    if (!isVariation.value) {
+      currentExerciseType.value.basis = '';
     }
 
     // if id, update existing
@@ -115,7 +132,8 @@
           currentExerciseType.value.name,
           currentExerciseType.value.intensityType,
           currentExerciseType.value.volumeType,
-          currentExerciseType.value.volumeConstraint
+          currentExerciseType.value.volumeConstraint,
+          currentExerciseType.value.basis
         );
       } else {
         await updateExerciseType(currentExerciseType.value);
@@ -257,6 +275,41 @@
           :disable="state == states.READ_ONLY || isComposite"
           dark
         />
+
+        <div :class="[styles.horiz]">
+          <q-checkbox
+            v-show="currentExerciseType.volumeType === 'count'"
+            v-model="isVariation"
+            label="Variation"
+            :disable="state == states.READ_ONLY || isComposite"
+            dark
+          />
+          <div
+            v-show="isVariation && currentExerciseType.volumeType === 'count'"
+            :class="[styles.maxRight, styles.blockPadSm]"
+          >
+            <q-btn
+              round
+              icon="arrow_right_alt"
+              :disable="state == states.READ_ONLY || isComposite"
+              color="primary"
+              @click="
+                openVariationModal(
+                  currentExerciseType.id,
+                  currentExerciseType.basis,
+                  setBasis
+                )
+              "
+              size="0.65em"
+            />
+          </div>
+        </div>
+        <div v-show="isVariation" :class="[styles.blockPadSm, styles.compShow]">
+          <div v-if="!!currentExerciseType.basis">
+            {{ exerciseTypeStore.get(currentExerciseType.basis).name }}
+          </div>
+        </div>
+
         <div :class="[styles.horiz]">
           <q-checkbox
             v-show="currentExerciseType.volumeType === 'count'"
@@ -264,7 +317,8 @@
             label="Composite exercise"
             :disable="
               state == states.READ_ONLY ||
-              currentExerciseType.volumeConstraint == 2
+              currentExerciseType.volumeConstraint == 2 ||
+              isVariation
             "
             dark
           />

@@ -170,6 +170,10 @@ button:focus-visible {
   margin-left: auto;
 }
 
+.maxLeft {
+  margin-right: auto;
+}
+
 .listStd {
   min-width: var(--hg-xlg);
   width: 100%;

@@ -60,7 +60,7 @@ func newExerciseType(username string, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := workoutlog.ExerciseManager.NewExerciseType(username, et.Name, et.IntensityType, et.VolumeType, et.VolumeConstraint, et.Composition)
+	id, err := workoutlog.ExerciseManager.NewExerciseType(username, et.Name, et.IntensityType, et.VolumeType, et.VolumeConstraint, et.Composition, et.Basis)
 
 	if err != nil {
 		nu := workoutlog.ErrNameNotUnique
@@ -101,7 +101,7 @@ func updateExerciseType(username, typeID string, w http.ResponseWriter, r *http.
 		return
 	}
 
-	err := workoutlog.ExerciseManager.UpdateExerciseType(username, typeID, updated.Name, updated.IntensityType, updated.VolumeType, updated.VolumeConstraint, updated.Composition)
+	err := workoutlog.ExerciseManager.UpdateExerciseType(username, typeID, updated.Name, updated.IntensityType, updated.VolumeType, updated.VolumeConstraint, updated.Composition, updated.Basis)
 
 	if err != nil {
 		nu := workoutlog.ErrNameNotUnique
