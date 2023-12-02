@@ -128,6 +128,24 @@ func TestExerciseTypes(t *testing.T) {
 				}(),
 				Valid: false,
 			},
+			{
+				Etype: func() ExerciseType {
+					e := testExerciseType()
+					e.VolumeType = "distance"
+					e.Composition = testComposition
+					return e
+				}(),
+				Valid: false,
+			},
+			{
+				Etype: func() ExerciseType {
+					e := testExerciseType()
+					e.Basis = "anyID"
+					e.Composition = testComposition
+					return e
+				}(),
+				Valid: false,
+			},
 		}
 		// add a valid type for each intensity type
 		for _, iType := range intensityTypes {
@@ -147,12 +165,18 @@ func TestExerciseTypes(t *testing.T) {
 			}
 			tests = append(tests, testEtype{Etype: e, Valid: true})
 		}
+		testComposite := testExerciseType()
+		testComposite.Composition = testComposition
+		tests = append(tests, testEtype{Etype: testComposite, Valid: true})
+
+		testVariation := testExerciseType()
+		testVariation.Basis = "anyID"
+		tests = append(tests, testEtype{Etype: testVariation, Valid: true})
 
 		Convey("Then the validation is as expected", func() {
 			for _, v := range tests {
 				So(v.Etype.validate() == nil, ShouldEqual, v.Valid)
 			}
-
 		})
 	})
 

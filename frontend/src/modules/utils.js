@@ -9,6 +9,7 @@ import { Dialog, Notify } from 'quasar';
 import NewActivityModal from './../components/NewActivityModal.vue';
 import VolumeModal from './../components/VolumeModal.vue';
 import CompositionModal from './../components/CompositionModal.vue';
+import VariationModal from './../components/VariationModal.vue';
 
 const pageSize = 10;
 const fetchPageSize = 20;
@@ -212,6 +213,17 @@ const openCompositionModal = (exerciseTypeID, composition, callback) => {
     .onCancel(() => {});
 };
 
+const openVariationModal = (exerciseTypeID, basisID, callback) => {
+  Dialog.create({
+    component: VariationModal,
+    componentProps: { exerciseID: exerciseTypeID, basisID: basisID },
+  })
+    .onOk((id) => {
+      callback(id);
+    })
+    .onCancel(() => {});
+};
+
 const login = async (id, pwd) => {
   const url = '/homegym/login';
   const body = `{"username": "${id}", "password": "${pwd}"}`;
@@ -237,7 +249,8 @@ const addExerciseType = async (
   name,
   intensityType,
   VolumeType,
-  volumeConstraint
+  volumeConstraint,
+  basisID
 ) => {
   const url = '/homegym/api/exercises/';
 
@@ -246,6 +259,7 @@ const addExerciseType = async (
     intensityType: intensityType,
     volumeType: VolumeType,
     volumeConstraint: volumeConstraint,
+    basis: basisID,
   };
 
   const headers = new Headers();
@@ -432,4 +446,5 @@ export {
   openVolumeModal,
   toast,
   openCompositionModal,
+  openVariationModal,
 };

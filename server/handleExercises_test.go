@@ -55,7 +55,7 @@ func TestHandleExercises(t *testing.T) {
 		workoutlog.ExerciseManager = mockEmgr
 
 		Convey("When we receive a request to create a new exercise type", func() {
-			mockEmgr.On("NewExerciseType", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&testExerciseID, nil)
+			mockEmgr.On("NewExerciseType", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&testExerciseID, nil)
 
 			jsonStr, err := json.Marshal(testExerciseType())
 			if err != nil {
@@ -81,7 +81,7 @@ func TestHandleExercises(t *testing.T) {
 		})
 
 		Convey("When we receive a request to create a new non-composite exercise type", func() {
-			mockEmgr.On("NewExerciseType", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&testExerciseID, nil)
+			mockEmgr.On("NewExerciseType", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&testExerciseID, nil)
 
 			jsonStr, err := json.Marshal(testExerciseTypeNonComposite())
 			if err != nil {
@@ -107,7 +107,7 @@ func TestHandleExercises(t *testing.T) {
 		})
 
 		Convey("When we receive a request to create a new exercise type of a non-unique name", func() {
-			mockEmgr.On("NewExerciseType", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, workoutlog.ErrNameNotUnique)
+			mockEmgr.On("NewExerciseType", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, workoutlog.ErrNameNotUnique)
 
 			jsonStr, err := json.Marshal(testExerciseTypeNonComposite())
 			if err != nil {
@@ -149,7 +149,7 @@ func TestHandleExercises(t *testing.T) {
 		})
 
 		Convey("When we receive a request to update an exercise type", func() {
-			mockEmgr.On("UpdateExerciseType", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+			mockEmgr.On("UpdateExerciseType", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
 			jsonStr, err := json.Marshal(testExerciseType())
 			if err != nil {
@@ -169,7 +169,7 @@ func TestHandleExercises(t *testing.T) {
 		})
 
 		Convey("When we receive a request to update a non-composite exercise type", func() {
-			mockEmgr.On("UpdateExerciseType", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+			mockEmgr.On("UpdateExerciseType", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
 			jsonStr, err := json.Marshal(testExerciseTypeNonComposite())
 			if err != nil {
@@ -225,7 +225,7 @@ func TestHandleExercises(t *testing.T) {
 		})
 
 		Convey("When updating an exercise type returns an error", func() {
-			mockEmgr.On("UpdateExerciseType", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(fmt.Errorf("an error"))
+			mockEmgr.On("UpdateExerciseType", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(fmt.Errorf("an error"))
 
 			jsonStr, err := json.Marshal(testExerciseTypeNonComposite())
 			if err != nil {

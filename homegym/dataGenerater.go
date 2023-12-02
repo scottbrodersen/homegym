@@ -76,14 +76,14 @@ func createUser() error {
 }
 
 func createExerciseTypes() error {
-	id, err := workoutlog.ExerciseManager.NewExerciseType(username, "squat", "weight", "count", 1, nil)
+	id, err := workoutlog.ExerciseManager.NewExerciseType(username, "squat", "weight", "count", 1, nil, "")
 	if err != nil {
 		return err
 	}
 	log.Print("squat exercise type created")
 	squatID = *id
 
-	id, err = workoutlog.ExerciseManager.NewExerciseType(username, "snatch", "weight", "count", 2, nil)
+	id, err = workoutlog.ExerciseManager.NewExerciseType(username, "snatch", "weight", "count", 2, nil, "")
 	if err != nil {
 		return err
 	}

@@ -21,13 +21,16 @@ const (
 var testComposition = map[string]int{"id1": 2, "id2": 3}
 
 func TestExercises(t *testing.T) {
-	Convey("Given a dal client", t, func() {
+	Convey("Given a dal client and an exercise manager", t, func() {
 		db := dal.NewMockDal()
 		dal.DB = db
+
+		ExerciseManager = new(exerciseManager)
+
 		Convey("When we create a non-composite ExerciseType", func() {
 			db.On("GetExercises", mock.Anything).Return([][]byte{}, nil)
-			db.On("AddExercise", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
-			id, err := ExerciseManager.NewExerciseType(testUserID, testExerciseName, testIntensity, testVolume, testVolConstraint, nil)
+			db.On("AddExercise", mock.Anything, mock.Anything, mock.Anything).Return(nil)
+			id, err := ExerciseManager.NewExerciseType(testUserID, testExerciseName, testIntensity, testVolume, testVolConstraint, nil, "")
 
 			Convey("Then the exercise id is returned", func() {
 				So(err, ShouldBeNil)
@@ -42,8 +45,8 @@ func TestExercises(t *testing.T) {
 			ex2Json, _ := json.Marshal(exercise2)
 			exercises := [][]byte{ex1Json, ex2Json}
 			db.On("GetExercises", mock.Anything).Return(exercises, nil)
-			db.On("AddExercise", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
-			id, err := ExerciseManager.NewExerciseType(testUserID, testExerciseName, testIntensity, testVolume, testVolConstraint, testComposition)
+			db.On("AddExercise", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+			id, err := ExerciseManager.NewExerciseType(testUserID, testExerciseName, testIntensity, testVolume, testVolConstraint, testComposition, "")
 
 			Convey("Then the exercise id is returned", func() {
 				So(err, ShouldBeNil)
@@ -59,7 +62,7 @@ func TestExercises(t *testing.T) {
 			}
 
 			db.On("GetExercises", mock.Anything).Return([][]byte{exerciseJson}, nil)
-			ed, err := ExerciseManager.NewExerciseType(testUserID, testExerciseName, testIntensity, testVolume, testVolConstraint, nil)
+			ed, err := ExerciseManager.NewExerciseType(testUserID, testExerciseName, testIntensity, testVolume, testVolConstraint, nil, "")
 			Convey("Then no exercise is created", func() {
 				So(err, ShouldNotBeNil)
 				So(errors.Is(err, ErrNameNotUnique), ShouldBeTrue)
@@ -69,8 +72,8 @@ func TestExercises(t *testing.T) {
 
 		Convey("When we attempt to create an exercise composed of non-existant types", func() {
 			db.On("GetExercises", mock.Anything).Return([][]byte{}, nil)
-			db.On("AddExercise", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
-			id, err := ExerciseManager.NewExerciseType(testUserID, testExerciseName, testIntensity, testVolume, testVolConstraint, testComposition)
+			db.On("AddExercise", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+			id, err := ExerciseManager.NewExerciseType(testUserID, testExerciseName, testIntensity, testVolume, testVolConstraint, testComposition, "")
 
 			Convey("Then an error is returned", func() {
 				So(err, ShouldNotBeNil)

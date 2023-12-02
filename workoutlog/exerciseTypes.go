@@ -18,6 +18,7 @@ type ExerciseType struct {
 	VolumeType       string         `json:"volumeType"`       // for data type interpretation and validation
 	VolumeConstraint int            `json:"volumeConstraint"` // for ui, not generally useful for aerobic activities
 	Composition      map[string]int `json:"composition"`      // key is exercise ID, value is number of reps
+	Basis            string         `json:"basis"`            // id of exercise of which this is a variation
 }
 
 // Indicates the type of values that can be expressed for volumes
@@ -154,6 +155,10 @@ func (e ExerciseType) validate() error {
 		if e.VolumeType != "count" && e.VolumeConstraint != 1 {
 			return fmt.Errorf("composites must use the count volume type with volume constraint of 1")
 		}
+	}
+
+	if e.Composition != nil && e.Basis != "" {
+		return fmt.Errorf("cannot be both a composite and a variation")
 	}
 
 	return nil
