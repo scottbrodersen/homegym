@@ -21,6 +21,20 @@ type ExerciseType struct {
 	Basis            string         `json:"basis"`            // id of exercise of which this is a variation
 }
 
+// ExerciseInstance stores data about the performance of an exercise type.
+// Index stores the location in the order of performed exercies in an event
+type ExerciseInstance struct {
+	TypeID   string            `json:"typeID"`
+	Index    uint64            `json:"index"`
+	Segments []ExerciseSegment `json:"parts"`
+}
+
+// ExerciseSegment stores the performance data for an exercise at a specific intensity.
+type ExerciseSegment struct {
+	Intensity float32     `json:"intensity"`
+	Volume    [][]float32 `json:"volume"`
+}
+
 // Indicates the type of values that can be expressed for volumes
 // 0 is no restriction (any float32)
 // 1 is restricted to the value 1 (for counts)
@@ -98,22 +112,7 @@ func (et ExerciseType) validateInstance(ei *ExerciseInstance) error {
 	return nil
 }
 
-// ExerciseInstance stores data about the performance of an exercise type.
-// Index stores the location in the order of performed exercies in an event
-type ExerciseInstance struct {
-	TypeID   string            `json:"typeID"`
-	Index    uint64            `json:"index"`
-	Segments []ExerciseSegment `json:"parts"`
-}
-
-// ExerciseSegment stores the performance metrics for an exercise performed at a specific intensity.
-// The untyped Volume field enables flexibility in expressing volume data.
-// The volume type of the associated exercise type should perform type assertion on the Volume fields.
-type ExerciseSegment struct {
-	Intensity float32     `json:"intensity"`
-	Volume    [][]float32 `json:"volume"`
-}
-
+// validate ensures the exercise type is correctly defined.
 func (e ExerciseType) validate() error {
 	if e.Name == "" {
 		return fmt.Errorf("name cannot be empty")
@@ -151,13 +150,13 @@ func (e ExerciseType) validate() error {
 		}
 	}
 
-	if e.Composition != nil {
+	if e.Composition != nil || len(e.Composition) > 0 {
 		if e.VolumeType != "count" && e.VolumeConstraint != 1 {
 			return fmt.Errorf("composites must use the count volume type with volume constraint of 1")
 		}
 	}
 
-	if e.Composition != nil && e.Basis != "" {
+	if (e.Composition != nil || len(e.Composition) > 0) && e.Basis != "" {
 		return fmt.Errorf("cannot be both a composite and a variation")
 	}
 

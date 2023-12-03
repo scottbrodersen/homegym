@@ -8,6 +8,7 @@
     volumeTypes,
     openCompositionModal,
     openVariationModal,
+    ErrNotLoggedIn,
   } from '../modules/utils';
   import styles from '../style.module.css';
   import { computed, ref, onBeforeMount } from 'vue';
@@ -19,16 +20,23 @@
       intensityType: '',
       volumeType: '',
       volumeConstraint: 1,
-      composition: {},
+      composition: null,
       basis: '',
     };
   };
 
   // local state for selected activity
   const currentExerciseType = ref(emptyType());
+
   const setComposition = (composition) => {
-    currentExerciseType.value.composition = structuredClone(composition);
+    if (composition == null || Object.keys(composition).length == 0) {
+      currentExerciseType.value.composition = null;
+      isComposite.value = false;
+    } else {
+      currentExerciseType.value.composition = structuredClone(composition);
+    }
   };
+
   const setBasis = (id) => {
     currentExerciseType.value.basis = id;
     if (id == '') {
@@ -109,15 +117,15 @@
         currentExerciseType.value.volumeType === 'count' ? 1 : 0;
     }
     // if volume type is not count, make sure volume constraint is 0
-    // and composite is empty
+    // and composite is null
     if (currentExerciseType.value.volumeType !== 'count') {
       currentExerciseType.value.volumeConstraint = 0;
-      currentExerciseType.value.composition = {};
+      currentExerciseType.value.composition = null;
     }
 
     // if not a composite or variation, make sure the associated references are empty
     if (!isComposite.value) {
-      currentExerciseType.value.composition = {};
+      currentExerciseType.value.composition = null;
     }
 
     if (!isVariation.value) {
