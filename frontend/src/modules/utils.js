@@ -312,6 +312,8 @@ const updateExerciseType = async (exerciseType) => {
     throw new Error();
   }
 
+  exerciseTypeStore.add(exerciseType);
+
   return;
 };
 
