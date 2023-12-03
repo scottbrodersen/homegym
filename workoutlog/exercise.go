@@ -40,41 +40,18 @@ func (ea *exerciseManager) NewExerciseType(userID, name, intensity, volume strin
 		return nil, fmt.Errorf("invalid exercise type: %w", err)
 	}
 
-	exercises, err := ea.GetExerciseTypes(userID)
+	// Check that the name isn't already used
+	available, err := isTypeNameAvailable(*ea, userID, name)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get exercises: %w", err)
+		return nil, fmt.Errorf("failed to check name availability: %w", err)
 	}
 
-	for _, e := range exercises {
-		if e.Name == name {
-			return nil, ErrNameNotUnique
-		}
+	if !available {
+		return nil, ErrNameNotUnique
 	}
 
-	for id, _ := range composition {
-		found := false
-		for _, e := range exercises {
-			if id == e.ID {
-				found = true
-				break
-			}
-		}
-		if !found {
-			return nil, fmt.Errorf("composition references unfound exercise type: %s", id)
-		}
-	}
-
-	if newType.Basis != "" {
-		foundBasis := false
-		for _, e := range exercises {
-			if e.ID == newType.Basis {
-				foundBasis = true
-				break
-			}
-		}
-		if !foundBasis {
-			return nil, fmt.Errorf("basis references unfound exercise type: %s", newType.Basis)
-		}
+	if err := checkDependencies(*ea, userID, newType); err != nil {
+		return nil, fmt.Errorf("problem with exercise type: %w", err)
 	}
 
 	exerciseJson, err := json.Marshal(newType)
@@ -132,43 +109,12 @@ func (ea *exerciseManager) UpdateExerciseType(userID, exerciseID, name, intensit
 		}
 
 		if !available {
-			return fmt.Errorf("an exercise type already has that name")
+			return ErrNameNotUnique
 		}
 	}
 
-	// Make sure it's composed of existing exercise types
-	exercises, err := ea.GetExerciseTypes(userID)
-	if err != nil {
-		return fmt.Errorf("failed to get exercises: %w", err)
-	}
-
-	if composition != nil {
-		for id, _ := range composition {
-			found := false
-			for _, e := range exercises {
-				if id == e.ID {
-					found = true
-					break
-				}
-			}
-			if !found {
-				return fmt.Errorf("composition references unfound exercise type: %s", id)
-			}
-		}
-	}
-
-	// make sure the basis exists
-	if updated.Basis != "" {
-		foundBasis := false
-		for _, e := range exercises {
-			if e.ID == updated.Basis {
-				foundBasis = true
-				break
-			}
-		}
-		if !foundBasis {
-			return fmt.Errorf("basis references unfound exercise type: %s", updated.Basis)
-		}
+	if err := checkDependencies(*ea, userID, *eType); err != nil {
+		return fmt.Errorf("problem with exercise type: %w", err)
 	}
 
 	eTypeJSON, err := json.Marshal(updated)
@@ -235,6 +181,43 @@ func isTypeNameAvailable(ea exerciseManager, userID, name string) (bool, error) 
 	}
 
 	return true, nil
+}
+
+func checkDependencies(em exerciseManager, userID string, eType ExerciseType) error {
+	exerciseTypes, err := em.GetExerciseTypes(userID)
+	if err != nil {
+		return fmt.Errorf("failed to get exercises: %w", err)
+	}
+
+	// Check that the composition references existing types
+	for id, _ := range eType.Composition {
+		found := false
+		for _, e := range exerciseTypes {
+			if id == e.ID {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return fmt.Errorf("composition includes unfound exercise type: %s", id)
+		}
+	}
+
+	// Check that the basis exists
+	if eType.Basis != "" {
+		foundBasis := false
+		for _, e := range exerciseTypes {
+			if e.ID == eType.Basis {
+				foundBasis = true
+				break
+			}
+		}
+		if !foundBasis {
+			return fmt.Errorf("basis references unfound exercise type: %s", eType.Basis)
+		}
+	}
+
+	return nil
 }
 
 func NewMockExerciseManager() *mockExerciseManager {
