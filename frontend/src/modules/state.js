@@ -93,6 +93,34 @@ export const exerciseTypeStore = reactive({
   },
 });
 
+export const eventMetricsStore = reactive({
+  eventMetrics: new Map(),
+  add(eventId, metrics) {
+    this.eventMetrics.set(eventId, metrics);
+  },
+  get(eventId) {
+    return !!this.eventMetrics.get(eventId)
+      ? this.eventMetrics.get(eventId)
+      : null;
+  },
+  setMetric(eventId, name, value) {
+    let metric;
+    if (this.eventMetrics.has(eventId)) {
+      metric = this.eventMetrics.get(eventId);
+    } else {
+      metric = {};
+    }
+    metric[name] = value;
+    this.add(eventId, metric);
+  },
+  getMetric(eventId, name) {
+    return this.eventMetrics.has(eventId) &&
+      !!this.eventMetrics.get(eventId)[name]
+      ? this.eventMetrics.get(eventId)[name]
+      : null;
+  },
+});
+
 export const loginModalState = reactive({
   isOpen: false,
   opened() {

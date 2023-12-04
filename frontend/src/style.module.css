@@ -247,14 +247,10 @@ header {
   max-width: 25px;
 }
 
-.eventsTable td:nth-last-child(2) {
-  font-family: 'Material Icons';
-}
-
 .eventsTable td:last-child,
 .eventsTable th:last-child {
   width: 0px;
-  padding: 1px;
+  padding: 2px;
 }
 
 .eventsTable td.expanded {
