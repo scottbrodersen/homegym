@@ -3,6 +3,7 @@
     eventStore,
     activityStore,
     exerciseTypeStore,
+    eventMetricsStore,
   } from '../modules/state.js';
   import { computed, ref, onBeforeMount, Suspense } from 'vue';
   import { QTable, QTr, QTh, QTd, QBtn } from 'quasar';
@@ -61,27 +62,13 @@
       },
       sortable: false,
     },
-    {
-      name: 'note',
-      required: true,
-      label: 'Notes',
-      align: 'left',
-      field: 'notes',
-      format: (val) => {
-        if (!!val) {
-          return 'comment';
-        }
-      },
-      sortable: false,
-    },
   ];
 
   // handles table pagination
   // tops up the eventStore when the last page of the store is requested
   const setPage = async (props) => {
-    //let page = props.pagination.page;
     try {
-      // fetch more events if we are showing the last page
+      // fetch a page if we are showing the last page
       if (
         eventStore.events.length === 0 ||
         props.pagination.page >= eventStore.events.length / pageSize
@@ -91,6 +78,11 @@
         const lastEventDate = lastEvent ? lastEvent.date : 0;
 
         const events = await fetchEventPage(lastEventID, lastEventDate);
+
+        // initialize objects in metrics store
+        events.forEach((event) => {
+          eventMetricsStore.add(event.id, {});
+        });
       }
     } catch (e) {
       if (e instanceof ErrNotLoggedIn) {
@@ -204,6 +196,8 @@
           <q-th :props="props" v-for="col in props.cols" :key="col.name">
             {{ col.label }}
           </q-th>
+          <q-th>Volume</q-th>
+          <q-th>Load</q-th>
           <q-th></q-th>
         </q-tr>
       </template>
@@ -223,6 +217,8 @@
           <q-td v-for="col in props.cols" :key="col.name" :props="props">
             {{ col.value }}
           </q-td>
+          <q-td>{{ eventMetricsStore.getMetric(props.row.id, 'volume') }}</q-td>
+          <q-td>{{ eventMetricsStore.getMetric(props.row.id, 'load') }}</q-td>
           <q-td :style="background(props.row.id)" />
         </q-tr>
         <q-tr v-show="props.expand" :props="props">
@@ -240,7 +236,7 @@
                 motivation: props.row.motivation,
               }"
             />
-            <Suspense timeout="0">
+            <Suspense :key="pagination.page" timeout="0">
               <EventExercises :event-id="props.row.id" />
               <template #fallback> Loading... </template>
             </Suspense>
