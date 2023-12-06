@@ -151,14 +151,15 @@ func TestUsersDal(t *testing.T) {
 	})
 }
 
+var (
+	testActivityID       string = "testActivityID"
+	testExerciseID              = "testExerciseID"
+	testEventTime               = time.Now().Unix()
+	testEventID                 = "testEventID"
+	testExerciseInstance        = []byte("testExercisInstance")
+)
+
 func TestLogItemsDal(t *testing.T) {
-	var (
-		testActivityID       string = "testActivityID"
-		testExerciseID              = "testExerciseID"
-		testEventTime               = time.Now().Unix()
-		testEventID                 = "testEventID"
-		testExerciseInstance        = []byte("testExercisInstance")
-	)
 
 	testExerciseIDs := map[uint64]string{0: "id1", 1: "id2"}
 	testExerciseInstances := map[uint64][]byte{0: testExerciseInstance, 1: testExerciseInstance}

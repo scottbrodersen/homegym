@@ -171,7 +171,6 @@ func (d *MockDal) GetEventActivity(userID, eventID string, eventDate int64) (*st
 	return args.Get(0).(*string), args.Get(1).(*string), args.Get(2).([]string), nil
 }
 
-// GetEvent(userID, activityID, eventID string) (int64, map[string]uint64, []string, string, error)
 func (d *MockDal) GetEventPage(userID, previousEventID string, previousDate int64, pageSize uint64) (
 	[][]byte, error) {
 	args := d.Called(userID, previousEventID, previousDate, pageSize)
@@ -259,3 +258,51 @@ func (d *MockDal) GetSessionExpiries() (map[string]int64, error) {
 }
 
 func (d *MockDal) Destroy() {}
+
+func (d *MockDal) AddProgram(userID, activityID, programID string, program []byte) error {
+	args := d.Called(userID, activityID, programID, program)
+	if args.Error(0) != nil {
+		return args.Error(0)
+	}
+	return nil
+}
+
+func (d *MockDal) GetProgramPage(userID, activityID, previousProgramID string, pageSize uint64) ([][]byte, error) {
+	args := d.Called(userID, activityID, previousProgramID, pageSize)
+	if args.Error(1) != nil {
+		return nil, args.Error(0)
+	}
+	return args.Get(0).([][]byte), nil
+}
+
+func (d *MockDal) AddProgramInstance(userID, activityID, programID, instanceID string, instance []byte) error {
+	args := d.Called(userID, activityID, programID, instanceID, instance)
+	if args.Error(0) != nil {
+		return args.Error(0)
+	}
+	return nil
+}
+func (d *MockDal) GetProgramInstancePage(userID, activityID, programID, instanceID string, pageSize uint64) ([][]byte, error) {
+	args := d.Called(userID, activityID, programID, instanceID)
+	if args.Error(1) != nil {
+		return nil, args.Error(0)
+	}
+	return args.Get(0).([][]byte), nil
+}
+
+func (d *MockDal) SetActiveProgramInstance(userID, activityID, programID, instanceID string) error {
+	args := d.Called(userID, activityID, programID, instanceID)
+	if args.Error(0) != nil {
+		return args.Error(0)
+	}
+
+	return nil
+}
+
+func (d *MockDal) GetActiveProgramInstance(userID, activityID, programID string) ([]byte, error) {
+	args := d.Called(userID, activityID)
+	if args.Error(1) != nil {
+		return nil, args.Error(0)
+	}
+	return args.Get(0).([]byte), nil
+}

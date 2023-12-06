@@ -19,15 +19,13 @@ paths:
           schema:
             type: integer
         - name: date
-          description:
-            The date of the last event that was returned in the previous call.
+          description: The date of the last event that was returned in the previous call.
           in: query
           required: false
           schema:
             type: integer
         - name: previousId
-          description:
-            The ID of the last event that was returned in the previous call.
+          description: The ID of the last event that was returned in the previous call.
           in: query
           required: false
           schema:
@@ -40,7 +38,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/event" # TODO: make this a subset of event data
+                  $ref: '#/components/schemas/event' # TODO: make this a subset of event data
 
     post:
       security:
@@ -50,17 +48,10 @@ paths:
         - events
       operationId: addWorkout
       requestBody:
-        $ref: "#/components/requestBodies/newEvent"
+        $ref: '#/components/requestBodies/newEvent'
       responses:
-        201:
-          description: created
-          content:
-            json/application:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: string
+        '201':
+          $ref: '#/components/responses/201'
 
   /api/events/{date}/{id}:
     parameters:
@@ -78,7 +69,7 @@ paths:
       security:
         - token: []
       description: |
-        Updates an event with the field values included in the request body. 
+        Updates an event with the field values included in the request body.
         A nil request body deletes the event.
       tags:
         - events
@@ -94,7 +85,7 @@ paths:
                 time:
                   type: integer
                 meta:
-                  $ref: "#/components/schemas/eventMeta"
+                  $ref: '#/components/schemas/eventMeta'
       responses:
         200:
           description: OK
@@ -118,17 +109,10 @@ paths:
       tags:
         - events
       requestBody:
-        $ref: "#/components/requestBodies/postExercise"
+        $ref: '#/components/requestBodies/postExercise'
       responses:
-        201:
-          description: created
-          content:
-            json/application:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: string
+        '201':
+          $ref: '#/components/responses/201'
 
   /api/activities:
     get:
@@ -145,7 +129,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/activity"
+                  $ref: '#/components/schemas/activity'
     post:
       security:
         - token: []
@@ -163,16 +147,8 @@ paths:
               required:
                 - name
       responses:
-        201:
-          description: created
-          content:
-            json/application:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-
+        '201':
+          $ref: '#/components/responses/201'
   /api/activities/{id}:
     parameters:
       - name: id
@@ -192,17 +168,10 @@ paths:
         content:
           json/application:
             schema:
-              $ref: "#/components/schemas/activity"
+              $ref: '#/components/schemas/activity'
       responses:
-        201:
-          description: created
-          content:
-            json/application:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: string
+        '201':
+          $ref: '#/components/responses/201'
   /api/activities/{id}/exercises:
     get:
       security:
@@ -218,7 +187,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/exerciseType"
+                  $ref: '#/components/schemas/exerciseType'
   /api/exercises:
     get:
       security:
@@ -234,7 +203,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/exerciseType"
+                  $ref: '#/components/schemas/exerciseType'
     post:
       security:
         - token: []
@@ -242,15 +211,269 @@ paths:
       tags:
         - exercises
       responses:
-        201:
+        '201':
+          $ref: '#/components/responses/201'
+  /api/activities/{activityID}/programs:
+    parameters:
+      - name: activityID
+        description: |
+          The ID of the activity to which the prorams pertain.
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      security:
+        - token: []
+      description: returns a page of programs
+      tags:
+        - programs
+      parameters:
+        - name: count
+          description: The number of programs to return
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: previousId
+          description: |
+            The ID of the last program that was returned in the previous call.
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
           description: OK
           content:
             json/application:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: string
+                type: array
+                items:
+                  $ref: '#/components/schemas/program'
+    post:
+      security:
+        - token: []
+      description: Adds a program.
+      tags:
+        - programs
+      requestBody:
+        description: |
+          A program object.
+        content:
+          json/application:
+            schema:
+              $ref: '#/components/schemas/program'
+      responses:
+        '201':
+          $ref: '#/components/responses/201'
+  /api/activities/{activityID}/programs/{id}:
+    parameters:
+      - name: activityID
+        description: |
+          The ID of the activity to which the proram pertains.
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        description: |
+          The ID of the program.
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      security:
+        - token: []
+      description: returns a program
+      tags:
+        - programs
+      responses:
+        200:
+          description: OK
+          content:
+            json/application:
+              schema:
+                $ref: '#/components/schemas/program'
+    post:
+      security:
+        - token: []
+      description: Updates a program.
+      tags:
+        - programs
+      requestBody:
+        description: |
+          A program object.
+        content:
+          json/application:
+            schema:
+              $ref: '#/components/schemas/program'
+      responses:
+        '200':
+          $ref: '#/components/responses/200'
+  /api/activities/{activityID}/programs/{programID}/instances:
+    parameters:
+      - name: activityID
+        description: |
+          The ID of the activity to which the proram pertains.
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: programID
+        description: |
+          The ID of the program.
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      security:
+        - token: []
+      description: returns a page of program instances
+      tags:
+        - programInstances
+      parameters:
+        - name: count
+          description: The number of instances to return
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: previousId
+          description: |
+            The ID of the last program instance that was returned in the previous call.
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: OK
+          content:
+            json/application:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/programInstance'
+    post:
+      security:
+        - token: []
+      description: Adds a program instance.
+      tags:
+        - programInstances
+      requestBody:
+        description: |
+          A program instance object.
+        content:
+          json/application:
+            schema:
+              $ref: '#/components/schemas/programInstance'
+      responses:
+        '201':
+          $ref: '#/components/responses/201'
+
+  /api/activities/{activityID}/programs/{programID}/instances/active:
+    parameters:
+      - name: activityID
+        description: |
+          The ID of the activity to which the proram pertains.
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: programID
+        description: |
+          The ID of the program.
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      security:
+        - token: []
+      description: returns the active program instance for a program
+      tags:
+        - programInstances
+      responses:
+        200:
+          description: OK
+          content:
+            json/application:
+              schema:
+                $ref: '#/components/schemas/programInstance'
+    post:
+      security:
+        - token: []
+      description: Sets the active program instance for a program.
+      tags:
+        - programInstances
+      parameters:
+        - name: id
+          description: |
+            The ID of the program instance to set as active.
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/200'
+
+  /api/activities/{activityID}/programs/{programID}/instances/{id}:
+    parameters:
+      - name: activityID
+        description: |
+          The ID of the activity to which the proram pertains.
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: programID
+        description: |
+          The ID of the program.
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        description: |
+          The ID of the program instance.
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      security:
+        - token: []
+      description: returns a program instance
+      tags:
+        - programInstances
+      responses:
+        200:
+          description: OK
+          content:
+            json/application:
+              schema:
+                $ref: '#/components/schemas/programInstance'
+    post:
+      security:
+        - token: []
+      description: Updates a program instance.
+      tags:
+        - programInstances
+      requestBody:
+        description: |
+          A program instance object.
+        content:
+          json/application:
+            schema:
+              $ref: '#/components/schemas/programInstance'
+      responses:
+        '200':
+          $ref: '#/components/responses/200'
+
 components:
   schemas:
     activity:
@@ -313,7 +536,7 @@ components:
         parts:
           type: array
           items:
-            $ref: "#components/schemas/set"
+            $ref: '#components/schemas/set'
       required:
         - type
         - index
@@ -341,11 +564,11 @@ components:
         id:
           type: string
         meta:
-          $ref: "#/components/schemas/eventMeta"
+          $ref: '#/components/schemas/eventMeta'
         exercises:
           type: array
           items:
-            $ref: "#/components/schemas/exercise"
+            $ref: '#/components/schemas/exercise'
       required:
         - activityID
         - date
@@ -359,10 +582,104 @@ components:
         id:
           type: string
         meta:
-          $ref: "#/components/schemas/eventMeta"
+          $ref: '#/components/schemas/eventMeta'
       required:
         - activityID
         - date
+    workoutSegment:
+      type: object
+      properties:
+        exerciseTypeID:
+          type: string
+        volume:
+          type: string
+        intensity:
+          type: string
+      required:
+        - title
+        - volume
+    workout:
+      type: object
+      properties:
+        title:
+          type: string
+        segments:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/workoutSegment'
+        intensity:
+          type: string
+      required:
+        - title
+        - segments
+    microCycle:
+      type: object
+      properties:
+        title:
+          type: string
+        span:
+          type: number
+        workouts:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/workout'
+        intensity:
+          type: string
+      required:
+        - title
+        - span
+    programBlock:
+      type: object
+      properties:
+        title:
+          type: string
+        microCycles:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/microCycle'
+        intensity:
+          type: string
+      required:
+        - title
+    program:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        activityID:
+          type: string
+        blocks:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/programBlock'
+      required:
+        - title
+        - activityID
+    programInstance:
+      type: object
+      properties:
+        id:
+          type: string
+        programID:
+          type: string
+        title:
+          type: string
+        startEvent:
+          type: string
+        activityID:
+          type: string
+        complete:
+          type: boolean
+        fulfillment:
+          type: object
+          additionalProperties:
+            additionalProperties: true
+      required:
+        - programID
+        - title
+        - activityID
   securitySchemes:
     token:
       type: http
@@ -374,17 +691,26 @@ components:
       content:
         json/application:
           schema:
-            $ref: "#/components/schemas/event"
+            $ref: '#/components/schemas/event'
     newEvent:
       content:
         json/application:
           schema:
-            $ref: "#/components/schemas/newEvent"
+            $ref: '#/components/schemas/newEvent'
     postExercise:
       content:
         json/application:
           schema:
-            $ref: "#/components/schemas/exercise"
+            $ref: '#/components/schemas/exercise'
   responses:
-    200:
+    '200':
       description: OK
+    '201':
+      description: OK
+      content:
+        json/application:
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
