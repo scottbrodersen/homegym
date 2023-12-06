@@ -39,7 +39,7 @@ type requestAuthorizer interface {
 
 const homePath string = "/homegym/home/"
 
-// app internal routes
+// frontend app internal routes
 const eventPath string = "/homegym/event/"
 const activitiesPath string = "/homegym/activities/"
 const exerciseTypesPath string = "/homegym/exercises/"
@@ -49,6 +49,10 @@ var publicMux *http.ServeMux
 var secureGateway http.Handler
 var authorizer requestAuthorizer = auth.NewAuthorizer()
 
+// We use middleware as a bridge between a public mux and secured mux.
+// The public mux routes top-level paths middleware that authenticates the request (a gateway)
+// On successful authenticated, the middleware passes the request to the secured mux.
+// Routes to the login page and signup page are unauthenticated.
 func init() {
 	// Routes accessible after authentication by secureGateway
 	secureMux = http.NewServeMux()
@@ -58,7 +62,7 @@ func init() {
 	secureMux.HandleFunc("/homegym/api/events/", EventsApi)
 	secureMux.Handle("/homegym/home/dist/", http.StripPrefix("/homegym/home", GymFileServer(secured.SecuredEFS)))
 
-	// middleware that authenticates before relaying to handlers
+	// middleware that authenticates before relaying to secure mux
 	secureGateway = newGateway(secureMux)
 
 	// handler for requests to http server

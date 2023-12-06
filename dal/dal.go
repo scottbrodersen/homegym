@@ -21,22 +21,32 @@ type Dstore interface {
 	UpdateActivity(userID, activityID, activityName string) error
 	AddExerciseToActivity(userID, activityID, exerciseID string) error
 	UpdateActivityExercises(userID, activityID string, exIDsToAdd, exIDsToDelete []string) error
+
 	NewUser(id, email, pwdHash, pwdHashVersion, role string) error
 	ReadUser(id string) (*string, *string, *string, *string, error)
 	UpdateUserProfile(id, email string) error
 	UpdateUserPassword(id, pwdHash, pwdVersion string) error
 	ChangeUserRole(id, role string) error
 	UpdatePwdVersion(userID, version string) error
+
 	AddExercise(userID, exerciseID string, exercise []byte) error
 	UpdateExercise(userID, exerciseID string, exercise []byte) error
 	GetExercise(userID, exerciseID string) ([]byte, error)
 	GetExercises(userID string) ([][]byte, error)
+
 	AddEvent(userID, eventID, activityID string, date int64, event []byte) error
 	ShiftEvent(userID, eventID, activityID string, currentDate, newDate int64, event []byte) error
 	GetEvent(userID, eventID string, eventDate int64) ([]byte, error)
 	GetEventPage(userID, previousEventID string, previousDate int64, pageSize uint64) ([][]byte, error)
 	GetEventExercises(userID, eventID string) ([][]byte, error)
 	AddExercisesToEvent(userID, eventID string, exerciseIDs map[uint64]string, exerciseInstances map[uint64][]byte) error
+
+	AddProgram(userID, activityID, programID string, program []byte) error
+	GetProgramPage(userID, activityID, previousProgramID string, pageSize uint64) ([][]byte, error)
+	AddProgramInstance(userID, activityID, programID, instanceID string, instance []byte) error
+	GetProgramInstancePage(userID, activityID, programID, instanceID string, pageSize uint64) ([][]byte, error)
+	SetActiveProgramInstance(userID, activityID, programID, instanceID string) error
+	GetActiveProgramInstance(userID, activityID, programID string) ([]byte, error)
 
 	Destroy()
 	GetKeys(usage string) (map[string][]byte, map[string][]byte, error)
@@ -475,7 +485,7 @@ func (c *DBClient) GetEvent(userID, eventID string, eventDate int64) ([]byte, er
 // For subsequent pages, previousEventID and previousDate are used to identify the last item in the previous page
 func (c *DBClient) GetEventPage(userID, previousEventID string, previousDate int64, pageSize uint64) (
 	[][]byte, error) {
-	//	// user:{id}#event:{date}#id:{id}#activity:{activityID}
+	// user:{id}#event:{date}#id:{id}#activity:{activityID}
 
 	prefix := []string{userKey, userID, eventKey}
 	startPrefix := make([]string, 3)

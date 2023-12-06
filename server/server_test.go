@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/scottbrodersen/homegym/auth"
+	"github.com/scottbrodersen/homegym/programs"
 	"github.com/scottbrodersen/homegym/workoutlog"
 	"github.com/stretchr/testify/mock"
 )
@@ -249,4 +250,92 @@ func (a *MockAuthorizer) TokenClaims(tokenString string) (auth.Claims, error) {
 	}
 
 	return args.Get(0).(auth.Claims), nil
+}
+
+func newMockProgramManager() *MockProgramManager {
+	return new(MockProgramManager)
+}
+
+type MockProgramManager struct {
+	mock.Mock
+}
+
+func (mpm *MockProgramManager) AddProgram(userID string, program programs.Program) (*string, error) {
+	args := mpm.Called(userID, program)
+
+	if args.Error(1) != nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*string), nil
+}
+
+func (mpm *MockProgramManager) UpdateProgram(userID string, program programs.Program) error {
+	args := mpm.Called(userID, program)
+
+	if args.Error(0) != nil {
+		return args.Error(0)
+	}
+
+	return nil
+}
+
+func (mpm *MockProgramManager) GetProgramsPageForActivity(userID, activityID, previousProgramID string, pageSize uint64) ([]programs.Program, error) {
+	args := mpm.Called(userID, activityID, previousProgramID, pageSize)
+
+	if args.Error(1) != nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).([]programs.Program), nil
+}
+
+func (mpm *MockProgramManager) AddProgramInstance(userID string, instance programs.ProgramInstance) (*string, error) {
+	args := mpm.Called(userID, instance)
+
+	if args.Error(1) != nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*string), nil
+}
+
+func (mpm *MockProgramManager) UpdateProgramInstance(userID string, instance programs.ProgramInstance) error {
+	args := mpm.Called(userID, instance)
+
+	if args.Error(0) != nil {
+		return args.Error(0)
+	}
+
+	return nil
+}
+
+func (mpm *MockProgramManager) GetProgramInstancesPage(userID, activityID, programID, previousProgramInstanceID string, pageSize uint64) ([]programs.ProgramInstance, error) {
+	args := mpm.Called(userID, activityID, previousProgramInstanceID, pageSize)
+
+	if args.Error(1) != nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).([]programs.ProgramInstance), nil
+}
+
+func (mpm *MockProgramManager) SetActiveProgramInstance(userID, activityID, programID, instanceID string) error {
+	args := mpm.Called(userID, activityID, programID, instanceID)
+
+	if args.Error(0) != nil {
+		return args.Error(0)
+	}
+
+	return nil
+}
+
+func (mpm *MockProgramManager) GetActiveProgramInstance(userID, activityID, programID string) (*programs.ProgramInstance, error) {
+	args := mpm.Called(userID, activityID, programID)
+
+	if args.Error(1) != nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*programs.ProgramInstance), nil
 }

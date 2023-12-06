@@ -24,6 +24,11 @@ func ActivitiesApi(w http.ResponseWriter, r *http.Request) {
 	rxpRootPath := regexp.MustCompile(fmt.Sprintf("^%s$", rootpath))
 	rxpExercises := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]*)/exercises/?$", rootpath))
 	rxpActivity := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]*)/?$", rootpath))
+	rxpPrograms := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]*)/programs/?$", rootpath))
+	rxpProgramsID := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]*)/programs/([a-zA-Z0-9-]*)/?$", rootpath))
+	rxpProgramInstances := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]*)/programs/([a-zA-Z0-9-]*)/instances/?$", rootpath))
+	rxpProgramInstancesID := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]*)/programs/([a-zA-Z0-9-]*)/instances/([a-zA-Z0-9-]{7,})/?$", rootpath))
+	rxpProgramInstancesActive := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]*)/programs/([a-zA-Z0-9-]*)/instances/active(/|\\?id=[a-zA-Z0-9-]+)?$", rootpath))
 
 	if rxpRootPath.MatchString(r.URL.Path) {
 		if r.Method == http.MethodPost {
@@ -47,6 +52,63 @@ func ActivitiesApi(w http.ResponseWriter, r *http.Request) {
 		activityID := rxpActivity.FindStringSubmatch(r.URL.Path)[1]
 		if r.Method == http.MethodPost {
 			updateActivity(*username, activityID, w, r)
+			return
+		}
+	} else if rxpPrograms.MatchString(r.URL.Path) {
+		activityID := rxpPrograms.FindStringSubmatch(r.URL.Path)[1]
+		if r.Method == http.MethodPost {
+			newProgram(*username, activityID, w, r)
+			return
+		} else if r.Method == http.MethodGet {
+			getProgramPage(*username, activityID, w, r)
+			return
+		}
+	} else if rxpProgramsID.MatchString(r.URL.Path) {
+		ids := rxpProgramsID.FindStringSubmatch(r.URL.Path)
+		activityID := ids[1]
+		programID := ids[2]
+		if r.Method == http.MethodPost {
+			updateProgram(*username, activityID, programID, w, r)
+			return
+		} else if r.Method == http.MethodGet {
+			getProgram(*username, activityID, programID, w, r)
+			return
+		}
+	} else if rxpProgramInstances.MatchString(r.URL.Path) {
+		ids := rxpProgramInstances.FindStringSubmatch(r.URL.Path)
+		activityID := ids[1]
+		programID := ids[2]
+
+		if r.Method == http.MethodPost {
+			addProgramInstance(*username, activityID, programID, w, r)
+			return
+		} else if r.Method == http.MethodGet {
+			getProgramInstancePage(*username, activityID, programID, w, r)
+			return
+		}
+	} else if rxpProgramInstancesID.MatchString(r.URL.Path) {
+		ids := rxpProgramInstancesID.FindStringSubmatch(r.URL.Path)
+		activityID := ids[1]
+		programID := ids[2]
+		instanceID := ids[3]
+
+		if r.Method == http.MethodPost {
+			updateProgramInstance(*username, activityID, programID, instanceID, w, r)
+			return
+		} else if r.Method == http.MethodGet {
+			getProgramInstance(*username, activityID, programID, instanceID, w, r)
+			return
+		}
+	} else if rxpProgramInstancesActive.MatchString(r.URL.Path) {
+		ids := rxpProgramInstancesActive.FindStringSubmatch(r.URL.Path)
+		activityID := ids[1]
+		programID := ids[2]
+
+		if r.Method == http.MethodPost {
+			setActiveProgramInstance(*username, activityID, programID, w, r)
+			return
+		} else if r.Method == http.MethodGet {
+			getActiveProgramInstance(*username, activityID, programID, w, r)
 			return
 		}
 	}
