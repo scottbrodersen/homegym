@@ -47,8 +47,7 @@ func (pi ProgramInstance) validate() error {
 
 type WorkoutSegment struct {
 	ExerciseTypeID string `json:"exerciseTypeID"`
-	Intensity      string `json:"intensity,omitempty"`
-	Volume         string `json:"volume"`
+	Prescription   string `json:"prescription"`
 }
 
 func (ws WorkoutSegment) validate() error {
@@ -56,8 +55,8 @@ func (ws WorkoutSegment) validate() error {
 		return fmt.Errorf("missing exercise type ID")
 	}
 
-	if ws.Volume == "" {
-		return fmt.Errorf("missing volume")
+	if ws.Prescription == "" {
+		return fmt.Errorf("missing prescription")
 	}
 
 	return nil

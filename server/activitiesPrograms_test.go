@@ -32,8 +32,7 @@ const (
 func testSegment() programs.WorkoutSegment {
 	return programs.WorkoutSegment{
 		ExerciseTypeID: testExerciseID,
-		Intensity:      testIntensityStr,
-		Volume:         testVolumeStr,
+		Prescription:   testVolumeStr,
 	}
 }
 
