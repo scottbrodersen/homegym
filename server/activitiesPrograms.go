@@ -93,7 +93,7 @@ func updateProgram(username, activityID, programID string, w http.ResponseWriter
 }
 
 func getProgram(username, activityID, programID string, w http.ResponseWriter, r *http.Request) {
-	page, err := programs.ProgramManager.GetProgramsPageForActivity(username, activityID, programID, uint64(1))
+	page, err := programs.ProgramManager.GetProgramsPageForActivity(username, activityID, programID, int(1))
 
 	if err != nil {
 		http.Error(w, `{"message":"failed to get programs"}`, http.StatusInternalServerError)
@@ -135,7 +135,7 @@ func getProgramPage(username, activityID string, w http.ResponseWriter, r *http.
 		return
 	}
 
-	page, err := programs.ProgramManager.GetProgramsPageForActivity(username, activityID, previousID, uint64(pageSizeInt))
+	page, err := programs.ProgramManager.GetProgramsPageForActivity(username, activityID, previousID, int(pageSizeInt))
 
 	if err != nil {
 		http.Error(w, `{"message":"failed to get programs"}`, http.StatusInternalServerError)
@@ -248,7 +248,7 @@ func updateProgramInstance(username, activityID, programID, instanceID string, w
 }
 
 func getProgramInstance(username, activityID, programID, instanceID string, w http.ResponseWriter, r *http.Request) {
-	page, err := programs.ProgramManager.GetProgramInstancesPage(username, activityID, programID, instanceID, uint64(1))
+	page, err := programs.ProgramManager.GetProgramInstancesPage(username, activityID, programID, instanceID, int(1))
 
 	if err != nil {
 		http.Error(w, `{"message":"failed to get program instance"}`, http.StatusInternalServerError)
@@ -291,7 +291,7 @@ func getProgramInstancePage(username, activityID, programID string, w http.Respo
 		return
 	}
 
-	page, err := programs.ProgramManager.GetProgramInstancesPage(username, activityID, programID, previousProgramInstance[0], uint64(pageSizeInt))
+	page, err := programs.ProgramManager.GetProgramInstancesPage(username, activityID, programID, previousProgramInstance[0], int(pageSizeInt))
 
 	if err != nil {
 		http.Error(w, `{"message":"failed to get program instances"}`, http.StatusInternalServerError)

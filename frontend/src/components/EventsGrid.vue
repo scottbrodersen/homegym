@@ -211,6 +211,7 @@
               round
               :ripple="false"
               @click="expandRow(props)"
+              size="1.5em"
               :icon="props.expand ? 'arrow_drop_down' : 'arrow_right'"
             />
           </q-td>
@@ -251,7 +252,7 @@
       </template>
       <template v-slot:bottom="scope">
         <q-btn
-          :class="[styles.mlAuto]"
+          :class="[styles.maxRight]"
           v-if="scope.pagesNumber > 2"
           icon="first_page"
           color="grey-8"
@@ -262,7 +263,7 @@
           @click="scope.firstPage"
         />
         <q-btn
-          :class="scope.pagesNumber > 2 ? '' : [styles.mlAuto]"
+          :class="scope.pagesNumber > 2 ? '' : [styles.maxRight]"
           icon="chevron_left"
           color="grey-8"
           round
@@ -273,7 +274,7 @@
         />
         <div>Page {{ pagination.page }} of {{ Math.ceil(pagesNumber) }}</div>
         <q-btn
-          :class="scope.pagesNumber > 2 ? '' : [styles.mrAuto]"
+          :class="scope.pagesNumber > 2 ? '' : [styles.maxLeft]"
           icon="chevron_right"
           color="grey-8"
           round
@@ -283,7 +284,7 @@
           @click="scope.nextPage"
         />
         <q-btn
-          :class="[styles.mrAuto]"
+          :class="[styles.maxLeft]"
           v-if="scope.pagesNumber > 2"
           icon="last_page"
           color="grey-8"

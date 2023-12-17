@@ -39,9 +39,9 @@ func testSegment() programs.WorkoutSegment {
 func testWorkout(index int) programs.Workout {
 	return programs.Workout{
 		Title: fmt.Sprintf("%s %d", testWorkoutTitle, index),
-		Segments: map[int]programs.WorkoutSegment{
-			0: testSegment(),
-			1: testSegment(),
+		Segments: []programs.WorkoutSegment{
+			testSegment(),
+			testSegment(),
 		},
 		Intensity: testIntensityStr,
 	}
@@ -52,14 +52,14 @@ func testMicroCycle(index int) programs.MicroCycle {
 		Title:     fmt.Sprintf("%s %d", testMicroCycleTitle, index),
 		Span:      testSpan,
 		Intensity: testIntensityStr,
-		Workouts: map[int]programs.Workout{
-			0: testWorkout(0),
-			1: testWorkout(1),
-			2: testWorkout(2),
-			3: testWorkout(3),
-			4: testWorkout(4),
-			5: testWorkout(5),
-			6: testWorkout(6),
+		Workouts: []programs.Workout{
+			testWorkout(0),
+			testWorkout(1),
+			testWorkout(2),
+			testWorkout(3),
+			testWorkout(4),
+			testWorkout(5),
+			testWorkout(6),
 		},
 	}
 }
@@ -67,11 +67,11 @@ func testMicroCycle(index int) programs.MicroCycle {
 func testBlock(index int) programs.Block {
 	return programs.Block{
 		Title: fmt.Sprintf("%s %d", testBlockTitle, index),
-		MicroCycles: map[int]programs.MicroCycle{
-			0: testMicroCycle(0),
-			1: testMicroCycle(1),
-			2: testMicroCycle(2),
-			3: testMicroCycle(3),
+		MicroCycles: []programs.MicroCycle{
+			testMicroCycle(0),
+			testMicroCycle(1),
+			testMicroCycle(2),
+			testMicroCycle(3),
 		},
 		Intensity: samesiteString(),
 	}
@@ -82,7 +82,7 @@ func testProgram() programs.Program {
 		ID:         testProgramID,
 		Title:      testProgramTitle,
 		ActivityID: testActivityID,
-		Blocks:     map[int]programs.Block{0: testBlock(0), 1: testBlock(1)},
+		Blocks:     []programs.Block{testBlock(0), testBlock(1)},
 	}
 }
 

@@ -25,7 +25,7 @@ type ExerciseType struct {
 // Index stores the location in the order of performed exercies in an event
 type ExerciseInstance struct {
 	TypeID   string            `json:"typeID"`
-	Index    uint64            `json:"index"`
+	Index    int               `json:"index"`
 	Segments []ExerciseSegment `json:"parts"`
 }
 
@@ -57,6 +57,10 @@ func (e ExerciseType) CreateInstance() ExerciseInstance {
 //   - bodyweight intensity values are set to 1
 //   - non-rep-based volume values are truncated to single decimals
 func (et ExerciseType) validateInstance(ei *ExerciseInstance) error {
+	if ei.Index < 0 {
+		return fmt.Errorf("index must be > 0")
+	}
+
 	for i, segment := range ei.Segments {
 		// Validate intenstiy values
 		if segment.Intensity <= 0 {

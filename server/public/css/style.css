@@ -1,3 +1,7 @@
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
 p {
   color: red;
 }
@@ -6,4 +10,19 @@ p {
 }
 .hide {
   display: none;
+}
+h1 {
+  margin: 10px;
+}
+
+.hgtitle {
+  font-family: Palatino, Georgia, erif;
+}
+
+section {
+  margin: 20px 0px 20px 0px;
+}
+
+.signuplink {
+  margin: 40px 0px 20px 0px;
 }

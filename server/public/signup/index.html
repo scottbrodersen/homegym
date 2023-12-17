@@ -9,46 +9,46 @@
     <script src="../js/login.js" defer></script>
   </head>
   <body>
-    <h1>Get a gym membership</h1>
-<form action="/homegym/signup" method="POST">
-    <section>
-      <label for="username">User Name</label>
-      <input
-        id="username"
-        name="username"
-        type="username"
-        placeholder=" "
-        autocomplete="username"
-        required
-      />
-    </section>
+    <h1>Get a membership at <span class="hgtitle">HomeGym</span></h1>
+    <form action="/homegym/signup" method="POST">
+      <section>
+        <label for="username">User Name</label>
+        <input
+          id="username"
+          name="username"
+          type="username"
+          placeholder=" "
+          autocomplete="username"
+          required
+        />
+      </section>
 
-    <section>
-      <label for="email">Email</label>
-      <input id="email" name="email" type="email" placeholder=" " required />
-    </section>
+      <section>
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" placeholder=" " required />
+      </section>
 
-    <section>
-      <label for="password">Password</label>
-      <input
-        id="password"
-        name="password"
-        type="password"
-        autocomplete="password"
-        aria-describedby="password-constraints"
-        required
-      />
-      <button
-        id="toggle-password"
-        type="button"
-        aria-label="Show password as plain text. Warning: this will display your password on the screen."
-      >
-        Show password
-      </button>
-      <div id="password-constraints">Ten or more characters.</div>
-    </section>
+      <section>
+        <label for="password">Password</label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          autocomplete="password"
+          aria-describedby="password-constraints"
+          required
+        />
+        <button
+          id="toggle-password"
+          type="button"
+          aria-label="Show password as plain text. Warning: this will display your password on the screen."
+        >
+          Show password
+        </button>
+        <div id="password-constraints">Ten or more characters.</div>
+      </section>
 
-    <button id="signup">Sign up</button>
+      <button id="signup">Sign up</button>
     </form>
     <div>Already a member? <a href="../login/">Log in</a></div>
   </body>

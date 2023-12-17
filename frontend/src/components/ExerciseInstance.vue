@@ -6,6 +6,14 @@
   import VolumeTime from './VolumeTime.vue';
   import styles from '../style.module.css';
   import { openVolumeModal } from '../modules/utils.js';
+  import {
+    QDialog,
+    QBtn,
+    QCard,
+    QCardActions,
+    QCardSection,
+    QSelect,
+  } from 'quasar';
   /*
   interface exerciseInstance = {
     index: Number
@@ -131,8 +139,8 @@
 </script>
 
 <template>
-  <div :class="[styles.horiz]">
-    <div v-if="props.writable">
+  <div v-if="props.writable" :class="[styles.horiz]">
+    <div>
       <q-select
         :model-value="exerciseName"
         :options="exerciseNames"
@@ -143,8 +151,7 @@
         @update:model-value="setExerciseType"
       />
     </div>
-    <div v-else :class="[styles.exName]">{{ exerciseName }}</div>
-    <div v-if="props.writable" :class="[styles.blockPadSm]">
+    <div :class="[styles.maxRight]">
       <q-btn
         v-show="!!exerciseName"
         round
@@ -154,9 +161,11 @@
       />
     </div>
   </div>
-  <div :class="[styles.blockPadMed]">
+  <div v-else :class="[styles.exName]">{{ exerciseName }}</div>
+
+  <div>
     <div
-      :class="[styles.horiz, styles.alignCenter]"
+      :class="[styles.exInstRow]"
       v-for="(part, partIndex) in instance.parts"
       :key="partIndex"
     >
@@ -168,16 +177,22 @@
           @click="toDelete = partIndex"
         />
       </div>
-      <ExerciseIntensity
-        :class="[styles.sibSpMed]"
-        :intensity="part.intensity"
-        :type="exerciseTypeStore.get(instance.typeID).intensityType"
-        :writable="props.writable"
-        @update="(value) => updateIntensity(value, partIndex)"
-      />
+      <div :class="[styles.sibSpMed]">
+        <ExerciseIntensity
+          :intensity="part.intensity"
+          :type="exerciseTypeStore.get(instance.typeID).intensityType"
+          :writable="props.writable"
+          @update="(value) => updateIntensity(value, partIndex)"
+        />
+      </div>
       <div
         v-if="exerciseTypeStore.get(instance.typeID).volumeType == 'count'"
-        :class="[styles.sibSpMed, styles.horiz, styles.alignCenter]"
+        :class="[
+          styles.sibSpMed,
+          styles.horiz,
+          styles.alignCenter,
+          styles.hg100wide,
+        ]"
       >
         <div :class="[styles.volume, isCountReps ? styles.repCountSet : '']">
           <VolumeReps
@@ -189,10 +204,7 @@
             "
           />
         </div>
-        <div
-          :class="[styles.actionsArray, styles.mlAuto]"
-          v-if="props.writable"
-        >
+        <div v-if="props.writable" :class="[styles.maxRight]">
           <q-btn
             round
             icon="arrow_right_alt"
@@ -232,14 +244,16 @@
         <q-btn
           flat
           label="No"
-          color="primary"
+          color="accent"
+          text-color="dark"
           @click="toDelete = null"
           v-close-popup
         />
         <q-btn
           flat
           label="Yes"
-          color="primary"
+          color="accent"
+          text-color="dark"
           @click="deleteSegment()"
           v-close-popup
         />

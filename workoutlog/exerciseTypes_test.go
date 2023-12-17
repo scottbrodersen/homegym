@@ -197,14 +197,6 @@ func TestExerciseTypes(t *testing.T) {
 			So(err, ShouldBeNil)
 		})
 
-		Convey("When we ingest an exerise instance with a bad index value", func() {
-			exInst := ExerciseInstance{}
-
-			err := json.Unmarshal([]byte(testIncomingWithBadIndex), &exInst)
-
-			So(err, ShouldNotBeNil)
-		})
-
 		Convey("When we ingest an exerise instance with a bad rep value in the volume part", func() {
 			exIncoming := ExerciseInstance{}
 

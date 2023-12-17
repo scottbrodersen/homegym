@@ -29,7 +29,7 @@ export default defineConfig(({ command, mode }) => {
       outputFile: './test_results/test-output.json',
       environment: 'jsdom',
       environmentOptions: {
-        url: 'http://localhost:3000',
+        //        url: 'http://localhost:3000',
       },
       globals: true,
     },

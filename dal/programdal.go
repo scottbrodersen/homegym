@@ -31,7 +31,7 @@ func (c *DBClient) AddProgram(userID, activityID, programID string, program []by
 // GetProgramPage gets a page of programs.
 // To get a specific program, set pageSize to 1.
 // Returns nil if a specific program was requested and not found.
-func (c *DBClient) GetProgramPage(userID, activityID, previousProgramID string, pageSize uint64) ([][]byte, error) {
+func (c *DBClient) GetProgramPage(userID, activityID, previousProgramID string, pageSize int) ([][]byte, error) {
 	prefix := []string{userKey, userID, activityKey, activityID, programKey}
 	var startKey []byte = nil
 	firstPage := true
@@ -84,7 +84,7 @@ func (c *DBClient) AddProgramInstance(userID, activityID, programID, instanceID 
 // GetProgramInstancePage gets a page of program intances.
 // To get a specific instance, set pageSize to 1.
 // Returns nil if a specific instance was requested and not found.
-func (c *DBClient) GetProgramInstancePage(userID, activityID, programID, previousProgramInstanceID string, pageSize uint64) ([][]byte, error) {
+func (c *DBClient) GetProgramInstancePage(userID, activityID, programID, previousProgramInstanceID string, pageSize int) ([][]byte, error) {
 	prefix := []string{userKey, userID, activityKey, activityID, programKey, programID, programInstanceKey}
 	var startKey []byte = nil
 	firstPage := true

@@ -65,6 +65,7 @@
                   v-close-popup
                   label="Close"
                   color="primary"
+                  text-color="dark"
                   flat
                   @click="updateTime()"
                 />
@@ -83,6 +84,7 @@
                   v-close-popup
                   label="Close"
                   color="primary"
+                  text-color="dark"
                   flat
                   @click="updateTime()"
                 />

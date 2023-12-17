@@ -169,58 +169,60 @@
 
 <template>
   <h1 :id="styles.event" :class="[styles.blockPadSm]">Edit Event</h1>
-  <div :class="[styles.vert, styles.alignCenter]">
-    <DatePicker
-      :style="[styles.blockPadMed]"
-      :date-value="thisEvent.date"
-      @update="updateDateValue"
-    />
-    <q-select
-      :class="[styles.selActivity]"
-      :model-value="thisEventActivityName"
-      @update:model-value="setActivity"
-      :options="activityNames"
-      label="Activity"
-      dark
-    />
-    <NewEventMeta
-      :style="[styles.blockPadMed]"
-      :mood="thisEvent.mood"
-      :energy="thisEvent.energy"
-      :motivation="thisEvent.motivation"
-      :overall="thisEvent.overall"
-      :notes="thisEvent.notes"
-      v-show="thisEvent.activityID"
-      @mood="
-        (value) => {
-          thisEvent.mood = value;
-        }
-      "
-      @energy="
-        (value) => {
-          thisEvent.energy = value;
-        }
-      "
-      @motivation="
-        (value) => {
-          thisEvent.motivation = value;
-        }
-      "
-      @overall="
-        (value) => {
-          thisEvent.overall = value;
-        }
-      "
-      @notes="
-        (value) => {
-          thisEvent.notes = value;
-        }
-      "
-    />
-  </div>
-  <div :class="[styles.blockPadMed, styles.vert]">
+  <div :class="[styles.vert]">
+    <div :class="[styles.eventTopRow]">
+      <q-select
+        :class="[styles.selActivity]"
+        :model-value="thisEventActivityName"
+        @update:model-value="setActivity"
+        :options="activityNames"
+        label="Activity"
+        dark
+      />
+      <DatePicker
+        :style="[styles.blockPadMed]"
+        :date-value="thisEvent.date"
+        @update="updateDateValue"
+      />
+    </div>
+    <div :class="[styles.blockPadSm]">
+      <NewEventMeta
+        :mood="thisEvent.mood"
+        :energy="thisEvent.energy"
+        :motivation="thisEvent.motivation"
+        :overall="thisEvent.overall"
+        :notes="thisEvent.notes"
+        v-show="thisEvent.activityID"
+        @mood="
+          (value) => {
+            thisEvent.mood = value;
+          }
+        "
+        @energy="
+          (value) => {
+            thisEvent.energy = value;
+          }
+        "
+        @motivation="
+          (value) => {
+            thisEvent.motivation = value;
+          }
+        "
+        @overall="
+          (value) => {
+            thisEvent.overall = value;
+          }
+        "
+        @notes="
+          (value) => {
+            thisEvent.notes = value;
+          }
+        "
+      />
+    </div>
+
     <div
-      :class="[styles.blockBorder, styles.blockPadSm]"
+      :class="[styles.exInstContainer]"
       v-for="(value, index) in thisEvent.exInstances"
       :key="index"
     >
@@ -233,15 +235,18 @@
     </div>
   </div>
 
-  <div
-    :class="[styles.horiz, styles.maxSpacing, styles.blockPadMed]"
-    v-show="!!thisEvent.activityID"
-  >
+  <div :class="[styles.buttonArray]" v-show="!!thisEvent.activityID">
     <q-btn
       label="Add exercise"
       color="accent"
+      text-color="dark"
       @click="setExerciseInstance(null, null)"
     />
-    <q-btn :label="updateButtonText" color="accent" @click="saveThisEvent" />
+    <q-btn
+      :label="updateButtonText"
+      color="accent"
+      text-color="dark"
+      @click="saveThisEvent"
+    />
   </div>
 </template>

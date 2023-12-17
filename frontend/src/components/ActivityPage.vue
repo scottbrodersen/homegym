@@ -8,6 +8,7 @@
     ErrNotLoggedIn,
     newActivityPrompt,
     ErrNotUnique,
+    states,
   } from '../modules/utils';
   import { QList, QItem, QItemSection, QItemLabel } from 'quasar';
   import styles from '../style.module.css';
@@ -20,10 +21,6 @@
 
   const selectedTypeIDs = ref([]);
 
-  const states = {
-    READ_ONLY: 0,
-    EDIT: 1,
-  };
   const state = ref(states.READ_ONLY);
 
   const setCurrentActivity = async (activity) => {

@@ -11,16 +11,16 @@ import (
 	"github.com/scottbrodersen/homegym/dal"
 )
 
-var DefaultPageSize = uint64(10)
+var DefaultPageSize = int(10)
 var EventManager EventAdmin = new(eventManager)
 var ErrInvalidEvent = fmt.Errorf("invalid event")
 
 type EventAdmin interface {
 	NewEvent(userID string, event Event) (*string, error)
 	AddExercisesToEvent(userID, eventID string, eventDate int64, exercises []ExerciseInstance) error
-	GetPageOfEvents(userID string, previousEvent Event, pageSize uint64) ([]Event, error)
+	GetPageOfEvents(userID string, previousEvent Event, pageSize int) ([]Event, error)
 	GetCachedExerciseType(exerciseTypeID string) *ExerciseType
-	GetEventExercises(userID, eventID string) (map[uint64]ExerciseInstance, error)
+	GetEventExercises(userID, eventID string) (map[int]ExerciseInstance, error)
 	UpdateEvent(userID string, currentDate int64, event Event) error
 }
 
@@ -31,15 +31,15 @@ type Event struct {
 	ActivityID string `json:"activityID"`
 	Date       int64  `json:"date"`
 	EventMeta
-	Exercises map[uint64]ExerciseInstance `json:"exercises"` // key is the exercise index, ensures uniqueness
+	Exercises map[int]ExerciseInstance `json:"exercises"` // key is the exercise index, ensures uniqueness
 }
 
 // zero value represents nil
 type EventMeta struct {
-	Mood       uint64 `json:"mood"`
-	Motivation uint64 `json:"motivation"`
-	Energy     uint64 `json:"energy"`
-	Overall    uint64 `json:"overall"`
+	Mood       int    `json:"mood"`
+	Motivation int    `json:"motivation"`
+	Energy     int    `json:"energy"`
+	Overall    int    `json:"overall"`
 	Notes      string `json:"notes"`
 }
 
@@ -139,8 +139,8 @@ func upsertEvent(userID string, event Event) error {
 
 // overwrites existing exercise that has the same index
 func (em *eventManager) AddExercisesToEvent(userID, eventID string, eventDate int64, exerciseInstances []ExerciseInstance) error {
-	exInstances := map[uint64][]byte{}
-	exTypeIDs := map[uint64]string{}
+	exInstances := map[int][]byte{}
+	exTypeIDs := map[int]string{}
 
 	for k, inst := range exerciseInstances {
 		// check that the activity supports the exercise type
@@ -164,8 +164,8 @@ func (em *eventManager) AddExercisesToEvent(userID, eventID string, eventDate in
 			log.WithError(err).Debug("failed to marshal exercise instance")
 			return fmt.Errorf("failed to add exercise: %w", err)
 		}
-		exInstances[uint64(k)] = instanceByte
-		exTypeIDs[uint64(k)] = inst.TypeID
+		exInstances[int(k)] = instanceByte
+		exTypeIDs[int(k)] = inst.TypeID
 	}
 
 	if err := dal.DB.AddExercisesToEvent(userID, eventID, exTypeIDs, exInstances); err != nil {
@@ -177,7 +177,7 @@ func (em *eventManager) AddExercisesToEvent(userID, eventID string, eventDate in
 	return nil
 }
 
-func (em *eventManager) GetPageOfEvents(userID string, previousEvent Event, pageSize uint64) ([]Event, error) {
+func (em *eventManager) GetPageOfEvents(userID string, previousEvent Event, pageSize int) ([]Event, error) {
 	if pageSize > 100 {
 		return nil, fmt.Errorf("page size cannot exceed 100")
 	}
@@ -206,13 +206,13 @@ func (em *eventManager) GetPageOfEvents(userID string, previousEvent Event, page
 	return events, nil
 }
 
-func (em *eventManager) GetEventExercises(userID, eventID string) (map[uint64]ExerciseInstance, error) {
+func (em *eventManager) GetEventExercises(userID, eventID string) (map[int]ExerciseInstance, error) {
 	storedInstances, err := dal.DB.GetEventExercises(userID, eventID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read event exercises: %w", err)
 	}
 
-	instances := map[uint64]ExerciseInstance{}
+	instances := map[int]ExerciseInstance{}
 
 	for _, stored := range storedInstances {
 		exerciseInstance := ExerciseInstance{}

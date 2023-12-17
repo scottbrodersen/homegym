@@ -5,6 +5,8 @@
   import { metricState } from '../modules/state.js';
   import styles from '../style.module.css';
 
+  const padding = ref('4px 10px');
+
   const toggleMetric = (isMetric) => {
     if (isMetric) {
       metricState.setMetric();
@@ -12,20 +14,23 @@
       metricState.setImperial();
     }
   };
+
   const labels = reactive({
     home: 'Home',
     event: 'Event',
     activities: 'Activities',
     exTypes: 'Exercises',
+    programs: 'Programs',
     metric: 'Metric',
   });
 
   // field names match route names
   const active = reactive({
-    home: false,
+    home: true,
     event: false,
     activities: false,
     exTypes: false,
+    programs: false,
   });
 
   const setActive = (activeId) => {
@@ -62,42 +67,51 @@
 
 <template>
   <header>
-    <nav>
-      <q-btn-group push square>
-        <q-btn
-          :class="{ active: active.home }"
-          :unelevated="active.home"
-          :glossy="!active.home"
-          :label="labels.home"
-          square
-          :to="{ name: 'home' }"
-        />
-        <q-btn
-          :class="{ active: active.activities }"
-          :unelevated="active.activities"
-          :glossy="!active.activities"
-          :label="labels.activities"
-          square
-          :to="{ name: 'activities' }"
-        />
-        <q-btn
-          :class="{ active: active.exTypes }"
-          :unelevated="active.exTypes"
-          :glossy="!active.exTypes"
-          :label="labels.exTypes"
-          square
-          :to="{ name: 'exTypes' }"
-        />
-
-        <q-btn
-          v-if="showTestTools"
-          color="white"
-          text-color="black"
-          label="ZapToken"
-          @click="removeToken"
-        />
-      </q-btn-group>
-    </nav>
+    <q-btn-group push square stretch>
+      <q-btn
+        :class="{ active: active.home }"
+        :unelevated="active.home"
+        :glossy="!active.home"
+        :label="labels.home"
+        square
+        :padding="padding"
+        :to="{ name: 'home' }"
+      />
+      <q-btn
+        :class="{ active: active.activities }"
+        :unelevated="active.activities"
+        :glossy="!active.activities"
+        :label="labels.activities"
+        square
+        :padding="padding"
+        :to="{ name: 'activities' }"
+      />
+      <q-btn
+        :class="{ active: active.exTypes }"
+        :unelevated="active.exTypes"
+        :glossy="!active.exTypes"
+        :label="labels.exTypes"
+        square
+        :padding="padding"
+        :to="{ name: 'exTypes' }"
+      />
+      <q-btn
+        :class="{ active: active.programs }"
+        :unelevated="active.programs"
+        :glossy="!active.programs"
+        :label="labels.programs"
+        square
+        :padding="padding"
+        :to="{ name: 'programs' }"
+      />
+      <q-btn
+        v-if="showTestTools"
+        color="white"
+        text-color="black"
+        label="ZapToken"
+        @click="removeToken"
+      />
+    </q-btn-group>
     <q-toggle
       :label="labels.metric"
       label-left

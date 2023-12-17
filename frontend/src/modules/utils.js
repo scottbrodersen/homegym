@@ -3,6 +3,7 @@ import {
   activityStore,
   exerciseTypeStore,
   loginModalState,
+  programsStore,
 } from './state';
 import LoginModal from './../components/LoginModal.vue';
 import { Dialog, Notify } from 'quasar';
@@ -10,7 +11,7 @@ import NewActivityModal from './../components/NewActivityModal.vue';
 import VolumeModal from './../components/VolumeModal.vue';
 import CompositionModal from './../components/CompositionModal.vue';
 import VariationModal from './../components/VariationModal.vue';
-
+import ProgramModal from './../components/ProgramModal.vue';
 const pageSize = 10;
 const fetchPageSize = 20;
 
@@ -23,21 +24,26 @@ const intensityTypes = [
   'distance',
 ];
 
-const intensityTypeProps = {
-  hrZone: {
-    mask: '#',
-    validate: (value) => {
-      return /^[1-5]$/.test(value);
-    },
-    decimals: 0,
-    prefx: 'HR Zone',
-  },
-  default: {
-    validate: (value) => {
-      return /^[0-9]+\.?[0-9]?$/.test(value);
-    },
-    decimals: 1,
-  },
+const intensityProps = (intensityType) => {
+  if (intensityType == 'hrZone') {
+    return {
+      mask: '#',
+      validate: (value) => {
+        return /^[1-5]$/.test(value);
+      },
+      decimals: 0,
+      prefx: 'HR Zone',
+    };
+  } else {
+    return {
+      mask: '',
+      validate: (value) => {
+        return /^[0-9]+\.?[0-9]?$/.test(value);
+      },
+      decimals: 1,
+      prefix: '',
+    };
+  }
 };
 
 const volumeTypes = ['count', 'time', 'distance'];
@@ -64,6 +70,41 @@ const fetchEventPage = async (eventID = '', date = null) => {
   const eventPage = await resp.json();
   eventStore.addBulk(eventPage);
   return eventPage;
+};
+
+const fetchPrograms = async (activityID) => {
+  let done = false;
+  let lastProgram = '';
+  while (!done) {
+    const programPage = await fetchProgramPage(lastProgram, activityID);
+    programsStore.addBulk(programPage);
+    if (programPage.length < pageSize) {
+      done = true;
+    } else {
+      lastProgram = programPage[programPage.length].id;
+    }
+  }
+};
+
+const fetchProgramPage = async (programID = '', activityID) => {
+  const params = new URLSearchParams();
+
+  params.append('size', fetchPageSize);
+
+  if (programID) params.append('previous', eventID);
+
+  const paramStr = params.toString();
+  const url = `/homegym/api/activities/${activityID}/programs?${paramStr}`;
+  const resp = await fetch(url, {
+    method: 'GET',
+    mode: 'same-origin',
+  });
+
+  if (resp.status == 401) {
+    throw new ErrNotLoggedIn('unauthorized fetch of program page');
+  }
+  const programPage = await resp.json();
+  return programPage;
 };
 
 const fetchActivities = async () => {
@@ -197,6 +238,18 @@ const openVolumeModal = (
   })
     .onOk((perfObj) => {
       callback(perfObj);
+    })
+    .onCancel(() => {})
+    .onDismiss(() => {});
+};
+
+const newProgramModal = (callback) => {
+  Dialog.create({
+    component: ProgramModal,
+    componentProps: {},
+  })
+    .onOk((programProps) => {
+      callback(programProps);
     })
     .onCancel(() => {})
     .onDismiss(() => {});
@@ -340,6 +393,39 @@ const updateActivityExercises = async (activity) => {
 
   activityStore.add(activity);
 };
+const updateProgram = async (program) => {
+  if (!program.activityID) {
+    throw new Error('missing activity ID');
+  }
+  const id = program.id ? program.id : '';
+  const url = `/homegym/api/activities/${program.activityID}/programs/${id}`;
+
+  const headers = new Headers();
+  headers.set('content-type', 'application/json');
+
+  const options = {
+    method: 'POST',
+    body: JSON.stringify(program),
+    headers: headers,
+  };
+
+  const resp = await fetch(url, options);
+
+  if (resp.status == 401) {
+    throw new ErrNotLoggedIn('unauthorized fetch of program');
+  } else if (resp.status < 200 || resp.status >= 300) {
+    console.log('failed to update program');
+    throw new Error();
+  }
+
+  if (!!!program.id) {
+    const respBody = await resp.json();
+
+    program.id = respBody.id;
+  }
+  programsStore.add(program);
+  return program.id;
+};
 
 // event param has no id if it is new
 const storeEvent = async (url, event) => {
@@ -411,6 +497,12 @@ const toast = (message, type) => {
   });
 };
 
+const states = {
+  READ_ONLY: 0,
+  EDIT: 1,
+  NEW: 2,
+};
+
 class ErrNotUnique extends Error {
   constructor(message) {
     super(message);
@@ -425,9 +517,82 @@ class ErrNotLoggedIn extends Error {
   }
 }
 
+class OrderedList {
+  list = [];
+  static #actions = { add: 0, delete: 1, moveback: 2, moveahead: 3 };
+  static get ADD() {
+    return OrderedList.#actions.add;
+  }
+  static get DELETE() {
+    return OrderedList.#actions.delete;
+  }
+  static get MOVEBACK() {
+    return OrderedList.#actions.moveback;
+  }
+  static get MOVEFWD() {
+    return OrderedList.#actions.moveahead;
+  }
+  get list() {
+    return this.list;
+  }
+
+  constructor(arr) {
+    if (arr) {
+      this.list = arr;
+    } else {
+      this.list = [];
+    }
+  }
+
+  /**
+   * Use when the action is issued from the context of the item component
+   * and the component is unaware of its index.
+   * The component emits the action value.
+   */
+  update(action, index) {
+    switch (action) {
+      case OrderedList.#actions.add:
+        this.addItem(index);
+        break;
+      case OrderedList.#actions.delete:
+        this.deleteItem(index);
+        break;
+      case OrderedList.#actions.moveback:
+        this.shiftItemBack(index);
+        break;
+      case OrderedList.#actions.moveahead:
+        this.shiftItemForward(index);
+        break;
+    }
+  }
+  deleteItem(index) {
+    this.list.splice(index, 1);
+  }
+  addItem(index) {
+    if (!index) {
+      this.list.splice(this.list.length, 0, {});
+    } else {
+      this.list.splice(index, 0, {});
+    }
+  }
+  shiftItemBack(index) {
+    if (index > 0 && index < this.list.length) {
+      const moved = this.list.splice(index, 1);
+      this.list.splice(index - 1, 0, moved[0]);
+    }
+  }
+  shiftItemForward(index) {
+    if (index >= 0 && index < this.list.length - 1) {
+      const moved = this.list.splice(index, 1);
+      this.list.splice(index + 1, 0, moved[0]);
+    }
+  }
+}
+
 export {
   authPrompt,
   fetchActivities,
+  fetchPrograms,
   fetchEventPage,
   fetchExerciseTypes,
   fetchEventExercises,
@@ -435,18 +600,22 @@ export {
   login,
   fetchActivityExercises,
   intensityTypes,
-  intensityTypeProps,
+  intensityProps,
   volumeTypes,
   addExerciseType,
   updateExerciseType,
+  updateProgram,
   ErrNotUnique,
   updateActivityExercises,
   ErrNotLoggedIn,
   newActivityPrompt,
+  newProgramModal,
   storeEvent,
   storeEventExerciseInstances,
   openVolumeModal,
   toast,
   openCompositionModal,
   openVariationModal,
+  states,
+  OrderedList,
 };

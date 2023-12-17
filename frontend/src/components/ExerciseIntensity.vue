@@ -2,7 +2,7 @@
   import { unitsState } from '../modules/state.js';
   import styles from '../style.module.css';
   import { ref } from 'vue';
-  import { intensityTypeProps } from '../modules/utils';
+  import { intensityProps } from '../modules/utils';
 
   const props = defineProps({
     intensity: Number,
@@ -10,50 +10,15 @@
     writable: Boolean,
   });
 
+  const formatProps = ref(intensityProps(props.type));
+
+  const formatIntensity = (value) => {
+    return value.toFixed(formatProps.value.decimals);
+  };
+
   const emit = defineEmits(['update']);
 
-  const intensity = ref(props.intensity);
-
-  const mask = ref();
-  const validate = ref(() => {
-    return null;
-  });
-  const decimals = ref(1);
-  const prefx = ref('');
-
-  if (
-    !!intensityTypeProps[props.type] &&
-    !!intensityTypeProps[props.type].mask
-  ) {
-    mask.value = intensityTypeProps[props.type].mask;
-  } else if (!!intensityTypeProps.default.mask) {
-    mask.value = intensityTypeProps.default.mask;
-  }
-
-  if (
-    !!intensityTypeProps[props.type] &&
-    !!intensityTypeProps[props.type].validate
-  ) {
-    validate.value = intensityTypeProps[props.type].validate;
-  } else if (!!intensityTypeProps.default.validate) {
-    validate.value = intensityTypeProps.default.validate;
-  }
-
-  if (
-    !!intensityTypeProps[props.type] &&
-    intensityTypeProps[props.type].decimals != undefined
-  ) {
-    decimals.value = intensityTypeProps[props.type].decimals;
-  } else if (!!intensityTypeProps.default.decimals) {
-    decimals.value = intensityTypeProps.default.decimals;
-  }
-
-  if (
-    !!intensityTypeProps[props.type] &&
-    !!intensityTypeProps[props.type].prefx
-  ) {
-    prefx.value = intensityTypeProps[props.type].prefx;
-  }
+  const intensity = ref(formatIntensity(props.intensity));
 
   // if this is a bodyweight execise, set intensity to 1
   if (props.type == 'bodyweight') {
@@ -63,27 +28,28 @@
 <template>
   <div v-if="props.writable && props.type != 'bodyweight'">
     <q-input
-      v-show="props.type != 'bodyweight'"
       :class="[styles.inputIntensity]"
       :label="props.type"
       stack-label
-      v-model.number="intensity"
-      type="number"
+      v-model="intensity"
       :suffix="unitsState[props.type]"
-      :mask="mask"
-      :rules="[validate]"
+      :mask="formatProps.mask"
+      :rules="[formatProps.validate]"
       lazy-rules
       filled
       dense
       dark
       v-focus
       v-select
+      no-error-icon
+      hide-bottom-space
       @update:model-value="emit('update', intensity)"
     />
   </div>
   <div v-else-if="props.type != 'bodyweight'" :class="[styles.horiz]">
     <div :class="[styles.intensity, styles.sibSpxSmall]">
-      {{ prefx }} {{ props.intensity.toFixed(decimals) }}
+      {{ formatProps.prefix }}
+      {{ props.intensity.toFixed(formatProps.decimals) }}
     </div>
     <div :class="[styles.sibSpxSmall]">{{ unitsState[props.type] }}</div>
   </div>

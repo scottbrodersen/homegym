@@ -9,21 +9,21 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@quasar/extras": "^1.16.5",
-    "quasar": "^2.12.2",
-    "vue": "^3.3.7",
-    "vue-router": "^4.2.4"
+    "@quasar/extras": "^1.16.9",
+    "quasar": "^2.14.3",
+    "vue": "^3.4.15",
+    "vue-router": "^4.2.5"
   },
   "devDependencies": {
-    "@quasar/vite-plugin": "^1.4.1",
-    "@vitejs/plugin-vue": "^4.2.3",
-    "@vitest/browser": "^0.34.6",
+    "@quasar/vite-plugin": "^1.6.0",
+    "@vitejs/plugin-vue": "^5.0.3",
+    "@vitest/browser": "^1.2.2",
     "cross-fetch": "^4.0.0",
     "jsdom": "^22.1.0",
-    "msw": "^2.0.8",
+    "msw": "^2.1.5",
     "sass": "^1.63.6",
-    "vite": "^4.4.0",
-    "vitest": "^0.34.6",
+    "vite": "^5.0.12",
+    "vitest": "^1.2.2",
     "webdriverio": "^8.23.1"
   }
 }

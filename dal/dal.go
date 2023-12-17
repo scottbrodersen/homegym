@@ -37,14 +37,14 @@ type Dstore interface {
 	AddEvent(userID, eventID, activityID string, date int64, event []byte) error
 	ShiftEvent(userID, eventID, activityID string, currentDate, newDate int64, event []byte) error
 	GetEvent(userID, eventID string, eventDate int64) ([]byte, error)
-	GetEventPage(userID, previousEventID string, previousDate int64, pageSize uint64) ([][]byte, error)
+	GetEventPage(userID, previousEventID string, previousDate int64, pageSize int) ([][]byte, error)
 	GetEventExercises(userID, eventID string) ([][]byte, error)
-	AddExercisesToEvent(userID, eventID string, exerciseIDs map[uint64]string, exerciseInstances map[uint64][]byte) error
+	AddExercisesToEvent(userID, eventID string, exerciseIDs map[int]string, exerciseInstances map[int][]byte) error
 
 	AddProgram(userID, activityID, programID string, program []byte) error
-	GetProgramPage(userID, activityID, previousProgramID string, pageSize uint64) ([][]byte, error)
+	GetProgramPage(userID, activityID, previousProgramID string, pageSize int) ([][]byte, error)
 	AddProgramInstance(userID, activityID, programID, instanceID string, instance []byte) error
-	GetProgramInstancePage(userID, activityID, programID, instanceID string, pageSize uint64) ([][]byte, error)
+	GetProgramInstancePage(userID, activityID, programID, instanceID string, pageSize int) ([][]byte, error)
 	SetActiveProgramInstance(userID, activityID, programID, instanceID string) error
 	GetActiveProgramInstance(userID, activityID, programID string) ([]byte, error)
 
@@ -407,7 +407,7 @@ func (c *DBClient) ShiftEvent(userID, eventID, activityID string, currentDate, n
 // All existing exercise instances are deleted before the passed-in instances are added.
 // The key of the exerciseInstances map is the index of the instances which determines order. The value is the instance.
 // The key of the exerciseIDs map coincide with the index of the exerciseInstances map the index of the instances.
-func (c *DBClient) AddExercisesToEvent(userID, eventID string, exerciseIDs map[uint64]string, exerciseInstances map[uint64][]byte) error {
+func (c *DBClient) AddExercisesToEvent(userID, eventID string, exerciseIDs map[int]string, exerciseInstances map[int][]byte) error {
 	delPrefix := []string{userKey, userID, eventKey, eventID, exerciseKey}
 	exEntries, err := readKeyPrefix(c, keyPrefix(delPrefix))
 	if err != nil {
@@ -483,7 +483,7 @@ func (c *DBClient) GetEvent(userID, eventID string, eventDate int64) ([]byte, er
 // Items are iterated in reverse order so a value of zero for previous date returns no results.
 // To get the latest events, set previous date to now.
 // For subsequent pages, previousEventID and previousDate are used to identify the last item in the previous page
-func (c *DBClient) GetEventPage(userID, previousEventID string, previousDate int64, pageSize uint64) (
+func (c *DBClient) GetEventPage(userID, previousEventID string, previousDate int64, pageSize int) (
 	[][]byte, error) {
 	// user:{id}#event:{date}#id:{id}#activity:{activityID}
 
@@ -755,7 +755,7 @@ func readKeyPrefix(c *DBClient, prefix []byte) ([]*badger.Entry, error) {
 	return entries, nil
 }
 
-func readKeyPrefixPage(c *DBClient, previousPrefix, validPrefix []byte, pageSize uint64, exclude string, includePrevious bool, reverse bool) ([]*badger.Entry, error) {
+func readKeyPrefixPage(c *DBClient, previousPrefix, validPrefix []byte, pageSize int, exclude string, includePrevious bool, reverse bool) ([]*badger.Entry, error) {
 	entries := []*badger.Entry{}
 	startPrefix := previousPrefix
 	if previousPrefix == nil {

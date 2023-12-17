@@ -38,7 +38,7 @@ func TestHandleEvents(t *testing.T) {
 		Volume:    [][]float32{{1, 1, 1, 1}},
 	})
 
-	testExercises := map[uint64]workoutlog.ExerciseInstance{1: testInstance}
+	testExercises := map[int]workoutlog.ExerciseInstance{1: testInstance}
 
 	testEvents := []workoutlog.Event{
 		{
@@ -119,7 +119,7 @@ func TestHandleEvents(t *testing.T) {
 			mockEventManager.On("AddExercisesToEvent", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 			mockEventManager.On("GetCachedExerciseType", mock.Anything).Return(&testExType, nil)
 
-			exJson, err := json.Marshal(map[uint64]workoutlog.ExerciseInstance{0: testInstance})
+			exJson, err := json.Marshal(map[int]workoutlog.ExerciseInstance{0: testInstance})
 			if err != nil {
 				t.Fail()
 			}
@@ -150,7 +150,7 @@ func TestHandleEvents(t *testing.T) {
 
 			So(w.Result().StatusCode, ShouldEqual, http.StatusOK)
 
-			returnedExercises := new(map[uint64]workoutlog.ExerciseInstance)
+			returnedExercises := new(map[int]workoutlog.ExerciseInstance)
 			mockEventManager.On("GetCachedExerciseType", mock.Anything).Return(&testExType, nil)
 			So(json.NewDecoder(w.Result().Body).Decode(returnedExercises), ShouldBeNil)
 			So(*returnedExercises, ShouldResemble, testExercises)
