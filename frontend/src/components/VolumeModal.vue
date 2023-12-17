@@ -161,8 +161,18 @@
         </div>
       </div>
       <q-card-actions dark align="between" :class="[styles.blockBorder]">
-        <q-btn color="primary" label="Done" @click="onOKClick" />
-        <q-btn color="primary" label="Cancel" @click="onDialogCancel" />
+        <q-btn
+          color="accent"
+          text-color="dark"
+          label="Done"
+          @click="onOKClick"
+        />
+        <q-btn
+          color="accent"
+          text-color="dark"
+          label="Cancel"
+          @click="onDialogCancel"
+        />
       </q-card-actions>
     </q-card>
   </q-dialog>

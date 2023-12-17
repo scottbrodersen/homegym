@@ -93,6 +93,42 @@ export const exerciseTypeStore = reactive({
   },
 });
 
+export const programsStore = reactive({
+  // key is the activityID, value is a map of (activityID, program)
+  programs: new Map(),
+  add(program) {
+    if (this.programs.get(program.activityID)) {
+      this.programs.get(program.activityID).set(program.id, program);
+    } else {
+      this.programs.set(program.activityID, new Map([[program.id, program]]));
+    }
+  },
+  addBulk(programs) {
+    for (const program of programs) {
+      this.add(program);
+    }
+  },
+  getByActivity(activityID) {
+    if (this.programs.get(activityID)) {
+      const programs = [];
+      const iter = this.programs.get(activityID).values();
+      let p = iter.next();
+      while (!p.done) {
+        programs.push(p.value);
+        p = iter.next();
+      }
+      return programs;
+    }
+    return undefined;
+  },
+  get(activityID, programID) {
+    if (this.programs.has(activityID)) {
+      return this.programs.get(activityID).get(programID);
+    }
+    return undefined;
+  },
+});
+
 export const eventMetricsStore = reactive({
   eventMetrics: new Map(),
   add(eventId, metrics) {

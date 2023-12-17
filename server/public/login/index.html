@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Sign-in form</title>
+    <title>Sign in to HomeGym</title>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -9,42 +9,44 @@
     <script src="../js/login.js" defer></script>
   </head>
   <body>
-    <h1>Sign in</h1>
-<form action="/homegym/login">
-    <section>
-      <label for="username">User Name</label>
-      <input
-        id="username"
-        name="username"
-        type="username"
-        placeholder=" "
-        autocomplete="username"
-        required
-      />
-    </section>
+    <h1>Sign in to <span class="hgtitle">HomeGym</span></h1>
+    <form action="/homegym/login">
+      <section>
+        <label for="username">User Name</label>
+        <input
+          id="username"
+          name="username"
+          type="username"
+          placeholder=" "
+          autocomplete="username"
+          required
+        />
+      </section>
 
-    <section>
-      <label for="password">Password</label>
-      <input
-        id="password"
-        name="password"
-        type="password"
-        autocomplete="password"
-        aria-describedby="password-constraints"
-        required
-      />
-      <button
-        id="toggle-password"
-        type="button"
-        aria-label="Show password as plain text. Warning: this will display your password on the screen."
-      >
-        Show password
-      </button>
-    </section>
+      <section>
+        <label for="password">Password</label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          autocomplete="password"
+          aria-describedby="password-constraints"
+          required
+        />
+        <button
+          id="toggle-password"
+          type="button"
+          aria-label="Show password as plain text. Warning: this will display your password on the screen."
+        >
+          Show password
+        </button>
+      </section>
 
-    <div id="bad" class="hide">Bad credentials</div>
-    <button id="signin">Sign in</button>
-</form>
-    <div><a href="../signup/">Sign up if you don't have an account</a></div>
+      <div id="bad" class="hide">Bad credentials</div>
+      <button id="signin">Sign in</button>
+    </form>
+    <div class="signuplink">
+      <a href="../signup/">Sign up if you don't have an account</a>
+    </div>
   </body>
 </html>

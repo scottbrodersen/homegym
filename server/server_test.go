@@ -110,17 +110,17 @@ func (e *mockEventAdmin) AddExercisesToEvent(userID, eventID string, eventDate i
 	return args.Error(0)
 }
 
-func (e *mockEventAdmin) GetEventExercises(userID, eventID string) (map[uint64]workoutlog.ExerciseInstance, error) {
+func (e *mockEventAdmin) GetEventExercises(userID, eventID string) (map[int]workoutlog.ExerciseInstance, error) {
 	args := e.Called(userID, eventID)
 
 	if args.Error(1) != nil {
 		return nil, args.Error(1)
 	}
 
-	return args.Get(0).(map[uint64]workoutlog.ExerciseInstance), nil
+	return args.Get(0).(map[int]workoutlog.ExerciseInstance), nil
 }
 
-func (e *mockEventAdmin) GetPageOfEvents(userID string, previousEvent workoutlog.Event, pageSize uint64) ([]workoutlog.Event, error) {
+func (e *mockEventAdmin) GetPageOfEvents(userID string, previousEvent workoutlog.Event, pageSize int) ([]workoutlog.Event, error) {
 	args := e.Called(userID, previousEvent, pageSize)
 
 	if args.Error(1) != nil {
@@ -280,7 +280,7 @@ func (mpm *MockProgramManager) UpdateProgram(userID string, program programs.Pro
 	return nil
 }
 
-func (mpm *MockProgramManager) GetProgramsPageForActivity(userID, activityID, previousProgramID string, pageSize uint64) ([]programs.Program, error) {
+func (mpm *MockProgramManager) GetProgramsPageForActivity(userID, activityID, previousProgramID string, pageSize int) ([]programs.Program, error) {
 	args := mpm.Called(userID, activityID, previousProgramID, pageSize)
 
 	if args.Error(1) != nil {
@@ -310,7 +310,7 @@ func (mpm *MockProgramManager) UpdateProgramInstance(userID string, instance pro
 	return nil
 }
 
-func (mpm *MockProgramManager) GetProgramInstancesPage(userID, activityID, programID, previousProgramInstanceID string, pageSize uint64) ([]programs.ProgramInstance, error) {
+func (mpm *MockProgramManager) GetProgramInstancesPage(userID, activityID, programID, previousProgramInstanceID string, pageSize int) ([]programs.ProgramInstance, error) {
 	args := mpm.Called(userID, activityID, previousProgramInstanceID, pageSize)
 
 	if args.Error(1) != nil {

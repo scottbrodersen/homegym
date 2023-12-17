@@ -1,36 +1,25 @@
 <script setup>
-import { useDialogPluginComponent } from "quasar";
-import { login } from "./../modules/utils.js";
-import { ref } from "vue";
-import { loginModalState } from "../modules/state";
-let password = ref("");
-let isPwd = ref(true);
-let username = ref("");
+  import { useDialogPluginComponent } from 'quasar';
+  import { login } from './../modules/utils.js';
+  import { ref } from 'vue';
+  let password = ref('');
+  let isPwd = ref(true);
+  let username = ref('');
 
-defineEmits([
-  // REQUIRED; need to specify some events that your
-  // component will emit through useDialogPluginComponent()
-  ...useDialogPluginComponent.emits,
-]);
+  defineEmits([...useDialogPluginComponent.emits]);
 
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
-  useDialogPluginComponent();
-// dialogRef      - Vue ref to be applied to QDialog
-// onDialogHide   - Function to be used as handler for @hide on QDialog
-// onDialogOK     - Function to call to settle dialog with "ok" outcome
-//                    example: onDialogOK() - no payload
-//                    example: onDialogOK({ /*...*/ }) - with payload
-// onDialogCancel - Function to call to settle dialog with "cancel" outcome
+  const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
+    useDialogPluginComponent();
 
-function onOKClick() {
-  login(username.value, password.value)
-    .then(() => {
-      onDialogOK();
-    })
-    .catch((e) => {
-      console.log(e);
-    });
-}
+  function onOKClick() {
+    login(username.value, password.value)
+      .then(() => {
+        onDialogOK();
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  }
 </script>
 <template>
   <q-dialog persistent ref="dialogRef" @hide="onDialogHide">
@@ -63,8 +52,18 @@ function onOKClick() {
       </form>
 
       <q-card-actions align="right">
-        <q-btn color="primary" label="Log in" @click="onOKClick" />
-        <q-btn color="primary" label="Cancel" @click="onDialogCancel" />
+        <q-btn
+          color="accent"
+          text-color="dark"
+          label="Log in"
+          @click="onOKClick"
+        />
+        <q-btn
+          color="accent"
+          text-color="dark"
+          label="Cancel"
+          @click="onDialogCancel"
+        />
       </q-card-actions>
     </q-card>
   </q-dialog>

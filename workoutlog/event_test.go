@@ -150,7 +150,7 @@ func TestEvents(t *testing.T) {
 			eventsByte, err := getEventPageReturnValuesMaker()
 			db.On("GetEventPage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(eventsByte, err)
 
-			events, err := EventManager.GetPageOfEvents(testUserID, Event{}, uint64(10))
+			events, err := EventManager.GetPageOfEvents(testUserID, Event{}, int(10))
 
 			So(err, ShouldBeNil)
 			So(len(events), ShouldEqual, 10)

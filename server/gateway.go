@@ -17,6 +17,7 @@ var redirectToHome []string = []string{
 	eventPath,
 	activitiesPath,
 	exerciseTypesPath,
+	programsPath,
 }
 
 func newGateway(h http.Handler) *gateway {

@@ -161,10 +161,10 @@ var (
 
 func TestLogItemsDal(t *testing.T) {
 
-	testExerciseIDs := map[uint64]string{0: "id1", 1: "id2"}
-	testExerciseInstances := map[uint64][]byte{0: testExerciseInstance, 1: testExerciseInstance}
-	testExerciseIDs2 := map[uint64]string{0: "id1", 1: "id4", 2: "id3"}
-	testExerciseInstances2 := map[uint64][]byte{0: testExerciseInstance, 1: testExerciseInstance, 2: testExerciseInstance}
+	testExerciseIDs := map[int]string{0: "id1", 1: "id2"}
+	testExerciseInstances := map[int][]byte{0: testExerciseInstance, 1: testExerciseInstance}
+	testExerciseIDs2 := map[int]string{0: "id1", 1: "id4", 2: "id3"}
+	testExerciseInstances2 := map[int][]byte{0: testExerciseInstance, 1: testExerciseInstance, 2: testExerciseInstance}
 
 	defer cleanup()
 	Convey("Given a dal client", t, func() {
@@ -351,7 +351,7 @@ func TestLogItemsDal(t *testing.T) {
 			Convey("And then we get a page of events", func() {
 				// startime must be greater than the most recent test event
 				startTime := testEventTimes[len(testEventTimes)-1] + 1
-				eventsByte, err := client.GetEventPage(testUserID, "", int64(startTime), uint64(pagesize))
+				eventsByte, err := client.GetEventPage(testUserID, "", int64(startTime), int(pagesize))
 				So(err, ShouldBeNil)
 				So(len(eventsByte), ShouldEqual, pagesize)
 				So(eventsByte[0], ShouldResemble, testEvents[len(testEvents)-1])
@@ -363,7 +363,7 @@ func TestLogItemsDal(t *testing.T) {
 				Convey("And then we get a half-size page of events starting at the middle event of the previous full page", func() {
 					startEventID := strings.Split(middleEvent, "_")[0]
 					startTime, _ := strconv.Atoi(strings.Split(middleEvent, "_")[1])
-					events, err := client.GetEventPage(testUserID, startEventID, int64(startTime), uint64(pagesize/2))
+					events, err := client.GetEventPage(testUserID, startEventID, int64(startTime), int(pagesize/2))
 					So(err, ShouldBeNil)
 					So(len(events), ShouldEqual, pagesize/2)
 					lastInPage := string(events[pagesize/2-1])

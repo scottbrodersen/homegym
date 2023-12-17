@@ -43,6 +43,7 @@ const homePath string = "/homegym/home/"
 const eventPath string = "/homegym/event/"
 const activitiesPath string = "/homegym/activities/"
 const exerciseTypesPath string = "/homegym/exercises/"
+const programsPath string = "/homegym/programs/"
 
 var secureMux *http.ServeMux
 var publicMux *http.ServeMux

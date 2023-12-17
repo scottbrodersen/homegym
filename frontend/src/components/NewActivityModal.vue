@@ -100,11 +100,17 @@
       <q-card-actions align="right">
         <q-btn
           color="accent"
+          text-color="dark"
           label="Save"
           @click="onOKClick"
           :disabled="nameIsInValid"
         />
-        <q-btn color="accent" label="Cancel" @click="onDialogCancel" />
+        <q-btn
+          color="accent"
+          text-color="dark"
+          label="Cancel"
+          @click="onDialogCancel"
+        />
       </q-card-actions>
     </q-card>
   </q-dialog>

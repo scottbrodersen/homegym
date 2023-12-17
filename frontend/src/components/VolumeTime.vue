@@ -45,7 +45,7 @@
   };
 </script>
 <template>
-  <div v-if="props.writable" :class="[styles.horiz, styles.actionsArray]">
+  <div v-if="props.writable" :class="[styles.horiz]">
     <q-input
       v-model="time"
       :class="[styles.timeInput]"

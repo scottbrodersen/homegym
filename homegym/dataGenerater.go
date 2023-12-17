@@ -9,6 +9,7 @@ import (
 
 	"github.com/scottbrodersen/homegym/auth"
 	"github.com/scottbrodersen/homegym/dal"
+	"github.com/scottbrodersen/homegym/programs"
 	"github.com/scottbrodersen/homegym/workoutlog"
 )
 
@@ -63,6 +64,10 @@ func AddData() error {
 		}
 
 	}
+
+	addProgram(*activity, "program 1")
+	addProgram(*activity, "program 2")
+
 	return nil
 }
 
@@ -132,10 +137,10 @@ func newEvent(date int64, activityID string) (*workoutlog.Event, error) {
 
 func metaMaker() workoutlog.EventMeta {
 	return workoutlog.EventMeta{
-		Mood:       uint64(rand.Int63n(5)),
-		Motivation: uint64(rand.Int63n(5)),
-		Energy:     uint64(rand.Int63n(5)),
-		Overall:    uint64(rand.Int63n(5)),
+		Mood:       int(rand.Int63n(5)),
+		Motivation: int(rand.Int63n(5)),
+		Energy:     int(rand.Int63n(5)),
+		Overall:    int(rand.Int63n(5)),
 		Notes:      "random note",
 	}
 
@@ -153,13 +158,13 @@ func addExerciseInstances(activity workoutlog.Activity, event workoutlog.Event) 
 		exerciseTypes = append(exerciseTypes, *e)
 	}
 
-	exerciseInstances := map[uint64][]byte{}
-	exerciseIDs := map[uint64]string{}
+	exerciseInstances := map[int][]byte{}
+	exerciseIDs := map[int]string{}
 
 	for i := 0; i < numInstances; i++ {
 		etID := rand.Intn(len(exerciseTypes))
 		inst := exerciseTypes[etID].CreateInstance()
-		inst.Index = uint64(i)
+		inst.Index = int(i)
 		numParts := rand.Intn(3)
 		for p := 0; p <= numParts; p++ {
 			inst.Segments = append(inst.Segments, exerciseSegmentMaker(exerciseTypes[etID]))
@@ -169,8 +174,8 @@ func addExerciseInstances(activity workoutlog.Activity, event workoutlog.Event) 
 		if err != nil {
 			return err
 		}
-		exerciseInstances[uint64(i)] = instByte
-		exerciseIDs[uint64(i)] = inst.TypeID
+		exerciseInstances[int(i)] = instByte
+		exerciseIDs[int(i)] = inst.TypeID
 	}
 
 	err := dal.DB.AddExercisesToEvent(username, event.ID, exerciseIDs, exerciseInstances)
@@ -200,5 +205,89 @@ func exerciseSegmentMaker(exType workoutlog.ExerciseType) workoutlog.ExerciseSeg
 		vol = append(vol, set)
 	}
 	return workoutlog.ExerciseSegment{Intensity: intensity, Volume: vol}
+
+}
+
+func addProgram(activity workoutlog.Activity, title string) {
+
+	microcycle1 := programs.MicroCycle{
+		Title:     "week 1",
+		Span:      7,
+		Intensity: "Intensity of the first week",
+		Workouts: []programs.Workout{
+			workoutMaker("Day1", "heavy single X 5", "heavy double X 3"),
+			workoutMaker("Day2", "80% single X 5", "heavy double X 3"),
+			workoutMaker("Day3", "70% doubles X 5", "heavy double X 3"),
+			workoutMaker("Day4", "max out", "heavy double X 3"),
+		},
+	}
+
+	microcycle2 := programs.MicroCycle{
+		Title:     "week 2",
+		Span:      7,
+		Intensity: "Intensity of the second week",
+		Workouts: []programs.Workout{
+			workoutMaker("Monday", "80% doubles x 3", "heavy double X 3"),
+			workoutMaker("Tuesday", "80% single X 5", "heavy double X 3"),
+			workoutMaker("Thursday", "70% doubles X 5", "heavy double X 3"),
+			workoutMaker("Friday", "max out", "heavy double X 3"),
+		},
+	}
+
+	block1 := programs.Block{
+		Title:     "Max out",
+		Intensity: "High intenstiy",
+		MicroCycles: []programs.MicroCycle{
+			microcycle1,
+			microcycle2,
+		},
+	}
+	block2 := programs.Block{
+		Title:     "Taper",
+		Intensity: "Test",
+		MicroCycles: []programs.MicroCycle{
+			microcycle1,
+			microcycle2,
+		},
+	}
+	program := programs.Program{
+		Title:      title,
+		ActivityID: activity.ID,
+		Blocks: []programs.Block{
+			block1,
+			block2,
+		},
+	}
+
+	_, err := programs.ProgramManager.AddProgram(username, program)
+	if err != nil {
+		fmt.Println("error creating program")
+		fmt.Println(err.Error())
+	}
+
+	fmt.Println("program created")
+}
+
+func workoutMaker(title, pSn, pSq string) programs.Workout {
+	ws1 := programs.WorkoutSegment{
+		ExerciseTypeID: snatchID,
+		Prescription:   pSn,
+	}
+
+	ws2 := programs.WorkoutSegment{
+		ExerciseTypeID: squatID,
+		Prescription:   pSq,
+	}
+
+	segments := []programs.WorkoutSegment{
+		ws1,
+		ws2,
+	}
+
+	return programs.Workout{
+		Title:     title,
+		Segments:  segments,
+		Intensity: "Whatever this is going to look like",
+	}
 
 }

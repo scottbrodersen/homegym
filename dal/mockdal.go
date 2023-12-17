@@ -171,7 +171,7 @@ func (d *MockDal) GetEventActivity(userID, eventID string, eventDate int64) (*st
 	return args.Get(0).(*string), args.Get(1).(*string), args.Get(2).([]string), nil
 }
 
-func (d *MockDal) GetEventPage(userID, previousEventID string, previousDate int64, pageSize uint64) (
+func (d *MockDal) GetEventPage(userID, previousEventID string, previousDate int64, pageSize int) (
 	[][]byte, error) {
 	args := d.Called(userID, previousEventID, previousDate, pageSize)
 
@@ -183,7 +183,7 @@ func (d *MockDal) GetEventPage(userID, previousEventID string, previousDate int6
 
 }
 
-func (d *MockDal) AddExercisesToEvent(userID, eventID string, exerciseIDs map[uint64]string, exerciseInstances map[uint64][]byte) error {
+func (d *MockDal) AddExercisesToEvent(userID, eventID string, exerciseIDs map[int]string, exerciseInstances map[int][]byte) error {
 	args := d.Called(userID, eventID, exerciseIDs, exerciseInstances)
 
 	if args.Error(0) != nil {
@@ -267,7 +267,7 @@ func (d *MockDal) AddProgram(userID, activityID, programID string, program []byt
 	return nil
 }
 
-func (d *MockDal) GetProgramPage(userID, activityID, previousProgramID string, pageSize uint64) ([][]byte, error) {
+func (d *MockDal) GetProgramPage(userID, activityID, previousProgramID string, pageSize int) ([][]byte, error) {
 	args := d.Called(userID, activityID, previousProgramID, pageSize)
 	if args.Error(1) != nil {
 		return nil, args.Error(0)
@@ -282,7 +282,7 @@ func (d *MockDal) AddProgramInstance(userID, activityID, programID, instanceID s
 	}
 	return nil
 }
-func (d *MockDal) GetProgramInstancePage(userID, activityID, programID, instanceID string, pageSize uint64) ([][]byte, error) {
+func (d *MockDal) GetProgramInstancePage(userID, activityID, programID, instanceID string, pageSize int) ([][]byte, error) {
 	args := d.Called(userID, activityID, programID, instanceID)
 	if args.Error(1) != nil {
 		return nil, args.Error(0)

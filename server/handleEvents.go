@@ -163,7 +163,7 @@ func addExercise(username, eventDate, eventID string, w http.ResponseWriter, r *
 	slices.Sort(exIndexes)
 
 	exercisesArray := []workoutlog.ExerciseInstance{}
-	for _,v := range exIndexes {
+	for _, v := range exIndexes {
 		exercisesArray = append(exercisesArray, exercises[v])
 	}
 
@@ -187,7 +187,7 @@ func getPageOfEvents(username string, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pageSize, err := stringToUint64(r.Form.Get("count"))
+	pageSize, err := stringToint(r.Form.Get("count"))
 	if err != nil {
 		log.Debug(err)
 		http.Error(w, "failed to read count param", http.StatusBadRequest)
@@ -238,14 +238,14 @@ func stringToInt64(str string) (int64, error) {
 	return int64(i), nil
 }
 
-func stringToUint64(str string) (uint64, error) {
+func stringToint(str string) (int, error) {
 	if str == "" {
-		return uint64(0), nil
+		return int(0), nil
 	}
 
 	i, err := strconv.ParseInt(str, 10, 64)
 	if err != nil {
 		return 0, err
 	}
-	return uint64(i), nil
+	return int(i), nil
 }

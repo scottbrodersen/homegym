@@ -63,9 +63,9 @@ func (ws WorkoutSegment) validate() error {
 }
 
 type Workout struct {
-	Title     string                 `json:"title"`
-	Segments  map[int]WorkoutSegment `json:"segments"`
-	Intensity string                 `json:"intensity,omitempty"`
+	Title     string           `json:"title"`
+	Segments  []WorkoutSegment `json:"segments"`
+	Intensity string           `json:"intensity,omitempty"`
 }
 
 func (w Workout) validate() error {
@@ -86,10 +86,10 @@ func (w Workout) validate() error {
 }
 
 type MicroCycle struct {
-	Title     string          `json:"title"`
-	Span      int             `json:"span"`
-	Intensity string          `json:"intensity,omitempty"`
-	Workouts  map[int]Workout `json:"workouts,omitempty"`
+	Title     string    `json:"title"`
+	Span      int       `json:"span"`
+	Intensity string    `json:"intensity,omitempty"`
+	Workouts  []Workout `json:"workouts,omitempty"`
 }
 
 func (mc MicroCycle) validate() error {
@@ -109,9 +109,9 @@ func (mc MicroCycle) validate() error {
 }
 
 type Block struct {
-	Title       string             `json:"title"`
-	MicroCycles map[int]MicroCycle `json:"microCycles,omitempty"`
-	Intensity   string             `json:"intensity,omitempty"`
+	Title       string       `json:"title"`
+	MicroCycles []MicroCycle `json:"microCycles,omitempty"`
+	Intensity   string       `json:"intensity,omitempty"`
 }
 
 func (b Block) validate() error {
@@ -133,10 +133,10 @@ func (b Block) validate() error {
 // The exercises are explicitly specified but the intensity and volume are descriptive.
 // Intensity can be provided at each sub-phase of a program to enable progressively precise descriptiions.
 type Program struct {
-	ID         string        `json:"id"`
-	Title      string        `json:"title"`
-	ActivityID string        `json:"activityID"`
-	Blocks     map[int]Block `json:"blocks,omitempty"`
+	ID         string  `json:"id"`
+	Title      string  `json:"title"`
+	ActivityID string  `json:"activityID"`
+	Blocks     []Block `json:"blocks,omitempty"`
 }
 
 func (p Program) validate() error {
@@ -163,10 +163,10 @@ func (p Program) validate() error {
 type ProgramAdmin interface {
 	AddProgram(userID string, program Program) (*string, error)
 	UpdateProgram(userID string, program Program) error
-	GetProgramsPageForActivity(userID, activityID, previousProgramID string, pageSize uint64) ([]Program, error)
+	GetProgramsPageForActivity(userID, activityID, previousProgramID string, pageSize int) ([]Program, error)
 	AddProgramInstance(userID string, instance ProgramInstance) (*string, error)
 	UpdateProgramInstance(userID string, instance ProgramInstance) error
-	GetProgramInstancesPage(userID, activityID, programID, previousProgramInstanceID string, pageSize uint64) ([]ProgramInstance, error)
+	GetProgramInstancesPage(userID, activityID, programID, previousProgramInstanceID string, pageSize int) ([]ProgramInstance, error)
 	SetActiveProgramInstance(userID, activityID, programID, instanceID string) error
 	GetActiveProgramInstance(userID, activityID, programID string) (*ProgramInstance, error)
 }
@@ -245,7 +245,7 @@ func (pu ProgramUtil) UpdateProgram(userID string, program Program) error {
 	return nil
 }
 
-func (pu ProgramUtil) GetProgramsPageForActivity(userID, activityID, previousProgramID string, pageSize uint64) ([]Program, error) {
+func (pu ProgramUtil) GetProgramsPageForActivity(userID, activityID, previousProgramID string, pageSize int) ([]Program, error) {
 	numToGet := pageSize
 	if numToGet > 100 {
 		numToGet = 100
@@ -344,7 +344,7 @@ func (pu ProgramUtil) UpdateProgramInstance(userID string, instance ProgramInsta
 
 }
 
-func (pu ProgramUtil) GetProgramInstancesPage(userID, activityID, programID, previousProgramInstanceID string, pageSize uint64) ([]ProgramInstance, error) {
+func (pu ProgramUtil) GetProgramInstancesPage(userID, activityID, programID, previousProgramInstanceID string, pageSize int) ([]ProgramInstance, error) {
 	numToGet := pageSize
 	if numToGet > 100 {
 		numToGet = 100

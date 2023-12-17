@@ -9,6 +9,7 @@
     openCompositionModal,
     openVariationModal,
     ErrNotLoggedIn,
+    states,
   } from '../modules/utils';
   import styles from '../style.module.css';
   import { computed, ref, onBeforeMount } from 'vue';
@@ -49,12 +50,6 @@
 
   // model for variation checkbox
   const isVariation = ref(false);
-
-  const states = {
-    READ_ONLY: 0,
-    EDIT: 1,
-    NEW: 2,
-  };
 
   const state = ref(states.READ_ONLY);
 
@@ -178,7 +173,7 @@
       } catch (e) {
         if (e instanceof ErrNotLoggedIn) {
           console.log(e.message);
-          authPrompt(seetup);
+          authPrompt(setup);
         } else {
           console.log(e.message);
         }
@@ -364,20 +359,27 @@
         </div>
         <div v-show="state != states.READ_ONLY" :class="[styles.horiz]">
           <q-btn
-            color="primary"
+            color="accent"
+            text-color="dark"
             icon="save"
             @click="saveType"
             :disable="!isChanged && isTypeValid"
           />
           <q-btn
-            color="primary"
+            color="accent"
+            text-color="dark"
             icon="restart_alt"
             @click="resetValues"
             :disable="
               (!isChanged && state == states.READ_ONLY) || state != states.NEW
             "
           />
-          <q-btn color="primary" label="done" @click="resetAndCancel" />
+          <q-btn
+            color="accent"
+            text-color="dark"
+            label="done"
+            @click="resetAndCancel"
+          />
         </div>
       </div>
     </div>

@@ -96,7 +96,7 @@ direction LR
     class ExerciseInstance{
       <<type>>
       TypeID string
-      Index uint32
+      Index int
       Segments []ExerciseSegment
     }
 

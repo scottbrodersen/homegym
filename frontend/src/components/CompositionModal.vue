@@ -69,9 +69,15 @@
         </q-item>
       </q-list>
       <q-card-actions align="right">
-        <q-btn color="accent" label="Cancel" @click="onDialogCancel" />
         <q-btn
           color="accent"
+          label="Cancel"
+          text-color="dark"
+          @click="onDialogCancel"
+        />
+        <q-btn
+          color="accent"
+          text-color="dark"
           label="Done"
           @click="onOKClick"
           :class="[styles.maxRight]"
