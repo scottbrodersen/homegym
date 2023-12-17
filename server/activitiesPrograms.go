@@ -118,11 +118,10 @@ func getProgram(username, activityID, programID string, w http.ResponseWriter, r
 
 func getProgramPage(username, activityID string, w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-
+	previousID := ""
 	previousProgram, ok := r.Form["previous"]
-	if !ok {
-		http.Error(w, `{"message":"missing previous query parameter"}`, http.StatusBadRequest)
-		return
+	if ok {
+		previousID = previousProgram[0]
 	}
 	pageSize, ok := r.Form["size"]
 	if !ok {
@@ -136,7 +135,7 @@ func getProgramPage(username, activityID string, w http.ResponseWriter, r *http.
 		return
 	}
 
-	page, err := programs.ProgramManager.GetProgramsPageForActivity(username, activityID, previousProgram[0], uint64(pageSizeInt))
+	page, err := programs.ProgramManager.GetProgramsPageForActivity(username, activityID, previousID, uint64(pageSizeInt))
 
 	if err != nil {
 		http.Error(w, `{"message":"failed to get programs"}`, http.StatusInternalServerError)
@@ -276,10 +275,10 @@ func getProgramInstancePage(username, activityID, programID string, w http.Respo
 	r.ParseForm()
 
 	previousProgramInstance, ok := r.Form["previous"]
-	if !ok {
-		http.Error(w, `{"message":"missing previous query parameter"}`, http.StatusBadRequest)
-		return
-	}
+	// if !ok {
+	// 	http.Error(w, `{"message":"missing previous query parameter"}`, http.StatusBadRequest)
+	// 	return
+	// }
 	pageSize, ok := r.Form["size"]
 	if !ok {
 		http.Error(w, `{"message":"missing size query parameter"}`, http.StatusBadRequest)

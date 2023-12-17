@@ -67,6 +67,20 @@ func TestPrograms(t *testing.T) {
 			So(programs[0], ShouldResemble, testProgram)
 		})
 
+		Convey("When we get the first page of programs", func() {
+			testProgramByte, err := json.Marshal(testProgram)
+			if err != nil {
+				t.FailNow()
+			}
+			db.On("GetProgramPage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return([][]byte{testProgramByte}, nil)
+
+			programs, err := ProgramManager.GetProgramsPageForActivity(testUserID, testActivityID, "", 1)
+
+			So(err, ShouldBeNil)
+			So(programs, ShouldHaveLength, 1)
+			So(programs[0], ShouldResemble, testProgram)
+		})
+
 		Convey("When we update a program", func() {
 			db.On("GetProgramPage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return([][]byte{[]byte(testActivityID)}, nil)
 			db.On("AddProgram", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
