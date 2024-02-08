@@ -10,9 +10,10 @@
   import { computed, ref } from 'vue';
   import styles from '../style.module.css';
 
+  const props = defineProps({ activityID: String });
   defineEmits([...useDialogPluginComponent.emits]);
 
-  const activity = ref();
+  const activity = activityStore.get(props.activityID);
   const programTitle = ref('');
   const numBlocks = ref(0);
   const numCycles = ref(0);
@@ -38,7 +39,7 @@
   const onOKClick = () => {
     onDialogOK({
       title: programTitle.value,
-      activityID: activity.value.id,
+      activityID: activity.id,
       numBlocks: numBlocks.value,
       numCycles: numCycles.value,
       cycleSpan: cycleSpan.value,
@@ -95,15 +96,15 @@
         <q-btn
           color="accent"
           text-color="dark"
-          label="Save"
-          @click="onOKClick"
-          :disabled="formIsValid()"
+          label="Cancel"
+          @click="onDialogCancel"
         />
         <q-btn
           color="accent"
           text-color="dark"
-          label="Cancel"
-          @click="onDialogCancel"
+          label="Save"
+          @click="onOKClick"
+          :disabled="formIsValid()"
         />
       </q-card-actions>
     </q-card>
