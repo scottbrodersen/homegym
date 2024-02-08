@@ -32,7 +32,7 @@ func ExerciseTypesApi(w http.ResponseWriter, r *http.Request) {
 			newExerciseType(*username, w, r)
 			return
 		} else if r.Method == http.MethodGet {
-			listExerciseTypes(*username, w, r)
+			listExerciseTypes(*username, w)
 			return
 		}
 	} else if rxpUpdateType.MatchString(r.URL.Path) {
@@ -118,7 +118,7 @@ func updateExerciseType(username, typeID string, w http.ResponseWriter, r *http.
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func listExerciseTypes(username string, w http.ResponseWriter, r *http.Request) {
+func listExerciseTypes(username string, w http.ResponseWriter) {
 	types, err := workoutlog.ExerciseManager.GetExerciseTypes(username)
 	if err != nil {
 		http.Error(w, "failed to get exercise types", http.StatusInternalServerError)

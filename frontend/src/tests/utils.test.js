@@ -1,6 +1,6 @@
 import './patch-fetch.js';
 import { expect, test, beforeAll, afterAll, afterEach } from 'vitest';
-import * as u from '../modules/utils.js';
+import * as utils from '../modules/utils.js';
 import server from './../mocks/server.js';
 
 beforeAll(() => {
@@ -14,18 +14,18 @@ test('hrZone validation', () => {
   const badValues = [0, 6, 'r', '', '$'];
 
   for (const good of goodValues) {
-    expect(u.intensityTypeProps.hrZone.validate(good)).toBeTruthy;
+    expect(utils.intensityProps('hrZone').validate(good)).toBeTruthy;
   }
 
   for (const bad of badValues) {
-    expect(u.intensityTypeProps.hrZone.validate(bad)).toBeFalsy;
+    expect(utils.intensityProps('hrZone').validate(bad)).toBeFalsy;
   }
 });
 
 test('when we log in using good credentials', async () => {
   let caught = false;
   try {
-    const resp = await u.login('id', 'password');
+    const resp = await utils.login('id', 'password');
   } catch (error) {
     caught = true;
   }
@@ -35,7 +35,7 @@ test('when we log in using good credentials', async () => {
 test('when we log in using bad credentials', async () => {
   let caught = false;
   try {
-    const resp = await u.login('id', 'badpassword');
+    const resp = await utils.login('id', 'badpassword');
   } catch (error) {
     caught = true;
   }

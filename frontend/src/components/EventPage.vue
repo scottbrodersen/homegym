@@ -2,7 +2,7 @@
   import { ref, computed, toRaw, watch } from 'vue';
   import styles from '../style.module.css';
   import DatePicker from './DatePicker.vue';
-  import NewEventMeta from './NewEventMeta.vue';
+  import EventMeta from './EventMeta.vue';
   import ExerciseInstance from './ExerciseInstance.vue';
   import { eventStore, activityStore } from '../modules/state.js';
   import { QBtn } from 'quasar';
@@ -11,7 +11,6 @@
     storeEvent,
     storeEventExerciseInstances,
     ErrNotLoggedIn,
-    fetchActivityExercises,
     toast,
   } from '../modules/utils.js';
 
@@ -23,29 +22,6 @@
   const thisEventActivityName = ref('');
   const activityNames = [];
 
-  const getActivityExercises = (activityID) => {
-    // fetch activity exerices types if needed
-    if (activityStore.get(activityID).exercises == null) {
-      fetchActivityExercises(thisEvent.value.activityID).catch((e) => {
-        if (e instanceof ErrNotLoggedIn) {
-          console.log(e.message);
-          authPrompt(getActivityExercises, activityID);
-        } else {
-          console.log(e);
-        }
-      });
-    }
-  };
-
-  watch(
-    () => {
-      return thisEvent.value.activityID;
-    },
-    (newID) => {
-      getActivityExercises(newID);
-    }
-  );
-
   // populate state when opening an existing event
   if (!!props.eventId) {
     thisEvent.value = structuredClone(toRaw(eventStore.getByID(props.eventId)));
@@ -54,8 +30,6 @@
         thisEvent.value.activityID
       ).name;
     }
-
-    // getActivityExercises();
   }
 
   for (const activity of activityStore.getAll()) {
@@ -70,7 +44,6 @@
         break;
       }
     }
-    //getActivityExercises();
   };
 
   // Updates an event's exericse instance at a specific index.
@@ -171,6 +144,11 @@
   <h1 :id="styles.event" :class="[styles.blockPadSm]">Edit Event</h1>
   <div :class="[styles.vert]">
     <div :class="[styles.eventTopRow]">
+      <DatePicker
+        :style="[styles.blockPadMed]"
+        :date-value="thisEvent.date"
+        @update="updateDateValue"
+      />
       <q-select
         :class="[styles.selActivity]"
         :model-value="thisEventActivityName"
@@ -179,14 +157,9 @@
         label="Activity"
         dark
       />
-      <DatePicker
-        :style="[styles.blockPadMed]"
-        :date-value="thisEvent.date"
-        @update="updateDateValue"
-      />
     </div>
     <div :class="[styles.blockPadSm]">
-      <NewEventMeta
+      <EventMeta
         :mood="thisEvent.mood"
         :energy="thisEvent.energy"
         :motivation="thisEvent.motivation"
@@ -228,7 +201,7 @@
     >
       <ExerciseInstance
         :exercise-instance="value"
-        :activity-id="thisEvent.activityID"
+        :activity-i-d="thisEvent.activityID"
         :writable="true"
         @update="(updated) => setExerciseInstance(index, updated)"
       />

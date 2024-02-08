@@ -1,8 +1,9 @@
 <script setup>
-  import { computed, ref } from 'vue';
+  import { computed, ref, watch } from 'vue';
   import { activityStore, exerciseTypeStore } from '../modules/state.js';
   import { QSelect } from 'quasar';
   import styles from '../style.module.css';
+  import { fetchActivityExercises } from '../modules/utils';
 
   const props = defineProps({ activityID: String, exerciseID: String });
   const emits = defineEmits(['selectedID']);
@@ -33,6 +34,30 @@
     }
     return names;
   });
+
+  const getActivityExercises = async (activityID) => {
+    // fetch activity exerices types if needed
+    if (activityStore.get(activityID).exercises == null) {
+      await fetchActivityExercises(activityID).catch((e) => {
+        if (e instanceof ErrNotLoggedIn) {
+          console.log(e.message);
+          authPrompt(getActivityExercises, activityID);
+        } else {
+          console.log(e);
+        }
+      });
+    }
+  };
+
+  watch(
+    () => {
+      return props.activityID;
+    },
+    async (newID) => {
+      await getActivityExercises(newID);
+    }
+  );
+  await getActivityExercises(props.activityID);
 </script>
 <template>
   <q-select

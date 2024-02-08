@@ -1,8 +1,12 @@
-version: 0.2
+version: '0.2'
 language: en
 words:
+  - addevent
   - scottbrodersen
+  - colours
   - homegym
+  - eventstore
+  - followroute
   - goconvey
   - hasher
   - stretchr

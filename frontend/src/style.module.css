@@ -82,7 +82,7 @@ h1 {
 }
 
 #event {
-  position: absolute;
+  /* position: absolute; */
   left: 0px;
   top: var(--hg-lg);
 }
@@ -131,18 +131,6 @@ h1 {
 .vert {
   display: flex;
   flex-direction: column;
-}
-
-.maxSpacing {
-  justify-content: space-between;
-}
-
-.centerSpacing {
-  justify-content: center;
-}
-
-.alignCenter {
-  align-items: center;
 }
 
 .maxRight {
@@ -271,7 +259,6 @@ header a:hover {
 
 .datePicker {
   max-width: var(--hg-xxlg);
-  margin-right: var(--hg-med);
 }
 
 .selExercise {
@@ -287,6 +274,9 @@ header a:hover {
   border-radius: 4px;
   background-color: var(--hg-black);
   border: 1px solid var(--hg-mid);
+  flex-wrap: wrap;
+  margin-right: var(--hg-small);
+  max-width: 120px;
 }
 
 .binarySet + .binarySet {
@@ -323,7 +313,7 @@ header a:hover {
 
 .repCount + .repCount::before {
   content: '/';
-  padding: 0px var(--hg-xsmall) 0px var(--hg-xsmall);
+  padding: 0px var(--hg-xxsmall) 0px var(--hg-xxsmall);
 }
 
 .exContainer {
@@ -374,18 +364,15 @@ header a:hover {
   max-width: 540px;
 }
 
-main {
-  margin-top: var(--hg-med);
-}
-
 .metaRating {
   composes: horiz;
-  composes: maxSpacing;
+  justify-content: space-between;
 }
 .eventTopRow {
-  composes: horiz;
-  composes: alignCenter;
-  composes: maxSpacing;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
   margin-top: var(--hg-small);
 }
 .exInstContainer {
@@ -395,7 +382,7 @@ main {
 }
 .exInstRow {
   composes: horiz;
-  composes: alignCenter;
+  align-items: center;
   composes: hg100wide;
   margin-top: var(--hg-xsmall);
 }
@@ -474,8 +461,22 @@ main {
 
 .buttonArray {
   composes: horiz;
-  composes: maxSpacing;
+  justify-content: space-between;
   composes: blockPadSm;
+}
+
+.pgmSelect {
+  composes: horiz;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pgmSelect :global(.q-btn) {
+  font-size: 0.65em;
+}
+
+:global(.q-dialog__backdrop) {
+  background: rgba(0, 0, 0, 0.7);
 }
 
 @media (prefers-color-scheme: light) {
@@ -504,5 +505,12 @@ main {
   }
   button.q-btn.bg-white {
     background-color: #c5f2bd;
+  }
+}
+
+@media (width <= 480px) {
+  .eventTopRow {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

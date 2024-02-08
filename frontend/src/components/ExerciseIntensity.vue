@@ -43,7 +43,7 @@
       v-select
       no-error-icon
       hide-bottom-space
-      @update:model-value="emit('update', intensity)"
+      @update:model-value="emit('update', Number(intensity))"
     />
   </div>
   <div v-else-if="props.type != 'bodyweight'" :class="[styles.horiz]">

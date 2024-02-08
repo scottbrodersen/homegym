@@ -1,19 +1,13 @@
 <script setup>
-  import { computed, ref, watch } from 'vue';
-  import { activityStore, exerciseTypeStore } from '../modules/state.js';
+  import { computed, ref } from 'vue';
+  import { exerciseTypeStore } from '../modules/state';
   import ExerciseIntensity from './ExerciseIntensity.vue';
+  import ExerciseSelect from './ExerciseSelect.vue';
   import VolumeReps from './VolumeReps.vue';
   import VolumeTime from './VolumeTime.vue';
   import styles from '../style.module.css';
-  import { openVolumeModal } from '../modules/utils.js';
-  import {
-    QDialog,
-    QBtn,
-    QCard,
-    QCardActions,
-    QCardSection,
-    QSelect,
-  } from 'quasar';
+  import { openVolumeModal } from '../modules/utils';
+  import { QDialog, QBtn, QCard, QCardActions, QCardSection } from 'quasar';
   /*
   interface exerciseInstance = {
     index: Number
@@ -29,13 +23,13 @@
 
   const props = defineProps({
     exerciseInstance: Object,
-    activityId: String,
+    activityID: String,
     writable: Boolean,
   });
 
   const emit = defineEmits(['update']);
 
-  if (!!!props.activityId && !!!props.exerciseInstance.index) {
+  if (!props.activityID && !props.exerciseInstance.index) {
     throw Error(
       'ExerciseInstance requires an activity id and an indexed exercise instance'
     );
@@ -45,37 +39,13 @@
   const instance = ref(JSON.parse(JSON.stringify(props.exerciseInstance)));
 
   // initialize an empty instance
-  if (!!!instance.value.typeID) {
+  if (!instance.value.typeID) {
     instance.value.typeID = '';
     instance.value.parts = [];
   }
 
-  const exerciseNames = ref([]);
-  const exerciseName = ref('');
-  const eTypeIDs = [];
-
-  const initExercises = (activityID) => {
-    exerciseNames.value = [];
-    activityStore.get(activityID).exercises.forEach((exerciseID) => {
-      const eType = exerciseTypeStore.get(exerciseID);
-      eTypeIDs.push(eType.id);
-      exerciseNames.value.push(eType.name);
-      if (!!instance.value.typeID && instance.value.typeID == eType.id) {
-        exerciseName.value = eType.name;
-      }
-    });
-  };
-
-  initExercises(props.activityId);
-
-  // update names when the activity changes
-  watch(
-    () => {
-      return props.activityId;
-    },
-    (newId, oldId) => {
-      initExercises(newId);
-    }
+  const exerciseName = ref(
+    exerciseTypeStore.get(props.exerciseInstance.typeID).name
   );
 
   const isCountReps = computed(() => {
@@ -96,16 +66,13 @@
     return false;
   });
 
-  const setExerciseType = (typeName) => {
-    for (const id of eTypeIDs) {
-      if (exerciseTypeStore.get(id).name == typeName) {
-        instance.value.typeID = id;
-        exerciseName.value = typeName;
-        break;
-      }
+  const setExerciseType = (typeID) => {
+    instance.value.typeID = typeID;
+    if (instance.value.parts.length == 0) {
+      addSegments();
     }
+    exerciseName.value = exerciseTypeStore.get(typeID).name;
   };
-
   const addSegments = () => {
     if (
       exerciseTypeStore.get(instance.value.typeID).intensityType == 'hrZone'
@@ -141,15 +108,16 @@
 <template>
   <div v-if="props.writable" :class="[styles.horiz]">
     <div>
-      <q-select
-        :model-value="exerciseName"
-        :options="exerciseNames"
-        label="Exercise"
-        stack-label
-        :class="[styles.selExercise]"
-        dark
-        @update:model-value="setExerciseType"
-      />
+      <Suspense>
+        <ExerciseSelect
+          :activityID="props.activityID"
+          :exerciseID="instance.typeID"
+          @selectedID="
+            (value) => {
+              setExerciseType(value);
+            }
+          "
+      /></Suspense>
     </div>
     <div :class="[styles.maxRight]">
       <q-btn
@@ -162,7 +130,6 @@
     </div>
   </div>
   <div v-else :class="[styles.exName]">{{ exerciseName }}</div>
-
   <div>
     <div
       :class="[styles.exInstRow]"

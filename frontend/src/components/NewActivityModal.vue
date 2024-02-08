@@ -3,6 +3,7 @@
   import { ErrNotLoggedIn, ErrNotUnique } from '../modules/utils.js';
   import { ref, computed } from 'vue';
   import { activityStore } from '../modules/state.js';
+  import styles from '../style.module.css';
 
   const name = ref('');
 

@@ -96,23 +96,7 @@
   });
 </script>
 <template>
-  <div :class="[styles.buttonArray]">
-    <q-btn
-      @click="newProgramModal(initProgram)"
-      label="New"
-      dark
-      color="primary"
-      :disable="state != states.READ_ONLY"
-    />
-    <q-btn
-      @click="setState(states.EDIT)"
-      label="Edit"
-      dark
-      color="primary"
-      :disable="disableEdit"
-    />
-  </div>
-  <div>
+  <div :class="[styles.pgmSelect]">
     <q-select
       label="Activity"
       stack-label
@@ -123,11 +107,24 @@
       :class="[styles.selActivity]"
       @update:model-value="(value) => getPrograms(value.id)"
     />
+    <div>
+      <q-btn
+        @click="newProgramModal(activity.id, initProgram)"
+        icon="add"
+        round
+        dark
+        color="primary"
+        :disable="state != states.READ_ONLY || !activity"
+      />
+    </div>
   </div>
-  <div v-if="state == states.READ_ONLY">
+  <div
+    :class="[styles.pgmSelect]"
+    v-show="!!activity"
+    v-if="state == states.READ_ONLY"
+  >
     <q-select
       label="Program"
-      v-if="!!activity"
       stack-label
       v-model="selectedProgram"
       :options="programs"
@@ -137,12 +134,23 @@
       @new-value="addNew"
       dark
       :class="[styles.selProgram]"
-      ><template v-slot:selected
-        ><div v-if="selectedProgram">
-          {{ programsStore.get(activity.id, selectedProgram).title }}
-        </div></template
-      ></q-select
     >
+      <template v-slot:selected>
+        <div v-if="selectedProgram">
+          {{ programsStore.get(activity.id, selectedProgram).title }}
+        </div>
+      </template>
+    </q-select>
+    <div>
+      <q-btn
+        @click="setState(states.EDIT)"
+        icon="edit"
+        round
+        dark
+        color="primary"
+        :disable="disableEdit"
+      />
+    </div>
   </div>
 
   <div>

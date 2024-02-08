@@ -16,13 +16,13 @@
     ErrNotLoggedIn,
   } from '../modules/utils.js';
   import EventExercises from './EventExercises.vue';
-  import EventMeta from './EventMeta.vue';
   import styles from '../style.module.css';
+  import EventMeta from './EventMeta.vue';
 
   const table = ref();
   const expanded = ref([]);
 
-  // array of eventstore events (i.e. reactive)
+  // array of eventstore events
   let rows = ref([]);
 
   // pagination state
@@ -175,6 +175,7 @@
         color="primary"
         icon="add"
         :to="{ name: 'event' }"
+        id="addevent"
       />
     </div>
   </div>
@@ -231,21 +232,19 @@
               icon="edit"
             />
             <EventMeta
-              :meta="{
-                mood: props.row.mood,
-                energy: props.row.energy,
-                motivation: props.row.motivation,
-              }"
+              :mood="props.row.mood"
+              :energy="props.row.energy"
+              :motivation="props.row.motivation"
+              :readonly="true"
             />
             <Suspense :key="pagination.page" timeout="0">
               <EventExercises :event-id="props.row.id" />
               <template #fallback> Loading... </template>
             </Suspense>
             <EventMeta
-              :meta="{
-                overall: props.row.overall,
-                notes: props.row.notes,
-              }"
+              :overall="props.row.overall"
+              :notes="props.row.notes"
+              :readonly="true"
             />
           </q-td>
         </q-tr>

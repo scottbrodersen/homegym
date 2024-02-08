@@ -243,10 +243,10 @@ const openVolumeModal = (
     .onDismiss(() => {});
 };
 
-const newProgramModal = (callback) => {
+const newProgramModal = (activityID, callback) => {
   Dialog.create({
     component: ProgramModal,
-    componentProps: {},
+    componentProps: { activityID: activityID },
   })
     .onOk((programProps) => {
       callback(programProps);

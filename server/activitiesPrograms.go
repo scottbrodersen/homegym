@@ -92,7 +92,7 @@ func updateProgram(username, activityID, programID string, w http.ResponseWriter
 	w.WriteHeader(http.StatusOK)
 }
 
-func getProgram(username, activityID, programID string, w http.ResponseWriter, r *http.Request) {
+func getProgram(username, activityID, programID string, w http.ResponseWriter) {
 	page, err := programs.ProgramManager.GetProgramsPageForActivity(username, activityID, programID, int(1))
 
 	if err != nil {
@@ -193,7 +193,7 @@ func addProgramInstance(username, activityID, programID string, w http.ResponseW
 	}{ID: *programInstanceID})
 
 	if err != nil {
-		http.Error(w, "failed to add programn instance", http.StatusInternalServerError)
+		http.Error(w, "failed to add program instance", http.StatusInternalServerError)
 		return
 	}
 
@@ -247,7 +247,7 @@ func updateProgramInstance(username, activityID, programID, instanceID string, w
 	w.WriteHeader(http.StatusOK)
 }
 
-func getProgramInstance(username, activityID, programID, instanceID string, w http.ResponseWriter, r *http.Request) {
+func getProgramInstance(username, activityID, programID, instanceID string, w http.ResponseWriter) {
 	page, err := programs.ProgramManager.GetProgramInstancesPage(username, activityID, programID, instanceID, int(1))
 
 	if err != nil {
@@ -274,7 +274,7 @@ func getProgramInstance(username, activityID, programID, instanceID string, w ht
 func getProgramInstancePage(username, activityID, programID string, w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
-	previousProgramInstance, ok := r.Form["previous"]
+	previousProgramInstance := r.Form["previous"]
 	// if !ok {
 	// 	http.Error(w, `{"message":"missing previous query parameter"}`, http.StatusBadRequest)
 	// 	return
@@ -334,7 +334,7 @@ func setActiveProgramInstance(username, activityID, programID string, w http.Res
 	w.WriteHeader(http.StatusOK)
 }
 
-func getActiveProgramInstance(username, activityID, programID string, w http.ResponseWriter, r *http.Request) {
+func getActiveProgramInstance(username, activityID, programID string, w http.ResponseWriter) {
 	activeInstance, err := programs.ProgramManager.GetActiveProgramInstance(username, activityID, programID)
 	if err != nil {
 		http.Error(w, `{"message":"failed to get active program instance"}`, http.StatusInternalServerError)
