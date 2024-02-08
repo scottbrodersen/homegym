@@ -18,6 +18,7 @@
     "@quasar/vite-plugin": "^1.6.0",
     "@vitejs/plugin-vue": "^5.0.3",
     "@vitest/browser": "^1.2.2",
+    "@vue/test-utils": "^2.4.4",
     "cross-fetch": "^4.0.0",
     "jsdom": "^22.1.0",
     "msw": "^2.1.5",

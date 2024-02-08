@@ -2,7 +2,6 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { quasar, transformAssetUrls } from '@quasar/vite-plugin';
-import { sassTrue } from 'sass';
 
 export default defineConfig(({ command, mode }) => {
   const config = {

@@ -24,6 +24,15 @@
     volume.value = JSON.parse(JSON.stringify(props.volume));
   }
 
+  // adds a set to the volume array
+  const incrementVolume = () => {
+    volume.value.push([]);
+  };
+
+  if (volume.value.length == 0) {
+    incrementVolume();
+  }
+
   // reactive
   const exerciseType = exerciseTypeStore.get(props.exerciseTypeID);
 
@@ -45,11 +54,6 @@
       }
     });
     return count;
-  };
-
-  // adds a set to the volume array
-  const incrementVolume = () => {
-    volume.value.push([]);
   };
 
   // updates the volume array for control events
@@ -96,13 +100,8 @@
           {{ props.intensity }}
           {{ unitsState[exerciseType.intensityType] }}
         </div>
-        <div>
-          <q-btn
-            round
-            color="primary"
-            icon="add_circle"
-            @Click="incrementVolume"
-          />
+        <div :class="[styles.maxRight]">
+          <q-btn round color="primary" icon="add" @Click="incrementVolume" />
         </div>
       </div>
       <div :class="[styles.blockPadSm, styles.dark]">
@@ -129,14 +128,12 @@
             <div :class="[styles.horiz, styles.maxSpacing]">
               <div :class="styles.sibSpSmall">
                 <q-btn
-                  :class="styles.sibSpxSmall"
                   round
                   color="primary"
                   icon="thumb_up"
                   @Click="syncVolume(i, 1)"
                 />
                 <q-btn
-                  :class="styles.sibSpxSmall"
                   round
                   color="primary"
                   icon="thumb_down"
@@ -149,8 +146,9 @@
                 :class="[styles.sibSpSmall]"
               />
             </div>
-            <div>
+            <div :class="[styles.maxRight]">
               <q-btn
+                v-show="v.length > 0"
                 round
                 color="primary"
                 icon="backspace"
@@ -164,14 +162,14 @@
         <q-btn
           color="accent"
           text-color="dark"
-          label="Done"
-          @click="onOKClick"
+          label="Cancel"
+          @click="onDialogCancel"
         />
         <q-btn
           color="accent"
           text-color="dark"
-          label="Cancel"
-          @click="onDialogCancel"
+          label="Done"
+          @click="onOKClick"
         />
       </q-card-actions>
     </q-card>

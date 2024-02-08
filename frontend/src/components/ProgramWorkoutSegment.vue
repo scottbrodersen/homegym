@@ -15,6 +15,9 @@
   const update = (action) => {
     emit('update', action);
   };
+  const setExercise = (exerciseID) => {
+    props.segment.exerciseTypeID = exerciseID;
+  }
 </script>
 <template>
   <div v-if="state == states.READ_ONLY">
@@ -30,10 +33,14 @@
   </div>
   <div v-else>
     <ListActions @update="update" />
-    <ExerciseSelect
-      :activityID="activity.id"
-      :exerciseID="props.segment.exerciseTypeID"
-    />
+    <Suspense>
+      <ExerciseSelect
+        :activityID="activity.id"
+        :exerciseID="props.segment.exerciseTypeID"
+        @selected-i-d="(id) => setExercise(id)"
+      />
+    </Suspense>
+
     <q-input
       v-model="props.segment.prescription"
       label="Prescription"
