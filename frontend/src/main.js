@@ -7,6 +7,7 @@ import './style.module.css';
 import App from './App.vue';
 import router from './routes.js';
 import { select, focus } from './modules/directives.js';
+
 const app = createApp(App);
 
 app.use(Quasar, {

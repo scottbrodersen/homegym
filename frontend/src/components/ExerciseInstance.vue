@@ -45,9 +45,7 @@
   }
 
   const exerciseName = ref(
-    props.exerciseInstance.typeID
-      ? exerciseTypeStore.get(props.exerciseInstance.typeID).name
-      : ''
+    exerciseTypeStore.get(props.exerciseInstance.typeID).name
   );
 
   const isCountReps = computed(() => {
