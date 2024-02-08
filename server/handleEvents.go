@@ -48,17 +48,16 @@ func EventsApi(w http.ResponseWriter, r *http.Request) {
 		eventID := rxpExercisesPath.FindStringSubmatch(r.URL.Path)[2]
 
 		if r.Method == http.MethodGet {
-			getExercises(*username, eventID, w, r)
+			getExercises(*username, eventID, w)
 			return
 		} else if r.Method == http.MethodPost {
 			addExercise(*username, eventDate, eventID, w, r)
 			return
 		}
 	} else if rxpEventPath.MatchString(r.URL.Path) {
-		eventID := rxpEventPath.FindStringSubmatch(r.URL.Path)[2]
 		currentDate := rxpEventPath.FindStringSubmatch(r.URL.Path)[1]
 		if r.Method == http.MethodPost {
-			updateEvent(*username, eventID, currentDate, w, r)
+			updateEvent(*username, currentDate, w, r)
 			return
 		}
 	}
@@ -98,7 +97,7 @@ func addEvent(username string, w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func updateEvent(username, eventID, currentDate string, w http.ResponseWriter, r *http.Request) {
+func updateEvent(username, currentDate string, w http.ResponseWriter, r *http.Request) {
 	newEvent := new(workoutlog.Event)
 
 	currentDateInt, err := stringToInt64(currentDate)
@@ -129,7 +128,7 @@ func updateEvent(username, eventID, currentDate string, w http.ResponseWriter, r
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func getExercises(username, eventID string, w http.ResponseWriter, r *http.Request) {
+func getExercises(username, eventID string, w http.ResponseWriter) {
 	exercises, err := workoutlog.EventManager.GetEventExercises(username, eventID)
 	if err != nil {
 		http.Error(w, "failed to read exercises", http.StatusInternalServerError)
@@ -187,7 +186,7 @@ func getPageOfEvents(username string, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pageSize, err := stringToint(r.Form.Get("count"))
+	pageSize, err := stringToInt(r.Form.Get("count"))
 	if err != nil {
 		log.Debug(err)
 		http.Error(w, "failed to read count param", http.StatusBadRequest)
@@ -238,7 +237,7 @@ func stringToInt64(str string) (int64, error) {
 	return int64(i), nil
 }
 
-func stringToint(str string) (int, error) {
+func stringToInt(str string) (int, error) {
 	if str == "" {
 		return int(0), nil
 	}

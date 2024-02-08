@@ -1,9 +1,12 @@
 version: '0.2'
 language: en
 words:
-  - checkmark
-  - Debugf
-  - Editbles
+  - addevent
+  - scottbrodersen
+  - colours
+  - homegym
+  - eventstore
+  - followroute
   - goconvey
   - hasher
   - healthnut

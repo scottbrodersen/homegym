@@ -45,13 +45,12 @@ func ActivitiesApi(w http.ResponseWriter, r *http.Request) {
 			listExercises(*username, activityID, w)
 			return
 		} else if r.Method == http.MethodPost {
-			updateExercises(*username, activityID, w, r)
+			updateExercises(*username, w, r)
 			return
 		}
 	} else if rxpActivity.MatchString(r.URL.Path) {
-		activityID := rxpActivity.FindStringSubmatch(r.URL.Path)[1]
 		if r.Method == http.MethodPost {
-			updateActivity(*username, activityID, w, r)
+			updateActivity(*username, w, r)
 			return
 		}
 	} else if rxpPrograms.MatchString(r.URL.Path) {
@@ -71,7 +70,7 @@ func ActivitiesApi(w http.ResponseWriter, r *http.Request) {
 			updateProgram(*username, activityID, programID, w, r)
 			return
 		} else if r.Method == http.MethodGet {
-			getProgram(*username, activityID, programID, w, r)
+			getProgram(*username, activityID, programID, w)
 			return
 		}
 	} else if rxpProgramInstances.MatchString(r.URL.Path) {
@@ -96,7 +95,7 @@ func ActivitiesApi(w http.ResponseWriter, r *http.Request) {
 			updateProgramInstance(*username, activityID, programID, instanceID, w, r)
 			return
 		} else if r.Method == http.MethodGet {
-			getProgramInstance(*username, activityID, programID, instanceID, w, r)
+			getProgramInstance(*username, activityID, programID, instanceID, w)
 			return
 		}
 	} else if rxpProgramInstancesActive.MatchString(r.URL.Path) {
@@ -108,7 +107,7 @@ func ActivitiesApi(w http.ResponseWriter, r *http.Request) {
 			setActiveProgramInstance(*username, activityID, programID, w, r)
 			return
 		} else if r.Method == http.MethodGet {
-			getActiveProgramInstance(*username, activityID, programID, w, r)
+			getActiveProgramInstance(*username, activityID, programID, w)
 			return
 		}
 	}
@@ -184,7 +183,7 @@ func listExercises(username, activityID string, w http.ResponseWriter) {
 	w.Write(body)
 }
 
-func updateExercises(username, activityID string, w http.ResponseWriter, r *http.Request) {
+func updateExercises(username string, w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
 		w.WriteHeader(http.StatusBadRequest)
 	}
@@ -204,7 +203,7 @@ func updateExercises(username, activityID string, w http.ResponseWriter, r *http
 }
 
 // only supports renaming right now
-func updateActivity(username, activityID string, w http.ResponseWriter, r *http.Request) {
+func updateActivity(username string, w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
 		w.WriteHeader(http.StatusBadRequest)
 	}
