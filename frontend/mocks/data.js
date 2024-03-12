@@ -2,7 +2,7 @@ export const fetchedEvents = (pageSize) => {
   events = [];
   for (let i; i < pageSize; i++) {
     events.push({
-      id: `eventid${i}`,
+      id: `eventID${i}`,
       activityID: `activity${randomIntFromInterval(1, 3)}`,
       date: Math.floor(Date.now() / 1000) - pageSize * 1000 + i * 100,
       mood: randomIntFromInterval(1, 5),
@@ -20,11 +20,11 @@ export const randomIntFromInterval = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1) + min);
 };
 
-const fetchedTestActivities = [
+export const fetchedTestActivities = [
   {
     id: 'activity1',
     name: 'test activity 1',
-    exercises: null,
+    exercises: ['exercise1', 'exercise2'],
   },
   {
     id: 'activity2',
@@ -101,4 +101,30 @@ export const fetchedEventExercises = () => {
     instances.set(i, testExerciseInstance(i));
   }
   return instances;
+};
+
+export const testProgram = () => {
+  return {
+    id: 'test-program-id',
+    activityID: 'test-activity-id',
+    title: 'test program title',
+    blocks: [
+      {
+        title: 'test block',
+        microCycles: [
+          {
+            title: 'test Microcycle',
+            workouts: [
+              {
+                title: 'test workout',
+                segments: [
+                  { title: 'test segment', prescription: 'test prescription' },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  };
 };

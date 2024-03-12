@@ -1,21 +1,27 @@
-version: 0.2
+version: '0.2'
 language: en
 words:
-  - scottbrodersen
-  - homegym
+  - checkmark
+  - Debugf
+  - Editbles
   - goconvey
   - hasher
-  - stretchr
-  - Debugf
-  - Warnf
-  - Infof
   - healthnut
+  - homegym
+  - Infof
   - logrus
-  - sirupsen
-  - workoutlog
+  - microcycle
+  - moveahead
+  - moveback
+  - MOVEFWD
   - newevent
+  - scottbrodersen
+  - sirupsen
+  - stretchr
   - upsert
   - vnode
+  - Warnf
+  - workoutlog
 ignoreRegExpList:
   - /[a-z]*password[^\w]*/g
   - /%s[a-zA-Z0-9]*/g

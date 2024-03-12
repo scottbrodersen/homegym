@@ -6,7 +6,7 @@ import 'quasar/src/css/index.sass';
 import './style.module.css';
 import App from './App.vue';
 import router from './routes.js';
-
+import { select, focus } from './modules/directives.js';
 const app = createApp(App);
 
 app.use(Quasar, {
@@ -16,35 +16,6 @@ app.use(Quasar, {
 
 app.use(router);
 
-app.directive('focus', {
-  mounted: (el) => {
-    const input =
-      el.getElementsByTagName('input').length > 0
-        ? el.getElementsByTagName('input')[0]
-        : null;
-
-    if (
-      !!input &&
-      input.hasAttribute('type') &&
-      input.getAttribute('type') == 'number'
-    ) {
-      if (input.value == '0') {
-        input.focus();
-      }
-    } else {
-      el.focus();
-    }
-  },
-});
-app.directive('select', {
-  mounted: (el) => {
-    const input =
-      el.getElementsByTagName('input').length > 0
-        ? el.getElementsByTagName('input')[0]
-        : null;
-    if (!!input && input.value == '0') {
-      input.select();
-    }
-  },
-});
+app.directive('focus', focus);
+app.directive('select', select);
 app.mount('#app');
