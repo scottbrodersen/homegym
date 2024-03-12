@@ -211,9 +211,9 @@ func exerciseSegmentMaker(exType workoutlog.ExerciseType) workoutlog.ExerciseSeg
 func addProgram(activity workoutlog.Activity, title string) {
 
 	microcycle1 := programs.MicroCycle{
-		Title:     "week 1",
-		Span:      7,
-		Intensity: "Intensity of the first week",
+		Title:       "week 1",
+		Span:        7,
+		Description: "Intensity of the first week",
 		Workouts: []programs.Workout{
 			workoutMaker("Day1", "heavy single X 5", "heavy double X 3"),
 			workoutMaker("Day2", "80% single X 5", "heavy double X 3"),
@@ -223,9 +223,9 @@ func addProgram(activity workoutlog.Activity, title string) {
 	}
 
 	microcycle2 := programs.MicroCycle{
-		Title:     "week 2",
-		Span:      7,
-		Intensity: "Intensity of the second week",
+		Title:       "week 2",
+		Span:        7,
+		Description: "Intensity of the second week",
 		Workouts: []programs.Workout{
 			workoutMaker("Monday", "80% doubles x 3", "heavy double X 3"),
 			workoutMaker("Tuesday", "80% single X 5", "heavy double X 3"),
@@ -235,16 +235,16 @@ func addProgram(activity workoutlog.Activity, title string) {
 	}
 
 	block1 := programs.Block{
-		Title:     "Max out",
-		Intensity: "High intenstiy",
+		Title:       "Max out",
+		Description: "High intenstiy",
 		MicroCycles: []programs.MicroCycle{
 			microcycle1,
 			microcycle2,
 		},
 	}
 	block2 := programs.Block{
-		Title:     "Taper",
-		Intensity: "Test",
+		Title:       "Taper",
+		Description: "Test",
 		MicroCycles: []programs.MicroCycle{
 			microcycle1,
 			microcycle2,
@@ -285,9 +285,9 @@ func workoutMaker(title, pSn, pSq string) programs.Workout {
 	}
 
 	return programs.Workout{
-		Title:     title,
-		Segments:  segments,
-		Intensity: "Whatever this is going to look like",
+		Title:       title,
+		Segments:    segments,
+		Description: "Whatever this is going to look like",
 	}
 
 }

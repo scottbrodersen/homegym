@@ -1,16 +1,25 @@
 <script setup>
   import { activityStore, exerciseTypeStore } from '../modules/state';
-  import { computed, reactive, ref, toRaw, watch } from 'vue';
+  import { computed, reactive, ref, toRaw } from 'vue';
   import {
     authPrompt,
     updateActivityExercises,
     fetchActivityExercises,
     ErrNotLoggedIn,
     newActivityPrompt,
-    ErrNotUnique,
     states,
   } from '../modules/utils';
-  import { QList, QItem, QItemSection, QItemLabel } from 'quasar';
+  import {
+    QBtn,
+    QCheckbox,
+    QPopupEdit,
+    QIcon,
+    QInput,
+    QList,
+    QItem,
+    QItemSection,
+    QItemLabel,
+  } from 'quasar';
   import styles from '../style.module.css';
 
   // selected activity
@@ -145,13 +154,14 @@
           round
           :disable="state == states.EDIT"
           icon="add"
+          name="add-activity"
           color="primary"
           @Click="newActivityPrompt"
         />
       </div>
       <div :class="[styles.sibSpSmall]">
         <q-btn
-          name="edit"
+          name="edit-activity"
           size="0.65em"
           round
           :disable="state == states.EDIT || currentActivity.id == ''"
@@ -215,6 +225,7 @@
           round
           :disable="state == states.EDIT || currentActivity.id == ''"
           icon="edit"
+          name="edit-exercises"
           color="primary"
           @Click="state = states.EDIT"
         />

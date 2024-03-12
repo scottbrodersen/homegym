@@ -32,7 +32,7 @@ const intensityProps = (intensityType) => {
         return /^[1-5]$/.test(value);
       },
       decimals: 0,
-      prefx: 'HR Zone',
+      prefix: 'HR Zone',
     };
   } else {
     return {
@@ -329,7 +329,7 @@ const addExerciseType = async (
   if (resp.status == 401) {
     throw new ErrNotLoggedIn('unauthorized upsert of exercise type');
   } else if (resp.status == 400) {
-    //TODO: check error  message before claiming errnotunique
+    //TODO: check error  message before claiming ErrNotUnique
     throw new Error(ErrNotUnique);
   } else if (resp.status < 200 && resp.status >= 300) {
     throw new Error();

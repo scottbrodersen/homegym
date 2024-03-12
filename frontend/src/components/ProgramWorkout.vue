@@ -6,6 +6,8 @@
   import ListActions from './ListActions.vue';
 
   const state = inject('state');
+  const requiredField = inject('requiredField');
+  const maxField = inject('maxField');
   const props = defineProps({ workout: Object });
   const emit = defineEmits(['update']);
 
@@ -40,7 +42,7 @@
     <div :class="styles.pgmWorkout">
       <div>
         <span :class="[styles.hgBold]">{{ props.workout.title ? props.workout.title : '<needs a title>'}}:</span>
-        {{ props.workout.intensity }}
+        {{ props.workout.description }}
       </div>
         <div v-for="(segment, ix) of segments.list" :key="ix">
           <ProgramWorkoutSegment :segment="segment" />
@@ -55,12 +57,14 @@
       label="Workout Title"
       stack-label
       dark
-    />
+      :rules="[requiredField, maxField]"
+   />
     <q-input
-      v-model="props.workout.intensity"
-      label="Intensity"
+      v-model="props.workout.description"
+      label="Description"
       stack-label
       dark
+      :rules="[maxField]"
     />
     <div :class="[styles.pgmChild]">
       <ProgramWorkoutSegment v-for="(segment, ix) of props.workout.segments" :key="ix"

@@ -7,6 +7,8 @@
   import ListActions from './ListActions.vue';
 
   const state = inject('state');
+  const requiredField = inject('requiredField');
+  const maxField = inject('maxField');
   const props = defineProps({ microcycle: Object });
   const emit = defineEmits(['update']);
 
@@ -46,7 +48,7 @@
           ({{ props.microcycle.span }} days):
         </div>
         <div :class="[styles.sibSpxSmall]">
-          {{ props.microcycle.intensity }}
+          {{ props.microcycle.description }}
         </div>
       </div>
       <div :class="[styles.pgmMcWorkouts]">
@@ -64,13 +66,16 @@
         label="Microcycle Title"
         stack-label
         dark
-      />
-      <q-input v-model="props.microcycle.span" label="Days" stack-label dark />
+        :rules="[requiredField, maxField]"
+     />
+      <q-input v-model="props.microcycle.span" label="Days" stack-label dark :rules="[requiredField, maxField]"
+/>
       <q-input
-        v-model="props.microcycle.intensity"
-        label="Intensity"
+        v-model="props.microcycle.description"
+        label="Description"
         stack-label
         dark
+        :rules="[maxField]"
       />
       <div :class="[styles.pgmChild]">
         <q-expansion-item
