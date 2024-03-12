@@ -2,9 +2,10 @@ version: '0.2'
 language: en
 words:
   - addevent
-  - scottbrodersen
+  - checkmark
+  - Debugf
   - colours
-  - homegym
+  - Editbles
   - eventstore
   - followroute
   - goconvey
