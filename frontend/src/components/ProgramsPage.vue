@@ -1,6 +1,7 @@
 <script setup>
   import { programsStore, activityStore } from '../modules/state';
   import {
+    authPrompt,
     fetchPrograms,
     ErrNotLoggedIn,
     newProgramModal,
@@ -9,7 +10,7 @@
   import styles from '../style.module.css';
   import { computed, onBeforeMount, provide, ref } from 'vue';
   import { QSelect, QBtn } from 'quasar';
-  import Program from './Program.vue';
+  import ActivityProgram from './ActivityProgram.vue';
 
   const selectedProgram = ref('');
   const activity = ref();
@@ -154,7 +155,7 @@
   </div>
 
   <div>
-    <Program
+    <ActivityProgram
       v-if="selectedProgram"
       :programID="selectedProgram"
       @done="setSelection"

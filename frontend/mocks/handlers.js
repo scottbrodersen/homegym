@@ -1,6 +1,5 @@
 import { http, HttpResponse } from 'msw';
-import { fetchEventExercises } from '../modules/utils';
-import * as data from 'data.js';
+import * as data from './data';
 
 const loginHandler = http.post('/homegym/login', async ({ request }) => {
   const options = { status: 200 };

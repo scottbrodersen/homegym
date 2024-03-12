@@ -7,6 +7,8 @@
   import ListActions from './ListActions.vue';
 
   const state = inject('state');
+  const requiredField = inject('requiredField');
+  const maxField = inject('maxField');
   const props = defineProps({ block: Object });
   const emit = defineEmits(['update']);
 
@@ -43,7 +45,7 @@
   <div :class="[styles.pgmBlock]">
     <div v-if="state == states.READ_ONLY">
       <span :class="[styles.pgmBlockTitle]">{{ props.block.title }}:</span>
-      {{ props.block.intensity }}
+      {{ props.block.description }}
       <div
         :class="[styles.pgmCycles]"
         v-for="(cycle, ix) of props.block.microCycles"
@@ -57,18 +59,25 @@
     </div>
     <div v-else>
       <div :class="[styles.horiz]">
-        <div :class="[styles.pgmEditibles]">
-          <q-input v-model="props.block.title" label-slot stack-label dark>
+        <div :class="[styles.pgmEditbles]">
+          <q-input
+            v-model="props.block.title"
+            label-slot
+            stack-label
+            dark
+            :rules="[requiredField, maxField]"
+          >
             <template v-slot:label>
               <div :class="[styles.pgmBlockLabel]">Block Title</div>
             </template></q-input
           >
           <q-input
-            v-model="props.block.intensity"
-            label="Intensity"
+            v-model="props.block.description"
+            label="Description"
             stack-label
             dark
             @focus="(event) => console.log(event)"
+            :rules="[maxField]"
           />
         </div>
         <ListActions @update="update" />

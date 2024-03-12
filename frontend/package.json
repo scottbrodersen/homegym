@@ -1,16 +1,17 @@
 {
   "name": "frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "scripts": {
     "dev": "vite build --mode dev",
     "build": "vite build --mode prod",
-    "test": "vitest"
+    "test": "vitest",
+    "debug": "vitest --test-timeout 10000000"
   },
   "dependencies": {
     "@quasar/extras": "^1.16.9",
-    "quasar": "^2.14.3",
+    "quasar": "^2.14.5",
     "vue": "^3.4.15",
     "vue-router": "^4.2.5"
   },
@@ -23,8 +24,9 @@
     "jsdom": "^22.1.0",
     "msw": "^2.1.5",
     "sass": "^1.63.6",
-    "vite": "^5.0.12",
-    "vitest": "^1.2.2",
+    "unplugin-auto-import": "^0.17.5",
+    "vite": "^5.1.4",
+    "vitest": "^1.3.1",
     "webdriverio": "^8.23.1"
   }
 }

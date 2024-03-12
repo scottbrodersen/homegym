@@ -25,7 +25,7 @@
 
   const exerciseNames = computed(() => {
     const names = [];
-    if (!!props.activityID) {
+    if (props.activityID) {
       activityStore.get(props.activityID).exercises.forEach((exerciseID) => {
         const eType = exerciseTypeStore.get(exerciseID);
         eTypeIDs.push(eType.id);
@@ -36,7 +36,7 @@
   });
 
   const getActivityExercises = async (activityID) => {
-    // fetch activity exerices types if needed
+    // fetch activity exercises types if needed
     if (activityStore.get(activityID).exercises == null) {
       await fetchActivityExercises(activityID).catch((e) => {
         if (e instanceof ErrNotLoggedIn) {

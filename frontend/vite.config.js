@@ -34,7 +34,7 @@ export default defineConfig(({ command, mode }) => {
     },
   };
 
-  if (mode == 'dev') {
+  if (mode != 'prod') {
     config.mode = 'development';
     config.build.mode = 'development';
     config.build.watch = {};

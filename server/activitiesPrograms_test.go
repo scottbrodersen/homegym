@@ -43,15 +43,15 @@ func testWorkout(index int) programs.Workout {
 			testSegment(),
 			testSegment(),
 		},
-		Intensity: testIntensityStr,
+		Description: testIntensityStr,
 	}
 }
 
 func testMicroCycle(index int) programs.MicroCycle {
 	return programs.MicroCycle{
-		Title:     fmt.Sprintf("%s %d", testMicroCycleTitle, index),
-		Span:      testSpan,
-		Intensity: testIntensityStr,
+		Title:       fmt.Sprintf("%s %d", testMicroCycleTitle, index),
+		Span:        testSpan,
+		Description: testIntensityStr,
 		Workouts: []programs.Workout{
 			testWorkout(0),
 			testWorkout(1),
@@ -73,7 +73,7 @@ func testBlock(index int) programs.Block {
 			testMicroCycle(2),
 			testMicroCycle(3),
 		},
-		Intensity: samesiteString(),
+		Description: samesiteString(),
 	}
 }
 

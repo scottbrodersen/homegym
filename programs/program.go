@@ -63,9 +63,9 @@ func (ws WorkoutSegment) validate() error {
 }
 
 type Workout struct {
-	Title     string           `json:"title"`
-	Segments  []WorkoutSegment `json:"segments"`
-	Intensity string           `json:"intensity,omitempty"`
+	Title       string           `json:"title"`
+	Segments    []WorkoutSegment `json:"segments"`
+	Description string           `json:"description,omitempty"`
 }
 
 func (w Workout) validate() error {
@@ -86,10 +86,10 @@ func (w Workout) validate() error {
 }
 
 type MicroCycle struct {
-	Title     string    `json:"title"`
-	Span      int       `json:"span"`
-	Intensity string    `json:"intensity,omitempty"`
-	Workouts  []Workout `json:"workouts,omitempty"`
+	Title       string    `json:"title"`
+	Span        int       `json:"span"`
+	Description string    `json:"description,omitempty"`
+	Workouts    []Workout `json:"workouts,omitempty"`
 }
 
 func (mc MicroCycle) validate() error {
@@ -111,7 +111,7 @@ func (mc MicroCycle) validate() error {
 type Block struct {
 	Title       string       `json:"title"`
 	MicroCycles []MicroCycle `json:"microCycles,omitempty"`
-	Intensity   string       `json:"intensity,omitempty"`
+	Description string       `json:"description,omitempty"`
 }
 
 func (b Block) validate() error {
