@@ -36,7 +36,7 @@
   });
 
   const getActivityExercises = async (activityID) => {
-    // fetch activity exerices types if needed
+    // fetch activity exercises types if needed
     if (activityStore.get(activityID).exercises == null) {
       await fetchActivityExercises(activityID).catch((e) => {
         if (e instanceof ErrNotLoggedIn) {
