@@ -1,10 +1,11 @@
-<script setup>
+<script async setup>
   import { ref, computed, toRaw, watch } from 'vue';
   import styles from '../style.module.css';
   import DatePicker from './DatePicker.vue';
   import EventMeta from './EventMeta.vue';
   import ExerciseInstance from './ExerciseInstance.vue';
-  import { eventStore, activityStore } from '../modules/state.js';
+  import { eventStore, activityStore } from '../modules/state';
+  import { fetchEventPage } from '../modules/utils';
   import { QBtn } from 'quasar';
   import {
     authPrompt,
@@ -23,9 +24,16 @@
   const activityNames = [];
 
   // populate state when opening an existing event
-  if (!!props.eventId) {
-    thisEvent.value = structuredClone(toRaw(eventStore.getByID(props.eventId)));
-    if (!!thisEvent.value.activityID) {
+  if (props.eventId) {
+    if (!eventStore.getByID(props.eventId)) {
+      await fetchEventPage(props.eventId);
+    }
+
+    thisEvent.value = JSON.parse(
+      JSON.stringify(eventStore.getByID(props.eventId))
+    );
+
+    if (thisEvent.value.activityID) {
       thisEventActivityName.value = activityStore.get(
         thisEvent.value.activityID
       ).name;

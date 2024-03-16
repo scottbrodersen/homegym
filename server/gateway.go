@@ -12,14 +12,6 @@ type gateway struct {
 	handler http.Handler
 }
 
-// front end internal routing urls
-var redirectToHome []string = []string{
-	eventPath,
-	activitiesPath,
-	exerciseTypesPath,
-	programsPath,
-}
-
 func newGateway(h http.Handler) *gateway {
 	return &gateway{handler: h}
 }
@@ -62,9 +54,18 @@ func (g *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Debug("authorized for ", r.URL.String())
 
-	// redirect to home page
-	for _, path := range redirectToHome {
+	// redirect to home page and set internal routing cookie
+	for _, path := range internalRoutes {
 		if strings.HasPrefix(r.URL.Path, path) {
+			routingCookie := http.Cookie{
+				Name:     cookieRoute,
+				Value:    r.URL.Path,
+				Secure:   isSafe,
+				HttpOnly: isSafe,
+				Path:     "/homegym/",
+				SameSite: samesite,
+			}
+			http.SetCookie(w, &routingCookie)
 			http.Redirect(w, r, homePath, http.StatusFound)
 			return
 		}

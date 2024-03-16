@@ -9,8 +9,6 @@
   import { QTable, QTr, QTh, QTd, QBtn } from 'quasar';
   import {
     authPrompt,
-    fetchActivities,
-    fetchExerciseTypes,
     fetchEventPage,
     pageSize,
     ErrNotLoggedIn,
@@ -100,10 +98,6 @@
 
   const initState = async () => {
     try {
-      if (exerciseTypeStore.exerciseTypes.size === 0) {
-        await fetchExerciseTypes();
-        await fetchActivities();
-      }
       await setPage({ pagination: { page: 1 } });
     } catch (e) {
       if (e instanceof ErrNotLoggedIn) {

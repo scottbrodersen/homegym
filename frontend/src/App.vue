@@ -1,14 +1,7 @@
 <script setup>
-  import styles from './style.module.css';
+  import InitState from './components/InitState.vue';
 </script>
 
 <template>
-  <div :id="styles.wrapper">
-    <router-view />
-    <main :class="[styles.blockPadSm]">
-      <router-view name="main" />
-    </main>
-  </div>
+  <Suspense><InitState /></Suspense>
 </template>
-
-<style scoped></style>

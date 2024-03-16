@@ -21,6 +21,7 @@ const (
 	cookieToken                      = "token"
 	cookieSession                    = "session"
 	cookieUsername                   = "username"
+	cookieRoute                      = "followroute"
 	allowedCorsOrigin                = "http://192.168.2.55:80"
 	allowedCorsMethods               = "*"
 	allowedCorsHeaders               = "Set-Cookie"
@@ -40,10 +41,12 @@ type requestAuthorizer interface {
 const homePath string = "/homegym/home/"
 
 // frontend app internal routes
-const eventPath string = "/homegym/event/"
-const activitiesPath string = "/homegym/activities/"
-const exerciseTypesPath string = "/homegym/exercises/"
-const programsPath string = "/homegym/programs/"
+var internalRoutes []string = []string{
+	"/homegym/event/",
+	"/homegym/activities/",
+	"/homegym/exercises/",
+	"/homegym/programs/",
+}
 
 var secureMux *http.ServeMux
 var publicMux *http.ServeMux
@@ -51,8 +54,8 @@ var secureGateway http.Handler
 var authorizer requestAuthorizer = auth.NewAuthorizer()
 
 // We use middleware as a bridge between a public mux and secured mux.
-// The public mux routes top-level paths middleware that authenticates the request (a gateway)
-// On successful authenticated, the middleware passes the request to the secured mux.
+// The public mux routes top-level paths to middleware that authenticates the request (a gateway)
+// Once authenticated, the middleware passes the request to the secured mux.
 // Routes to the login page and signup page are unauthenticated.
 func init() {
 	// Routes accessible after authentication by secureGateway
@@ -76,8 +79,10 @@ func init() {
 	// first-level subtrees -- routed to secureGateway for authentication
 	publicMux.Handle("/homegym/api/", secureGateway)
 	publicMux.Handle("/homegym/home/", secureGateway)
-	publicMux.Handle("/homegym/event/", secureGateway)
-	publicMux.Handle("/homegym/exercises/", secureGateway)
+
+	for _, internalRoute := range internalRoutes {
+		publicMux.Handle(internalRoute, secureGateway)
+	}
 
 	// specific paths for initial authentication requests
 	publicMux.HandleFunc("/homegym/login", HandleLogin)
