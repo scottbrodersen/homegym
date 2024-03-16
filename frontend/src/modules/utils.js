@@ -393,6 +393,7 @@ const updateActivityExercises = async (activity) => {
 
   activityStore.add(activity);
 };
+
 const updateProgram = async (program) => {
   if (!program.activityID) {
     throw new Error('missing activity ID');
@@ -588,6 +589,22 @@ class OrderedList {
     }
   }
 }
+// https://stackoverflow.com/a/21125098/2307622
+const getCookieValue = (name) => {
+  const regex = new RegExp(`(^| )${name}=([^;]+)`);
+  const match = document.cookie.match(regex);
+  if (match) {
+    return match[2];
+  }
+};
+
+const deleteCookie = (name) => {
+  const regex = new RegExp(`(^| )${name}=([^;]+)`);
+  const match = document.cookie.match(regex);
+  if (match) {
+    return match[2];
+  }
+};
 
 export {
   authPrompt,
@@ -618,4 +635,5 @@ export {
   openVariationModal,
   states,
   OrderedList,
+  getCookieValue,
 };
