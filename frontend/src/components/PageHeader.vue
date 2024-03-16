@@ -2,27 +2,19 @@
   import { reactive, ref, watch } from 'vue';
   import { useRouter, useRoute } from 'vue-router';
   import { QBtn, QBtnGroup, QToggle } from 'quasar';
-  import { metricState } from '../modules/state.js';
+  import { metricState } from '../modules/state';
+  import { getCookieValue } from '../modules/utils';
   import styles from '../style.module.css';
 
-  const padding = ref('4px 10px');
+  const router = useRouter();
+  const route = useRoute();
 
-  const toggleMetric = (isMetric) => {
-    if (isMetric) {
-      metricState.setMetric();
-    } else {
-      metricState.setImperial();
-    }
+  const paths = {
+    '/homegym/event/': 'event',
+    '/homegym/activities/': 'activities',
+    '/homegym/exercises/': 'exTypes',
+    '/homegym/programs/': 'programs',
   };
-
-  const labels = reactive({
-    home: 'Home',
-    event: 'Event',
-    activities: 'Activities',
-    exTypes: 'Exercises',
-    programs: 'Programs',
-    metric: 'Metric',
-  });
 
   // field names match route names
   const active = reactive({
@@ -43,8 +35,38 @@
     }
   };
 
-  const router = useRouter();
-  const route = useRoute();
+  if (getCookieValue('followroute')) {
+    const follow = getCookieValue('followroute');
+    document.cookie =
+      'followroute=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/homegym/';
+    if (follow.startsWith('/homegym/event/')) {
+      const parts = follow.split('/');
+      const eventID = parts[parts.length - 1];
+      await router.replace({ name: 'event', params: { eventId: eventID } });
+    } else {
+      setActive(paths[follow]);
+      await router.replace(follow);
+    }
+  }
+
+  const padding = ref('4px 10px');
+
+  const toggleMetric = (isMetric) => {
+    if (isMetric) {
+      metricState.setMetric();
+    } else {
+      metricState.setImperial();
+    }
+  };
+
+  const labels = reactive({
+    home: 'Home',
+    event: 'Event',
+    activities: 'Activities',
+    exTypes: 'Exercises',
+    programs: 'Programs',
+    metric: 'Metric',
+  });
 
   window.addEventListener('popstate', (event) => {
     router.replace({ path: event.state.current });
@@ -56,13 +78,6 @@
       setActive(newname);
     }
   );
-
-  const removeToken = () => {
-    document.cookie =
-      'token=; Domain=localhost; Path=/homegym/; Max-Age=-99999999;';
-  };
-
-  const showTestTools = ref(process.env.TEST_TOOLS);
 </script>
 
 <template>
@@ -103,13 +118,6 @@
         square
         :padding="padding"
         :to="{ name: 'programs' }"
-      />
-      <q-btn
-        v-if="showTestTools"
-        color="white"
-        text-color="black"
-        label="ZapToken"
-        @click="removeToken"
       />
     </q-btn-group>
     <q-toggle
