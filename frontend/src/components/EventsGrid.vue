@@ -4,7 +4,7 @@
     activityStore,
     eventMetricsStore,
   } from '../modules/state.js';
-  import { computed, ref, onBeforeMount, Suspense } from 'vue';
+  import { computed, ref, onBeforeMount } from 'vue';
   import { QTable, QTr, QTh, QTd, QBtn } from 'quasar';
   import {
     authPrompt,
@@ -12,9 +12,7 @@
     pageSize,
     ErrNotLoggedIn,
   } from '../modules/utils.js';
-  import EventExercises from './EventExercises.vue';
   import styles from '../style.module.css';
-  import EventMeta from './EventMeta.vue';
   import EventDetails from './EventDetails.vue';
 
   const table = ref();
@@ -59,6 +57,26 @@
         return activityStore.get(val).name;
       },
       sortable: false,
+    },
+    {
+      name: 'volume',
+      required: true,
+      label: 'Volume',
+      align: 'left',
+      field: 'id',
+      format: (id) => {
+        return eventMetricsStore.getMetric(id, 'volume');
+      },
+    },
+    {
+      name: 'load',
+      required: true,
+      label: 'Load',
+      align: 'left',
+      field: 'id',
+      format: (id) => {
+        return eventMetricsStore.getMetric(id, 'load');
+      },
     },
   ];
 
@@ -191,8 +209,6 @@
           <q-th :props="props" v-for="col in props.cols" :key="col.name">
             {{ col.label }}
           </q-th>
-          <q-th>Volume</q-th>
-          <q-th>Load</q-th>
           <q-th></q-th>
         </q-tr>
       </template>
@@ -213,8 +229,6 @@
           <q-td v-for="col in props.cols" :key="col.name" :props="props">
             {{ col.value }}
           </q-td>
-          <q-td>{{ eventMetricsStore.getMetric(props.row.id, 'volume') }}</q-td>
-          <q-td>{{ eventMetricsStore.getMetric(props.row.id, 'load') }}</q-td>
           <q-td :style="background(props.row.id)" />
         </q-tr>
         <Transition name="scale">
