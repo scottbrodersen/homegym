@@ -2,7 +2,6 @@
   import {
     eventStore,
     activityStore,
-    exerciseTypeStore,
     eventMetricsStore,
   } from '../modules/state.js';
   import { computed, ref, onBeforeMount, Suspense } from 'vue';
@@ -16,6 +15,7 @@
   import EventExercises from './EventExercises.vue';
   import styles from '../style.module.css';
   import EventMeta from './EventMeta.vue';
+  import EventDetails from './EventDetails.vue';
 
   const table = ref();
   const expanded = ref([]);
@@ -217,31 +217,13 @@
           <q-td>{{ eventMetricsStore.getMetric(props.row.id, 'load') }}</q-td>
           <q-td :style="background(props.row.id)" />
         </q-tr>
-        <q-tr v-show="props.expand" :props="props">
-          <q-td :class="[styles.expanded, styles.blockPadSm]" colspan="5">
-            <q-btn
-              color="primary"
-              round
-              :to="{ name: 'event', params: { eventId: props.key } }"
-              icon="edit"
-            />
-            <EventMeta
-              :mood="props.row.mood"
-              :energy="props.row.energy"
-              :motivation="props.row.motivation"
-              :readonly="true"
-            />
-            <Suspense :key="pagination.page" timeout="0">
-              <EventExercises :event-id="props.row.id" />
-              <template #fallback> Loading... </template>
-            </Suspense>
-            <EventMeta
-              :overall="props.row.overall"
-              :notes="props.row.notes"
-              :readonly="true"
-            />
-          </q-td>
-        </q-tr>
+        <Transition name="scale">
+          <EventDetails
+            v-show="props.expand"
+            :rowProps="props"
+            class="slider"
+          />
+        </Transition>
       </template>
       <template v-slot:bottom="scope">
         <q-btn
@@ -291,3 +273,11 @@
     </q-table>
   </div>
 </template>
+<style>
+  .scale-enter-active {
+    transition: 0.25s;
+  }
+  .scale-enter-from {
+    transform: scaleY(1.05);
+  }
+</style>
