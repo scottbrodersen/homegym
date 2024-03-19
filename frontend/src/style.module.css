@@ -214,11 +214,6 @@ header a:hover {
   text-align: center;
 }
 
-.eventsTable th:first-child,
-.eventsTable td:first-child {
-  max-width: 25px;
-}
-
 .eventsTable td:last-child,
 .eventsTable th:last-child {
   width: 0px;
@@ -229,6 +224,7 @@ header a:hover {
   text-align: left;
   font-family: var(--font-family);
   font-size: 1em;
+  padding-left: 18px;
 }
 
 .eventsTable td.expanded a {
