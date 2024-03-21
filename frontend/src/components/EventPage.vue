@@ -59,29 +59,29 @@
   // An empty updated instance removes it
   const setExerciseInstance = (index, updated) => {
     if (index == null) {
-      if (!!!thisEvent.value.exInstances) {
-        // initialize the exInstances object
-        thisEvent.value.exInstances = {};
+      if (!!!thisEvent.value.exercises) {
+        // initialize the exercises object
+        thisEvent.value.exercises = {};
       }
 
-      const newIndex = Object.keys(thisEvent.value.exInstances).length;
+      const newIndex = Object.keys(thisEvent.value.exercises).length;
       const newInstance = {
         index: newIndex,
       };
 
-      thisEvent.value.exInstances[newIndex] = newInstance;
+      thisEvent.value.exercises[newIndex] = newInstance;
     } else if (updated == {}) {
-      delete thisEvent.value.exInstances[index];
+      delete thisEvent.value.exercises[index];
 
       // normalize the indexes
       const normalized = {};
-      Object.values(thisEvent.value.exInstances).forEach((exInst) => {
+      Object.values(thisEvent.value.exercises).forEach((exInst) => {
         normalized[exInst.index] = exInst;
       });
 
-      thisEvent.value.exInstances = normalized;
+      thisEvent.value.exercises = normalized;
     } else {
-      thisEvent.value.exInstances[index] = updated;
+      thisEvent.value.exercises[index] = updated;
     }
   };
 
@@ -130,7 +130,7 @@
     storeEventExerciseInstances(
       thisEvent.value.id,
       thisEvent.value.date,
-      thisEvent.value.exInstances
+      thisEvent.value.exercises
     )
       .then((responses) => {
         if (!!responses) {
@@ -204,7 +204,7 @@
 
     <div
       :class="[styles.exInstContainer]"
-      v-for="(value, index) in thisEvent.exInstances"
+      v-for="(value, index) in thisEvent.exercises"
       :key="index"
     >
       <ExerciseInstance

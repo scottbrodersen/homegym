@@ -248,22 +248,25 @@
             </q-item-section>
           </q-item>
         </q-list>
-        <div :class="[styles.horiz]">
+        <div :class="[styles.buttonArray]">
           <q-btn
-            color="primary"
+            color="accent"
+            text-color="dark"
             icon="save"
             @click="saveExerciseIDs"
             :disabled="!isChanged"
           />
           <q-btn
-            color="primary"
+            color="accent"
+            text-color="dark"
             icon="restart_alt"
             @click="resetValues"
             :disabled="!isChanged"
           />
           <q-btn
-            color="primary"
-            label="done"
+            color="accent"
+            text-color="dark"
+            icon="done"
             :disabled="isChanged"
             @click="state = states.READ_ONLY"
             :class="[styles.maxRight]"
