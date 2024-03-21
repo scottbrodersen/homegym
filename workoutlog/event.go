@@ -203,6 +203,13 @@ func (em *eventManager) GetPageOfEvents(userID string, previousEvent Event, page
 		events = append(events, *event)
 	}
 
+	for i, _ := range events {
+		events[i].Exercises, err = em.GetEventExercises(userID, events[i].ID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get event exercise instances: %w", err)
+		}
+	}
+
 	return events, nil
 }
 
