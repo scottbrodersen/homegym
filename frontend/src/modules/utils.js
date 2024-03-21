@@ -139,40 +139,6 @@ const fetchExerciseTypes = async () => {
   });
 };
 
-const fetchEventExercises = async (eventDate, eventID) => {
-  const resp = await fetch(
-    `/homegym/api/events/${eventDate}/${eventID}/exercises/`,
-    {
-      method: 'GET',
-      mode: 'same-origin',
-    }
-  );
-  if (resp.status == 401) {
-    throw new ErrNotLoggedIn('unauthorized fetch of event exercises');
-  }
-  const exercises = await resp.json();
-
-  // store in an object to use numbers as keys
-  const sorted = {};
-
-  if (!!exercises) {
-    const items = Object.values(exercises);
-
-    items.sort((a, b) => {
-      return a.index - b.index;
-    });
-
-    items.forEach((exInst) => {
-      sorted[exInst.index] = exInst;
-    });
-  }
-  try {
-    eventStore.setEventExercises(eventID, sorted);
-  } catch (e) {
-    console.log(e);
-  }
-};
-
 const fetchActivityExercises = async (activityID) => {
   const resp = await fetch(`/homegym/api/activities/${activityID}/exercises/`, {
     method: 'GET',
@@ -612,7 +578,6 @@ export {
   fetchPrograms,
   fetchEventPage,
   fetchExerciseTypes,
-  fetchEventExercises,
   pageSize,
   login,
   fetchActivityExercises,

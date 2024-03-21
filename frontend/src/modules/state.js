@@ -26,16 +26,6 @@ export const eventStore = reactive({
     return this.events[this.events.length - 1];
   },
 
-  setEventExercises(eventID, exerciseInstances) {
-    for (let i = 0; i < this.events.length; i++) {
-      if (this.events[i].id === eventID) {
-        this.events[i].exInstances = exerciseInstances;
-        return;
-      }
-    }
-    throw Error('event not found');
-  },
-
   getByID(eventID) {
     for (const e of this.events) {
       if (e.id === eventID) {

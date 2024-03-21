@@ -153,8 +153,8 @@ h1 {
 
 .grid2Col {
   display: grid;
-  grid-template-columns: [leftCol] 45% [spacer] 5% [rightCol] 45%;
-  column-gap: var(--hg-small);
+  grid-template-columns: [leftCol] 45% [spacer] 0% [rightCol] 50%;
+  column-gap: var(--hg-xsmall);
   row-gap: var(--hg-small);
 }
 
@@ -459,6 +459,10 @@ header a:hover {
   composes: horiz;
   justify-content: space-between;
   composes: blockPadSm;
+}
+
+.buttonArray button {
+  width: 40px;
 }
 
 .pgmSelect {

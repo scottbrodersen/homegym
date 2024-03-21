@@ -1,11 +1,11 @@
-<script setup>
+<script async setup>
   import {
     eventStore,
     activityStore,
     eventMetricsStore,
   } from '../modules/state.js';
-  import { computed, ref, onBeforeMount } from 'vue';
-  import { QTable, QTr, QTh, QTd, QBtn } from 'quasar';
+  import { computed, ref } from 'vue';
+  import { QTable, QTr, QTd, QBtn } from 'quasar';
   import {
     authPrompt,
     fetchEventPage,
@@ -144,7 +144,7 @@
 
         // initialize objects in metrics store
         events.forEach((event) => {
-          eventMetricsStore.add(event.id, {});
+          setMetrics(event);
         });
       }
     } catch (e) {
@@ -161,20 +161,30 @@
     pagination.value.page = props.pagination.page;
   };
 
-  const initState = async () => {
-    try {
-      await setPage({ pagination: { page: 1 } });
-    } catch (e) {
-      if (e instanceof ErrNotLoggedIn) {
-        console.log(e.message);
-        authPrompt(initState);
-      } else {
-        console.log(e);
-      }
+  const setMetrics = (event) => {
+    // volume is the total reps done in an event
+    let volume = 0;
+    // load is total work done in an event
+    let load = 0;
+
+    for (const index of Object.keys(event.exercises)) {
+      event.exercises[index].parts.forEach((part) => {
+        part.volume.forEach((set) => {
+          set.forEach((rep) => {
+            if (rep != 0) {
+              volume++;
+              load += Math.floor(part.intensity * rep);
+            }
+          });
+        });
+      });
     }
+
+    eventMetricsStore.setMetric(event.id, 'volume', volume);
+    eventMetricsStore.setMetric(event.id, 'load', load);
   };
 
-  onBeforeMount(initState);
+  await setPage({ pagination: { page: 1 } });
 
   // custom expand row function to allow only one row to be expanded at a time
   const expandRow = (props) => {
@@ -226,7 +236,7 @@
         <Transition name="scale">
           <EventDetails
             v-show="props.expand"
-            :rowProps="props"
+            :event-id="props.key"
             class="slider"
           />
         </Transition>

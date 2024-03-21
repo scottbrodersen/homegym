@@ -89,7 +89,7 @@ export const testExerciseInstance = (index) => {
   }
   return {
     typeID:
-      fetchedExercises[randomIntFromInterval(0, fetchEventExercises.length)].id,
+      fetchedExercises[randomIntFromInterval(0, fetchedExercises.length)].id,
     index: index,
     parts: parts,
   };

@@ -357,7 +357,7 @@
             {{ value }}
           </div>
         </div>
-        <div v-show="state != states.READ_ONLY" :class="[styles.horiz]">
+        <div v-show="state != states.READ_ONLY" :class="[styles.buttonArray]">
           <q-btn
             color="accent"
             text-color="dark"
@@ -377,7 +377,7 @@
           <q-btn
             color="accent"
             text-color="dark"
-            label="done"
+            icon="done"
             @click="resetAndCancel"
           />
         </div>
