@@ -7,6 +7,14 @@ import (
 	"slices"
 )
 
+type ErrInvalidExercise struct {
+	Message string
+}
+
+func (ec ErrInvalidExercise) Error() string {
+	return fmt.Sprintf("invalid exercise: %s", ec.Message)
+}
+
 // Defines an exercise
 // Factory for ExerciseInstance
 // Translates instances between the user interface and the db
@@ -77,12 +85,12 @@ func (et ExerciseType) validateInstance(ei *ExerciseInstance) error {
 			ei.Segments[i].Intensity = float32(math.Floor(float64(segment.Intensity*10)) / 10)
 		case "hrZone":
 			if segment.Intensity > 5 && segment.Intensity < 1 {
-				return fmt.Errorf("hrZone must be between 1 and 5")
+				return ErrInvalidExercise{Message: "hrZone must be between 1 and 5"}
 			}
 			fallthrough
 		case "rpe":
 			if segment.Intensity > 10 && segment.Intensity < 1 {
-				return fmt.Errorf("RPI must be between 1 and 10")
+				return ErrInvalidExercise{Message: "RPE must be between 1 and 10"}
 			}
 			fallthrough
 		case "percentOfMax":
@@ -93,11 +101,11 @@ func (et ExerciseType) validateInstance(ei *ExerciseInstance) error {
 		for j, set := range segment.Volume {
 
 			if len(set) == 0 {
-				return fmt.Errorf("volume is a required value")
+				return ErrInvalidExercise{Message: "volume is a required value"}
 			}
 			for k, rep := range set {
 				if rep < 0 {
-					return fmt.Errorf("volume must be a positive number")
+					return ErrInvalidExercise{Message: "volume must be a positive number"}
 				}
 				switch et.VolumeConstraint {
 				case 0:
@@ -107,7 +115,7 @@ func (et ExerciseType) validateInstance(ei *ExerciseInstance) error {
 					fallthrough
 				case 2:
 					if rep != 0 && rep != 1 {
-						return fmt.Errorf("invalid rep value: must be 0 or 1")
+						return ErrInvalidExercise{Message: "invalid rep value: must be 0 or 1"}
 					}
 				}
 			}
@@ -119,49 +127,49 @@ func (et ExerciseType) validateInstance(ei *ExerciseInstance) error {
 // validate ensures the exercise type is correctly defined.
 func (e ExerciseType) validate() error {
 	if e.Name == "" {
-		return fmt.Errorf("name cannot be empty")
+		return ErrInvalidExercise{Message: "name cannot be empty"}
 	}
 
 	namerxp := regexp.MustCompile(`^[a-zA-Z0-9_\-&$*@. \+]+$`)
 	if ok := namerxp.MatchString(e.Name); !ok {
-		return fmt.Errorf("name can include letters, digits, _, -, &, $, *, @, ., and spaces")
+		return ErrInvalidExercise{Message: "name can include letters, digits, _, -, &, $, *, @, ., and spaces"}
 	}
 
 	if e.ID == "" {
-		return fmt.Errorf("id cannot be empty")
+		return ErrInvalidExercise{Message: "id cannot be empty"}
 	}
 
 	if slices.Index(intensityTypes, e.IntensityType) < 0 {
-		return fmt.Errorf("invalid intensity type: %s", e.IntensityType)
+		return ErrInvalidExercise{Message: fmt.Sprintf("invalid intensity type: %s", e.IntensityType)}
 	}
 
 	if slices.Index(volumeTypes, e.VolumeType) < 0 {
-		return fmt.Errorf("invalid volume type: %s", e.VolumeType)
+		return ErrInvalidExercise{Message: fmt.Sprintf("invalid volume type: %s", e.VolumeType)}
 	}
 
 	if slices.Index(volumeConstraints, e.VolumeConstraint) < 0 {
-		return fmt.Errorf("invalid volume constraint: %d", e.VolumeConstraint)
+		return ErrInvalidExercise{Message: fmt.Sprintf("invalid volume constraint: %d", e.VolumeConstraint)}
 	}
 
 	if e.VolumeType == "count" {
 		if e.VolumeConstraint != 1 && e.VolumeConstraint != 2 {
-			return fmt.Errorf("invalid volume constraint: %d", e.VolumeConstraint)
+			return ErrInvalidExercise{Message: fmt.Sprintf("invalid volume constraint: %d", e.VolumeConstraint)}
 		}
 
 	} else {
 		if e.VolumeConstraint != 0 {
-			return fmt.Errorf("invalid volume constraint: %d", e.VolumeConstraint)
+			return ErrInvalidExercise{Message: fmt.Sprintf("invalid volume constraint: %d", e.VolumeConstraint)}
 		}
 	}
 
 	if e.Composition != nil || len(e.Composition) > 0 {
 		if e.VolumeType != "count" && e.VolumeConstraint != 1 {
-			return fmt.Errorf("composites must use the count volume type with volume constraint of 1")
+			return ErrInvalidExercise{Message: "composites must use the count volume type with volume constraint of 1"}
 		}
 	}
 
 	if (e.Composition != nil || len(e.Composition) > 0) && e.Basis != "" {
-		return fmt.Errorf("cannot be both a composite and a variation")
+		return ErrInvalidExercise{Message: "cannot be both a composite and a variation"}
 	}
 
 	return nil

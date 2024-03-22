@@ -209,6 +209,19 @@ func TestExerciseTypes(t *testing.T) {
 			So(err, ShouldNotBeNil)
 
 		})
+
+		Convey("When we ingest an exerise instance with a bad index value in the volume part", func() {
+			exIncoming := ExerciseInstance{}
+
+			if err := json.Unmarshal([]byte(testIncomingWithBadIndex), &exIncoming); err != nil {
+				t.Fatal(err)
+			}
+
+			err := exType.validateInstance(&exIncoming)
+
+			So(err, ShouldNotBeNil)
+
+		})
 	})
 
 }
