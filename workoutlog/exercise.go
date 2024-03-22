@@ -37,7 +37,7 @@ func (ea *exerciseManager) NewExerciseType(userID, name, intensity, volume strin
 	}
 
 	if err := newType.validate(); err != nil {
-		return nil, fmt.Errorf("invalid exercise type: %w", err)
+		return nil, fmt.Errorf("cannot add exercise type: %w", err)
 	}
 
 	// Check that the name isn't already used

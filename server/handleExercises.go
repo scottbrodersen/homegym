@@ -66,6 +66,8 @@ func newExerciseType(username string, w http.ResponseWriter, r *http.Request) {
 		nu := workoutlog.ErrNameNotUnique
 		if errors.Is(err, nu) {
 			http.Error(w, "name is not unique", http.StatusBadRequest)
+		} else if errors.As(err, &workoutlog.ErrInvalidExercise{}) {
+			http.Error(w, err.Error(), http.StatusBadRequest)
 		} else {
 			http.Error(w, "failed to add exercise", http.StatusInternalServerError)
 		}
@@ -107,6 +109,8 @@ func updateExerciseType(username, typeID string, w http.ResponseWriter, r *http.
 		nu := workoutlog.ErrNameNotUnique
 		if errors.Is(err, nu) {
 			http.Error(w, `"message": "name is not unique"`, http.StatusBadRequest)
+		} else if errors.As(err, &workoutlog.ErrInvalidExercise{}) {
+			http.Error(w, err.Error(), http.StatusBadRequest)
 		} else {
 			http.Error(w, `"message": "failed to add exercise"`, http.StatusInternalServerError)
 		}
