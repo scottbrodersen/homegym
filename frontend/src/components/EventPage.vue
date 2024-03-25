@@ -1,5 +1,5 @@
 <script async setup>
-  import { ref, computed, toRaw, watch } from 'vue';
+  import { ref, computed } from 'vue';
   import styles from '../style.module.css';
   import DatePicker from './DatePicker.vue';
   import EventMeta from './EventMeta.vue';
@@ -54,7 +54,7 @@
     }
   };
 
-  // Updates an event's exericse instance at a specific index.
+  // Updates an event's exercise instance at a specific index.
   // An index of null adds a new instance
   // An empty updated instance removes it
   const setExerciseInstance = (index, updated) => {
@@ -94,8 +94,8 @@
   };
 
   const saveThisEvent = () => {
-    // Use the stored date in the URL in case the date has been edited
-    const url = !!thisEvent.value.id
+    // Use the stored date for the URL path in case the date has been edited
+    const url = thisEvent.value.id
       ? `/homegym/api/events/${eventStore.getByID(thisEvent.value.id).date}/${
           thisEvent.value.id
         }/`
@@ -122,6 +122,7 @@
           authPrompt(saveThisEvent);
         } else {
           console.log(e);
+          toast('Error', 'negative');
         }
       });
   };
@@ -174,31 +175,7 @@
         :overall="thisEvent.overall"
         :notes="thisEvent.notes"
         v-show="thisEvent.activityID"
-        @mood="
-          (value) => {
-            thisEvent.mood = value;
-          }
-        "
-        @energy="
-          (value) => {
-            thisEvent.energy = value;
-          }
-        "
-        @motivation="
-          (value) => {
-            thisEvent.motivation = value;
-          }
-        "
-        @overall="
-          (value) => {
-            thisEvent.overall = value;
-          }
-        "
-        @notes="
-          (value) => {
-            thisEvent.notes = value;
-          }
-        "
+        @update="meta, (value) => (thisEvent[meta] = value)"
       />
     </div>
 
