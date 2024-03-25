@@ -23,6 +23,37 @@ describe('utils', () => {
     }
   });
 
+  it('hrZone formatting', () => {
+    const hrZoneProps = utils.intensityProps('hrZone');
+    expect(hrZoneProps.format(2)).toEqual('2');
+    expect(hrZoneProps.format(2.1)).toEqual('2');
+  });
+
+  it('pace validation', () => {
+    const goodValues = ['33:33', '03:33', '00:33'];
+    const badValues = ['3:33', '33:3', '3:3', '3333'];
+    for (const good of goodValues) {
+      expect(utils.intensityProps('pace').validate(good)).toBeTruthy;
+    }
+
+    for (const bad of badValues) {
+      expect(utils.intensityProps('pace').validate(bad)).toBeFalsy;
+    }
+  });
+
+  it('pace formatting', () => {
+    const formatted = {
+      60: '01:00',
+      61: '01:01',
+      600: '10:00',
+      70: '01:10',
+    };
+    const format = utils.intensityProps('pace').format;
+    for (const value in formatted) {
+      expect(format(value)).toEqual(formatted[value]);
+    }
+  });
+
   it('when we log in using good credentials', async () => {
     let caught = false;
     try {

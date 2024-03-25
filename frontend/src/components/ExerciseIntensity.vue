@@ -3,6 +3,7 @@
   import styles from '../style.module.css';
   import { ref } from 'vue';
   import { intensityProps } from '../modules/utils';
+  import { QInput } from 'quasar';
 
   const props = defineProps({
     intensity: Number,
@@ -10,20 +11,15 @@
     writable: Boolean,
   });
 
-  const formatProps = ref(intensityProps(props.type));
-
-  const formatIntensity = (value) => {
-    return value.toFixed(formatProps.value.decimals);
-  };
+  const formatProps = intensityProps(props.type);
 
   const emit = defineEmits(['update']);
 
-  const intensity = ref(formatIntensity(props.intensity));
+  const intensity = ref(formatProps.format(props.intensity));
 
-  // if this is a bodyweight execise, set intensity to 1
-  if (props.type == 'bodyweight') {
-    emit('update', 1);
-  }
+  const update = (value) => {
+    emit('update', formatProps.value(value));
+  };
 </script>
 <template>
   <div v-if="props.writable && props.type != 'bodyweight'">
@@ -43,19 +39,16 @@
       v-select
       no-error-icon
       hide-bottom-space
-      @update:model-value="emit('update', Number(intensity))"
+      @update:model-value="update"
     />
   </div>
-  <div v-else-if="props.type != 'bodyweight'" :class="[styles.horiz]">
+  <div v-else :class="[styles.horiz]">
     <div :class="[styles.intensity, styles.sibSpxSmall]">
       {{ formatProps.prefix }}
-      {{ props.intensity.toFixed(formatProps.decimals) }}
+      {{ formatProps.format(props.intensity) }}
     </div>
-    <div :class="[styles.sibSpxSmall]">{{ unitsState[props.type] }}</div>
-  </div>
-  <div v-else>
-    <div :class="[styles.intensity, styles.sibSpxSmall]">
-      {{ props.type }}
+    <div v-if="props.type != 'bodyweight'" :class="[styles.sibSpxSmall]">
+      {{ unitsState[props.type] }}
     </div>
   </div>
 </template>
