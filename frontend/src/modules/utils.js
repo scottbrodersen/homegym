@@ -18,10 +18,11 @@ const fetchPageSize = 20;
 const intensityTypes = [
   'weight',
   'bodyweight',
-  'RPE',
+  'rpe',
   'percentOfMax',
   'hrZone',
   'distance',
+  'pace',
 ];
 
 const intensityProps = (intensityType) => {
@@ -31,8 +32,41 @@ const intensityProps = (intensityType) => {
       validate: (value) => {
         return /^[1-5]$/.test(value);
       },
-      decimals: 0,
+      format: (value) => value.toFixed(0),
       prefix: 'HR Zone',
+      value: (formatted) => Number(formatted).toFixed(1),
+    };
+  } else if (intensityType == 'pace') {
+    return {
+      mask: '##:##',
+      format: (value) => {
+        let minutes = `${(value / 60).toFixed(0)}`;
+        let seconds = `${value % 60}`;
+        while (minutes.length < 2) {
+          minutes = '0' + minutes;
+        }
+        while (seconds.length < 2) {
+          seconds = '0' + seconds;
+        }
+        return `${minutes}:${seconds}`;
+      },
+      value: (formatted) => {
+        const parts = formatted.split(':');
+        return parts[0] * 60 + parts[1];
+      },
+      prefix: '',
+      validate: (value) => {
+        return /^[0-9]{1,2}:[0-9]{2}$/.test(value);
+      },
+    };
+  } else if (intensityType == 'bodyweight') {
+    return {
+      format: (value) => {
+        return 'bodyweight';
+      },
+      value: (formatted) => {
+        return '1';
+      },
     };
   } else {
     return {
@@ -40,8 +74,9 @@ const intensityProps = (intensityType) => {
       validate: (value) => {
         return /^[0-9]+\.?[0-9]?$/.test(value);
       },
-      decimals: 1,
+      format: (value) => value.toFixed(1),
       prefix: '',
+      value: (formatted) => Number(formatted).toFixed(1),
     };
   }
 };
