@@ -1,17 +1,19 @@
-version: '0.2'
+version: "0.2"
 language: en
 words:
   - addevent
   - checkmark
-  - Debugf
   - colours
+  - Debugf
   - Editbles
+  - Errorf
   - eventstore
   - followroute
   - goconvey
   - hasher
   - healthnut
   - homegym
+  - horiz
   - Infof
   - logrus
   - microcycle
@@ -19,13 +21,21 @@ words:
   - moveback
   - MOVEFWD
   - newevent
+  - samesite
   - scottbrodersen
+  - signup
   - sirupsen
   - stretchr
+  - unfound
   - upsert
   - vnode
   - Warnf
   - workoutlog
+  - xxsmall
 ignoreRegExpList:
   - /[a-z]*password[^\w]*/g
   - /%s[a-zA-Z0-9]*/g
+ignorePaths:
+  - frontend/package.json
+  - frontend/src/style.module.css
+  - ~/Library/Application Support/Code/User/settings.json

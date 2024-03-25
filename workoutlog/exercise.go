@@ -190,7 +190,7 @@ func checkDependencies(em exerciseManager, userID string, eType ExerciseType) er
 	}
 
 	// Check that the composition references existing types
-	for id, _ := range eType.Composition {
+	for id := range eType.Composition {
 		found := false
 		for _, e := range exerciseTypes {
 			if id == e.ID {

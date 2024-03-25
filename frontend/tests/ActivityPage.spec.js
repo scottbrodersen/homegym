@@ -8,8 +8,7 @@ config.global.directives = {
   focus: focus,
 };
 
-console.log(config);
-describe('Program module', () => {
+describe('ActivityPage component', () => {
   it('renders correctly read only', () => {
     const wrapper = mount(ActivityPage, {
       provide: {

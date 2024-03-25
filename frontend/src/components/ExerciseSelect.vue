@@ -3,7 +3,11 @@
   import { activityStore, exerciseTypeStore } from '../modules/state.js';
   import { QSelect } from 'quasar';
   import styles from '../style.module.css';
-  import { fetchActivityExercises } from '../modules/utils';
+  import {
+    authPrompt,
+    ErrNotLoggedIn,
+    fetchActivityExercises,
+  } from '../modules/utils';
 
   const props = defineProps({ activityID: String, exerciseID: String });
   const emits = defineEmits(['selectedID']);
