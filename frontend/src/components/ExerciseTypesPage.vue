@@ -1,6 +1,7 @@
 <script setup>
   import { exerciseTypeStore } from '../modules/state';
   import {
+    authPrompt,
     fetchExerciseTypes,
     addExerciseType,
     updateExerciseType,
@@ -10,6 +11,7 @@
     openVariationModal,
     ErrNotLoggedIn,
     states,
+    toast,
   } from '../modules/utils';
   import styles from '../style.module.css';
   import { computed, ref, onBeforeMount } from 'vue';
@@ -141,11 +143,14 @@
       } else {
         await updateExerciseType(currentExerciseType.value);
       }
+      toast('Saved', 'positive');
     } catch (error) {
       if (error instanceof ErrNotLoggedIn) {
         console.log(error.message);
         authPrompt(saveType);
       } else {
+        toast('Error', 'negative');
+
         throw error;
       }
     }

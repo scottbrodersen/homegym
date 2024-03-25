@@ -3,6 +3,7 @@
   import styles from '../style.module.css';
   import EventMeta from './EventMeta.vue';
   import { eventStore } from '../modules/state';
+  import { QBtn, QTr, QTd } from 'quasar';
 
   const props = defineProps({ eventId: String });
   const evt = eventStore.getByID(props.eventId);
