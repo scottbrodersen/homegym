@@ -5,7 +5,7 @@ import { Quasar } from 'quasar';
 
 config.global.plugins.push(Quasar);
 describe('ListActions', () => {
-  it('The correct nubmer of buttons are rendered', () => {
+  it('The correct number of buttons are rendered', () => {
     const wrapper = mount(ListActions);
     expect(wrapper.findAll('button')).toHaveLength(4);
   });

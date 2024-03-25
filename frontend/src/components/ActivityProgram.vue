@@ -6,6 +6,7 @@
     ErrNotLoggedIn,
     OrderedList,
     states,
+    toast,
     updateProgram,
   } from '../modules/utils';
   import { QBtn, QInput } from 'quasar';
@@ -50,11 +51,14 @@
   const saveProgram = async () => {
     try {
       const id = await updateProgram(program.value);
+      toast('Saved', 'positive');
     } catch (e) {
       if (e instanceof ErrNotLoggedIn) {
         console.log(e.message);
         authPrompt(saveProgram);
       } else {
+        toast('Error', 'negative');
+
         throw e;
       }
     }

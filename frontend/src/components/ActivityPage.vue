@@ -8,6 +8,7 @@
     ErrNotLoggedIn,
     newActivityPrompt,
     states,
+    toast,
   } from '../modules/utils';
   import {
     QBtn,
@@ -133,12 +134,14 @@
 
     try {
       await updateActivityExercises(updatedActivity);
+      toast('Saved', 'positive');
     } catch (e) {
       if (e instanceof ErrNotLoggedIn) {
         console.log(e.message);
         authPrompt(saveExerciseIDs);
       } else {
         console.log(e);
+        toast('Error', 'negative');
       }
     }
   };
