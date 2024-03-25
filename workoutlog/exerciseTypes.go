@@ -30,7 +30,7 @@ type ExerciseType struct {
 }
 
 // ExerciseInstance stores data about the performance of an exercise type.
-// Index stores the location in the order of performed exercies in an event
+// Index stores the location in the order of performed exercise in an event
 type ExerciseInstance struct {
 	TypeID   string            `json:"typeID"`
 	Index    int               `json:"index"`
@@ -49,7 +49,7 @@ type ExerciseSegment struct {
 // 2 is restricted to either 1 or 0 (success/failure)
 var volumeConstraints []int = []int{0, 1, 2}
 var volumeTypes []string = []string{"count", "distance", "time"}
-var intensityTypes []string = []string{"weight", "distance", "hrZone", "rpe", "percentOfMax", "bodyweight"}
+var intensityTypes []string = []string{"weight", "distance", "hrZone", "rpe", "percentOfMax", "bodyweight", "pace"}
 
 func (e ExerciseType) CreateInstance() ExerciseInstance {
 	return ExerciseInstance{
@@ -64,13 +64,14 @@ func (e ExerciseType) CreateInstance() ExerciseInstance {
 //   - distance and weight intensity values are truncated to single decimals
 //   - bodyweight intensity values are set to 1
 //   - non-rep-based volume values are truncated to single decimals
+//   - time-based intensities are stripped of decimals
 func (et ExerciseType) validateInstance(ei *ExerciseInstance) error {
 	if ei.Index < 0 {
 		return fmt.Errorf("index must be > 0")
 	}
 
 	for i, segment := range ei.Segments {
-		// Validate intenstiy values
+		// Validate intensity values
 		if segment.Intensity <= 0 {
 			return fmt.Errorf("intensity must be greater than zero")
 		}
@@ -92,6 +93,8 @@ func (et ExerciseType) validateInstance(ei *ExerciseInstance) error {
 			if segment.Intensity > 10 && segment.Intensity < 1 {
 				return ErrInvalidExercise{Message: "RPE must be between 1 and 10"}
 			}
+			fallthrough
+		case "pace":
 			fallthrough
 		case "percentOfMax":
 			ei.Segments[i].Intensity = float32(math.Floor(float64(segment.Intensity)))
@@ -130,8 +133,8 @@ func (e ExerciseType) validate() error {
 		return ErrInvalidExercise{Message: "name cannot be empty"}
 	}
 
-	namerxp := regexp.MustCompile(`^[a-zA-Z0-9_\-&$*@. \+]+$`)
-	if ok := namerxp.MatchString(e.Name); !ok {
+	nameRxp := regexp.MustCompile(`^[a-zA-Z0-9_\-&$*@. \+]+$`)
+	if ok := nameRxp.MatchString(e.Name); !ok {
 		return ErrInvalidExercise{Message: "name can include letters, digits, _, -, &, $, *, @, ., and spaces"}
 	}
 
