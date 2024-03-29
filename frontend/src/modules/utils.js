@@ -4,6 +4,7 @@ import {
   exerciseTypeStore,
   loginModalState,
   programsStore,
+  programInstanceStore,
 } from './state';
 import LoginModal from './../components/LoginModal.vue';
 import { Dialog, Notify } from 'quasar';
@@ -12,6 +13,9 @@ import VolumeModal from './../components/VolumeModal.vue';
 import CompositionModal from './../components/CompositionModal.vue';
 import VariationModal from './../components/VariationModal.vue';
 import ProgramModal from './../components/ProgramModal.vue';
+import ConfirmModal from './../components/ConfirmModal.vue';
+import ProgramInstanceModal from './../components/ProgramInstanceModal.vue';
+
 const pageSize = 10;
 const fetchPageSize = 20;
 
@@ -34,7 +38,7 @@ const intensityProps = (intensityType) => {
       },
       format: (value) => value.toFixed(0),
       prefix: 'HR Zone',
-      value: (formatted) => Number(formatted).toFixed(1),
+      value: (formatted) => Number(formatted).toFixed(0),
     };
   } else if (intensityType == 'pace') {
     return {
@@ -52,7 +56,7 @@ const intensityProps = (intensityType) => {
       },
       value: (formatted) => {
         const parts = formatted.split(':');
-        return parts[0] * 60 + parts[1];
+        return Number(parts[0]) * 60 + Number(parts[1]);
       },
       prefix: '',
       validate: (value) => {
@@ -67,11 +71,17 @@ const intensityProps = (intensityType) => {
       value: (formatted) => {
         return '1';
       },
+      validate: (value) => {
+        return true;
+      },
     };
   } else {
     return {
       mask: '',
       validate: (value) => {
+        if (value.endsWith('.')) {
+          return false;
+        }
         return /^[0-9]+\.?[0-9]?$/.test(value);
       },
       format: (value) => value.toFixed(1),
@@ -121,12 +131,12 @@ const fetchPrograms = async (activityID) => {
   }
 };
 
-const fetchProgramPage = async (programID = '', activityID) => {
+const fetchProgramPage = async (programID, activityID) => {
   const params = new URLSearchParams();
 
   params.append('size', fetchPageSize);
 
-  if (programID) params.append('previous', eventID);
+  if (programID) params.append('previous', programID);
 
   const paramStr = params.toString();
   const url = `/homegym/api/activities/${activityID}/programs?${paramStr}`;
@@ -140,6 +150,68 @@ const fetchProgramPage = async (programID = '', activityID) => {
   }
   const programPage = await resp.json();
   return programPage;
+};
+
+const fetchProgramInstances = async (programID, activityID) => {
+  let done = false;
+  let lastInstance = '';
+  while (!done) {
+    const instancePage = await fetchProgramInstancePage(
+      lastInstance,
+      programID,
+      activityID
+    );
+    programInstanceStore.addBulk(instancePage);
+    if (instancePage.length < pageSize) {
+      done = true;
+    } else {
+      lastInstance = instancePage[instancePage.length].id;
+    }
+  }
+};
+
+const fetchProgramInstancePage = async (
+  programInstanceID,
+  programID,
+  activityID
+) => {
+  const params = new URLSearchParams();
+
+  params.append('size', fetchPageSize);
+
+  if (programInstanceID) params.append('previous', eventID);
+
+  const paramStr = params.toString();
+  const url = `/homegym/api/activities/${activityID}/programs/${programID}/instances?${paramStr}`;
+  const resp = await fetch(url, {
+    method: 'GET',
+    mode: 'same-origin',
+  });
+
+  if (resp.status == 401) {
+    throw new ErrNotLoggedIn('unauthorized fetch of program instance page');
+  }
+  const instancePage = await resp.json();
+  return instancePage;
+};
+
+const fetchActiveProgramInstance = async (activityID) => {
+  const url = `/homegym/api/activities/${activityID}/programs/instances/active/`;
+  const resp = await fetch(url, {
+    method: 'GET',
+    mode: 'same-origin',
+  });
+
+  if (resp.status == 401) {
+    throw new ErrNotLoggedIn('unauthorized fetch of active program instance');
+  } else if (resp.status == 404) {
+    programInstanceStore.setActive(activityID, null);
+    return;
+  }
+
+  const instance = await resp.json();
+
+  programInstanceStore.setActive(activityID, instance);
 };
 
 const fetchActivities = async () => {
@@ -252,6 +324,19 @@ const newProgramModal = (activityID, callback) => {
     .onOk((programProps) => {
       callback(programProps);
     })
+    .onCancel(() => {
+      callback(null);
+    })
+    .onDismiss(() => {});
+};
+const newProgramInstanceModal = (activityID, programID, callback) => {
+  Dialog.create({
+    component: ProgramInstanceModal,
+    componentProps: { activityID: activityID, programID: programID },
+  })
+    .onOk((instance) => {
+      callback(instance);
+    })
     .onCancel(() => {})
     .onDismiss(() => {});
 };
@@ -274,6 +359,17 @@ const openVariationModal = (exerciseTypeID, basisID, callback) => {
   })
     .onOk((id) => {
       callback(id);
+    })
+    .onCancel(() => {});
+};
+
+const openConfirmModal = (message, route, router) => {
+  Dialog.create({
+    component: ConfirmModal,
+    componentProps: { message: message, route: route },
+  })
+    .onOk(async () => {
+      await router.replace(route);
     })
     .onCancel(() => {});
 };
@@ -416,8 +512,8 @@ const updateProgram = async (program) => {
   if (resp.status == 401) {
     throw new ErrNotLoggedIn('unauthorized fetch of program');
   } else if (resp.status < 200 || resp.status >= 300) {
-    console.log('failed to update program');
-    throw new Error();
+    const errBody = await resp.json();
+    throw new Error(errBody.message);
   }
 
   if (!!!program.id) {
@@ -427,6 +523,51 @@ const updateProgram = async (program) => {
   }
   programsStore.add(program);
   return program.id;
+};
+
+const updateProgramInstance = async (instance) => {
+  if (!instance.activityID) {
+    throw new Error('missing activity ID');
+  }
+  if (!instance.programID) {
+    throw new Error('missing program ID');
+  }
+  const isNewInstance = instance.id ? true : false;
+  const url = `/homegym/api/activities/${instance.activityID}/programs/${
+    instance.programID
+  }/instances/${instance.id ? instance.id : ''}`;
+
+  const headers = new Headers();
+  headers.set('content-type', 'application/json');
+
+  const options = {
+    method: 'POST',
+    body: JSON.stringify(instance),
+    headers: headers,
+  };
+
+  const resp = await fetch(url, options);
+
+  if (resp.status == 401) {
+    throw new ErrNotLoggedIn('unauthorized fetch of program');
+  } else if (resp.status < 200 || resp.status >= 300) {
+    const errBody = await resp.json();
+    throw new Error(errBody.message);
+  }
+
+  if (!instance.id) {
+    const respBody = await resp.json();
+
+    instance.id = respBody.id;
+  }
+
+  // New instances are set as active
+  if (!isNewInstance) {
+    programInstanceStore.setActive(instance.activityID, instance);
+  } else {
+    programInstanceStore.add(instance);
+  }
+  return instance.id;
 };
 
 // event param has no id if it is new
@@ -611,6 +752,8 @@ export {
   authPrompt,
   fetchActivities,
   fetchPrograms,
+  fetchProgramInstances,
+  fetchActiveProgramInstance,
   fetchEventPage,
   fetchExerciseTypes,
   pageSize,
@@ -627,12 +770,15 @@ export {
   ErrNotLoggedIn,
   newActivityPrompt,
   newProgramModal,
+  newProgramInstanceModal,
+  updateProgramInstance,
   storeEvent,
   storeEventExerciseInstances,
   openVolumeModal,
   toast,
   openCompositionModal,
   openVariationModal,
+  openConfirmModal,
   states,
   OrderedList,
   getCookieValue,

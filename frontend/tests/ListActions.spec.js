@@ -1,9 +1,17 @@
-import { config, mount } from '@vue/test-utils';
+import { config, enableAutoUnmount, mount } from '@vue/test-utils';
 import ListActions from './../src/components/ListActions.vue';
 import { OrderedList } from '../src/modules/utils';
-import { Quasar } from 'quasar';
+import { QBtn } from 'quasar';
+import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-vitest';
 
-config.global.plugins.push(Quasar);
+config.global.errorHandler = (err) => {
+  throw err;
+};
+
+installQuasarPlugin({ components: { QBtn } });
+
+enableAutoUnmount(afterEach);
+
 describe('ListActions', () => {
   it('The correct number of buttons are rendered', () => {
     const wrapper = mount(ListActions);

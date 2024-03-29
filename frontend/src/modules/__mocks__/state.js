@@ -15,19 +15,9 @@ export const programsStore = {
   //     this.add(program);
   //   }
   // },
-  // getByActivity(activityID) {
-  //   if (this.programs.get(activityID)) {
-  //     const programs = [];
-  //     const iter = this.programs.get(activityID).values();
-  //     let p = iter.next();
-  //     while (!p.done) {
-  //       programs.push(p.value);
-  //       p = iter.next();
-  //     }
-  //     return programs;
-  //   }
-  //   return undefined;
-  // },
+  getByActivity(activityID) {
+    return data.testProgram();
+  },
   get(activityID, programID) {
     return data.testProgram();
   },
@@ -51,11 +41,39 @@ export const activityStore = {
   get(activityID) {
     return data.fetchedTestActivities[0];
   },
-  // getAll() {
-  //   const all = [];
-  //   for (const activity of this.activities.values()) {
-  //     all.push(activity);
-  //   }
-  //   return all;
-  // },
+  getAll() {
+    return data.fetchedTestActivities;
+  },
+};
+
+export const programInstanceStore = {
+  // key is the programID, value is a map of (programInstanceID, programInstance)
+  programInstances: new Map(),
+  // key is the activityID, value is an object with fields programID, instanceID
+  activeInstances: new Map(),
+  add(instance) {},
+  addBulk(instances) {},
+  getByProgram(programID) {
+    if (programID == data.testProgramID) {
+      return [data.testProgramInstance];
+    }
+    return undefined;
+  },
+  get(programID, instanceID) {
+    if (programID) {
+      return data.testProgramInstance(programID);
+    }
+    return undefined;
+  },
+  setActive(activityID, instance) {
+    return;
+  },
+  getActive(activityID) {
+    if (activityID == data.testActivityID) {
+      return data.testProgramInstance();
+    } else {
+      // assume the ID is the instance start date
+      return data.testProgramInstance(activityID);
+    }
+  },
 };

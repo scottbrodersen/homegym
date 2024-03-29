@@ -43,10 +43,10 @@ type Dstore interface {
 
 	AddProgram(userID, activityID, programID string, program []byte) error
 	GetProgramPage(userID, activityID, previousProgramID string, pageSize int) ([][]byte, error)
-	AddProgramInstance(userID, activityID, programID, instanceID string, instance []byte) error
-	GetProgramInstancePage(userID, activityID, programID, instanceID string, pageSize int) ([][]byte, error)
+	AddProgramInstance(userID, programID, instanceID, activityID string, instance []byte) error
+	GetProgramInstancePage(userID, programID, instanceID string, pageSize int) ([][]byte, error)
 	SetActiveProgramInstance(userID, activityID, programID, instanceID string) error
-	GetActiveProgramInstance(userID, activityID, programID string) ([]byte, error)
+	GetActiveProgramInstance(userID, activityID string) ([]byte, error)
 
 	Destroy()
 	GetKeys(usage string) (map[string][]byte, map[string][]byte, error)
@@ -434,7 +434,7 @@ func (c *DBClient) AddExercisesToEvent(userID, eventID string, exerciseIDs map[i
 	}
 
 	if err := updateDeleteItems(c, updates, deletes); err != nil {
-		return fmt.Errorf("failed to add exercie to event: %w", err)
+		return fmt.Errorf("failed to add exercise to event: %w", err)
 	}
 
 	return nil
@@ -447,12 +447,12 @@ func (c *DBClient) GetEventExercises(userID, eventID string) ([][]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to read exercise entries: %w", err)
 	}
-	exInstancesrx := regexp.MustCompile(fmt.Sprintf("^%s:[^#]+#%s:[^#]+#%s:([^#]+)#%s:([^#]+)#%s$", userKey, eventKey, exerciseKey, indexKey, instanceKey))
+	exInstancesRX := regexp.MustCompile(fmt.Sprintf("^%s:[^#]+#%s:[^#]+#%s:([^#]+)#%s:([^#]+)#%s$", userKey, eventKey, exerciseKey, indexKey, instanceKey))
 
 	exercises := [][]byte{}
 
 	for _, v := range exEntries {
-		if exInstanceEntry := exInstancesrx.FindStringSubmatch(string(v.Key)); exInstanceEntry != nil {
+		if exInstanceEntry := exInstancesRX.FindStringSubmatch(string(v.Key)); exInstanceEntry != nil {
 			exercises = append(exercises, v.Value)
 
 			continue
@@ -504,6 +504,7 @@ func (c *DBClient) GetEventPage(userID, previousEventID string, previousDate int
 
 	events := [][]byte{}
 
+	// prefix also matches exercise instances so exclude exerciseKey them from the results
 	entries, err := readKeyPrefixPage(c, startKey, key(prefix), pageSize, exerciseKey, firstPage, true)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read events: %w", err)
@@ -620,8 +621,8 @@ func (c *DBClient) GetSession(sessionID string) (*string, *int64, error) {
 	expiry = exp
 
 	rxp := regexp.MustCompile(fmt.Sprintf(`^%s:%s#%s:([a-zA-Z0-9-]+)#%s`, sessionKey, sessionID, userKey, expiresKey))
-	if sessKeyParts := rxp.FindStringSubmatch(string(e.Key)); sessKeyParts != nil {
-		username = sessKeyParts[1]
+	if sessionKeyParts := rxp.FindStringSubmatch(string(e.Key)); sessionKeyParts != nil {
+		username = sessionKeyParts[1]
 	}
 
 	return &username, expiry, nil
@@ -633,10 +634,10 @@ func (c *DBClient) DeleteSession(sessionID string) error {
 		return fmt.Errorf("failed to get session: %w", err)
 	}
 
-	sessPrefix := []string{sessionKey, sessionID, userKey, *username, expiresKey}
-	sessKey := key(sessPrefix)
+	sessionPrefix := []string{sessionKey, sessionID, userKey, *username, expiresKey}
+	sessionKey := key(sessionPrefix)
 
-	keys := [][]byte{sessKey}
+	keys := [][]byte{sessionKey}
 	if err := deleteKeys(c, keys); err != nil {
 		return fmt.Errorf("failed to delete session: %w", err)
 	}
@@ -847,22 +848,6 @@ func deleteKeys(c *DBClient, keys [][]byte) error {
 	return nil
 }
 
-// use to check if a value that needs to be unique is not unique
-// returns a pointer to the value if found, otherwise nil
-func checkValue(c *DBClient, keyPrefix []byte, key, value string) (*string, error) {
-	entries, err := readKeyPrefix(c, keyPrefix)
-	if err != nil {
-		return nil, err
-	}
-	for _, v := range entries {
-		itemKey := strings.Split(string(v.Key), "#")[strings.Count(string(v.Key), "#")]
-		if itemKey == key && bytes.Equal(v.Value, []byte(value)) {
-			return &value, nil
-		}
-	}
-	return nil, nil
-}
-
 func keyByCryptoUsage(usage string) string {
 	switch usage {
 	case "token":
@@ -876,11 +861,11 @@ func key(items []string) []byte {
 	if len(items)%2 == 1 {
 		leaf = items[len(items)-1]
 	}
-	kvpairs := []string{}
+	kvPairs := []string{}
 	for i := 0; i < len(items)-1; i += 2 {
-		kvpairs = append(kvpairs, fmt.Sprintf("%s:%s", items[i], items[i+1]))
+		kvPairs = append(kvPairs, fmt.Sprintf("%s:%s", items[i], items[i+1]))
 	}
-	key := strings.Join(kvpairs, "#")
+	key := strings.Join(kvPairs, "#")
 	if leaf != "" {
 		key = fmt.Sprintf("%s#%s", key, leaf)
 	}

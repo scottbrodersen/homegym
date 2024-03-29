@@ -9,22 +9,30 @@ import (
 	"github.com/scottbrodersen/homegym/dal"
 )
 
-// ProgramInstance contains details of the performance of a program
-// StartEvent is the ID of the event that performed the first workout in the program
-// Fulfillment maps program workouts to events
-// The key of the fulmillment map is {blockIndex}#{microCycleIndex}#{workoutIndex}
+// ProgramInstance contains details of the performance of a program.
+// Program is a copy of the program that is performed. The ID field is overridden.
+// ProgramID is the ID of the program that is performed
+// StartDate is the planned epoch time of the first workout in the program
+// Events maps program workouts to eventIDs. The key of the Events map is the sequential index of the program workouts.
+// The embedded Program enables the program to be tailored without affecting the original program.
+// Note that the active program instance is tracked in the database and not in the struct.
 type ProgramInstance struct {
-	ID          string            `json:"id,omitempty"`
-	ProgramID   string            `json:"programID"`
-	Title       string            `json:"title"`
-	StartEvent  string            `json:"startEvent,omitempty"`
-	ActivityID  string            `json:"activityID"`
-	Active      bool              `json:"-"`
-	Complete    bool              `json:"complete,omitempty"`
-	Fulfillment map[string]string `json:"fulfillment,omitempty"`
+	Program
+	ID        string         `json:"id"`
+	ProgramID string         `json:"programID"`
+	StartTime int64          `json:"startDate"`
+	Complete  bool           `json:"complete,omitempty"`
+	Events    map[int]string `json:"events,omitempty"`
 }
 
-var ErrInvalidProgram = errors.New("invalid program")
+type ErrInvalidProgram struct {
+	Message string
+}
+
+func (e ErrInvalidProgram) Error() string {
+	return fmt.Sprintf("invalid program: %s", e.Message)
+}
+
 var ErrInvalidProgramInstance = errors.New("invalid program instance")
 
 func (pi ProgramInstance) validate() error {
@@ -72,9 +80,6 @@ func (w Workout) validate() error {
 	if w.Title == "" {
 		return fmt.Errorf("missing title")
 	}
-	if w.Segments == nil || len(w.Segments) == 0 {
-		return fmt.Errorf("missing segments")
-	}
 
 	for _, s := range w.Segments {
 		if err := s.validate(); err != nil {
@@ -98,6 +103,10 @@ func (mc MicroCycle) validate() error {
 	}
 	if mc.Span == 0 {
 		return fmt.Errorf("missing span")
+	}
+
+	if len(mc.Workouts) < mc.Span {
+		return fmt.Errorf("not enough workouts")
 	}
 
 	for _, w := range mc.Workouts {
@@ -131,7 +140,7 @@ func (b Block) validate() error {
 // Programs must be associated with an activity.
 // The intent is to define the structure of the program in blocks, microcycles (weeks), and workouts.
 // The exercises are explicitly specified but the intensity and volume are descriptive.
-// Intensity can be provided at each sub-phase of a program to enable progressively precise descriptiions.
+// Intensity can be provided at each sub-phase of a program to enable progressively precise descriptions.
 type Program struct {
 	ID         string  `json:"id"`
 	Title      string  `json:"title"`
@@ -141,19 +150,19 @@ type Program struct {
 
 func (p Program) validate() error {
 	if p.ID == "" {
-		return errors.Join(ErrInvalidProgram, fmt.Errorf("missing ID"))
+		return ErrInvalidProgram{Message: "missing ID"}
 	}
 
 	if p.Title == "" {
-		return errors.Join(ErrInvalidProgram, fmt.Errorf("missing title"))
+		return ErrInvalidProgram{Message: "missing title"}
 	}
 
 	if p.ActivityID == "" {
-		return errors.Join(ErrInvalidProgram, fmt.Errorf("missing activity ID"))
+		return ErrInvalidProgram{Message: "missing activity ID"}
 	}
 	for _, b := range p.Blocks {
 		if err := b.validate(); err != nil {
-			return errors.Join(ErrInvalidProgram, err)
+			return errors.Join(ErrInvalidProgram{}, err)
 		}
 	}
 
@@ -164,11 +173,11 @@ type ProgramAdmin interface {
 	AddProgram(userID string, program Program) (*string, error)
 	UpdateProgram(userID string, program Program) error
 	GetProgramsPageForActivity(userID, activityID, previousProgramID string, pageSize int) ([]Program, error)
-	AddProgramInstance(userID string, instance ProgramInstance) (*string, error)
+	AddProgramInstance(userID string, instance *ProgramInstance) error
 	UpdateProgramInstance(userID string, instance ProgramInstance) error
-	GetProgramInstancesPage(userID, activityID, programID, previousProgramInstanceID string, pageSize int) ([]ProgramInstance, error)
+	GetProgramInstancesPage(userID, programID, previousProgramInstanceID string, pageSize int) ([]ProgramInstance, error)
 	SetActiveProgramInstance(userID, activityID, programID, instanceID string) error
-	GetActiveProgramInstance(userID, activityID, programID string) (*ProgramInstance, error)
+	GetActiveProgramInstance(userID, activityID string) (*ProgramInstance, error)
 }
 
 type ProgramUtil struct{}
@@ -274,47 +283,47 @@ func (pu ProgramUtil) GetProgramsPageForActivity(userID, activityID, previousPro
 	return programs, nil
 }
 
-func (pu ProgramUtil) AddProgramInstance(userID string, instance ProgramInstance) (*string, error) {
+func (pu ProgramUtil) AddProgramInstance(userID string, instance *ProgramInstance) error {
 	if instance.ID != "" {
-		return nil, fmt.Errorf("new program instances cannot have an ID")
+		return fmt.Errorf("new program instances cannot have an ID")
 	}
 
 	// Make sure the activity exists
 	activityName, _, err := dal.DB.ReadActivity(userID, instance.ActivityID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to validate activity ID: %w", err)
+		return fmt.Errorf("failed to validate activity ID: %w", err)
 	}
 
 	if activityName == nil {
-		return nil, fmt.Errorf("activity does not exist")
+		return fmt.Errorf("activity does not exist")
 	}
 
 	// Make sure the program exists
-	existing, err := dal.DB.GetProgramPage(userID, instance.ActivityID, instance.ID, 1)
+	existing, err := dal.DB.GetProgramPage(userID, instance.ActivityID, instance.ProgramID, 1)
 	if err != nil {
-		return nil, fmt.Errorf("failed to validate programID: %w", err)
+		return fmt.Errorf("failed to validate programID: %w", err)
 	}
 
 	if len(existing) == 0 {
-		return nil, fmt.Errorf("program not found")
+		return fmt.Errorf("program not found")
 	}
 
 	instance.ID = uuid.New().String()
 
 	if err := instance.validate(); err != nil {
-		return nil, err
+		return err
 	}
 
 	instanceJSON, err := json.Marshal(instance)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse program instance: %w", err)
+		return fmt.Errorf("failed to parse program instance: %w", err)
 	}
 
-	if err := dal.DB.AddProgramInstance(userID, instance.ActivityID, instance.ProgramID, instance.ID, instanceJSON); err != nil {
-		return nil, fmt.Errorf("failed to add program: %w", err)
+	if err := dal.DB.AddProgramInstance(userID, instance.ProgramID, instance.ID, instance.ActivityID, instanceJSON); err != nil {
+		return fmt.Errorf("failed to add program: %w", err)
 	}
 
-	return &instance.ID, nil
+	return nil
 }
 
 func (pu ProgramUtil) UpdateProgramInstance(userID string, instance ProgramInstance) error {
@@ -322,7 +331,7 @@ func (pu ProgramUtil) UpdateProgramInstance(userID string, instance ProgramInsta
 		return err
 	}
 
-	existing, err := dal.DB.GetProgramInstancePage(userID, instance.ActivityID, instance.ProgramID, instance.ID, 1)
+	existing, err := dal.DB.GetProgramInstancePage(userID, instance.ProgramID, instance.ID, 1)
 	if err != nil {
 		return fmt.Errorf("failed to update: %w", err)
 	}
@@ -336,7 +345,7 @@ func (pu ProgramUtil) UpdateProgramInstance(userID string, instance ProgramInsta
 		return fmt.Errorf("failed to parse program instance: %w", err)
 	}
 
-	if err := dal.DB.AddProgramInstance(userID, instance.ActivityID, instance.ProgramID, instance.ID, programJSON); err != nil {
+	if err := dal.DB.AddProgramInstance(userID, instance.ProgramID, instance.ID, "", programJSON); err != nil {
 		return fmt.Errorf("failed to update program: %w", err)
 	}
 
@@ -344,13 +353,13 @@ func (pu ProgramUtil) UpdateProgramInstance(userID string, instance ProgramInsta
 
 }
 
-func (pu ProgramUtil) GetProgramInstancesPage(userID, activityID, programID, previousProgramInstanceID string, pageSize int) ([]ProgramInstance, error) {
+func (pu ProgramUtil) GetProgramInstancesPage(userID, programID, previousProgramInstanceID string, pageSize int) ([]ProgramInstance, error) {
 	numToGet := pageSize
 	if numToGet > 100 {
 		numToGet = 100
 	}
 
-	instancesByte, err := dal.DB.GetProgramInstancePage(userID, activityID, programID, previousProgramInstanceID, numToGet)
+	instancesByte, err := dal.DB.GetProgramInstancePage(userID, programID, previousProgramInstanceID, numToGet)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get program instances: %w", err)
 	}
@@ -371,6 +380,8 @@ func (pu ProgramUtil) GetProgramInstancesPage(userID, activityID, programID, pre
 	return instances, nil
 }
 
+// SetActiveProgramInstance stores the ID of the active program instance for an activity.
+// The existing active instance ID is overwritten.
 func (pu ProgramUtil) SetActiveProgramInstance(userID, activityID, programID, instanceID string) error {
 	if err := dal.DB.SetActiveProgramInstance(userID, activityID, programID, instanceID); err != nil {
 		return err
@@ -379,10 +390,15 @@ func (pu ProgramUtil) SetActiveProgramInstance(userID, activityID, programID, in
 	return nil
 }
 
-func (pu ProgramUtil) GetActiveProgramInstance(userID, activityID, programID string) (*ProgramInstance, error) {
-	instanceBytes, err := dal.DB.GetActiveProgramInstance(userID, activityID, programID)
+func (pu ProgramUtil) GetActiveProgramInstance(userID, activityID string) (*ProgramInstance, error) {
+	instanceBytes, err := dal.DB.GetActiveProgramInstance(userID, activityID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get active program instance: %w", err)
+	}
+
+	if instanceBytes == nil {
+		// no active instance
+		return nil, nil
 	}
 
 	instance := new(ProgramInstance)

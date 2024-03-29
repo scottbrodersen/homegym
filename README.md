@@ -13,7 +13,7 @@ The app is in MVP state. It's been tested in Chrome on a MacBook Pro and on an A
 1. Run the build.sh script.
 2. Copy the binary from the `bin` folder to the computer that will run it.
 3. On the host computer, create an environment variable named `HOMEGYM_DB_PATH` with the path to the directory where you want the database files to be stored.
-4. Double-click the biinary to run it. To stop it, press Ctrl+C.
+4. Double-click the binary to run it. To stop it, press Ctrl+C.
 
 ## How To Use
 
@@ -59,7 +59,7 @@ An HTTP server implemented in [Go](https://go.dev/) using [BadgerDB](https://dgr
 
 `ExerciseType` defines exercises in terms intensity and volume. It is a factory for `ExerciseInstance` objects that hold information about the performance of an exercise. `ExerciseType` also validates the data.
 
-A limited number of intensity types and volume types are used to define how to express the performance of an exercise. For example, squats use weight as intensity and sets and reps to inidecate volume. Tempo runs can use heart rate zones as intensity and time as volume.
+A limited number of intensity types and volume types are used to define how to express the performance of an exercise. For example, squats use weight as intensity and sets and reps to indicate volume. Tempo runs can use heart rate zones as intensity and time as volume.
 
 Exercise performance data is stored in the same format for all exercises. The `VolumeConstraint` property indicates how volume data should be interpreted.
 
@@ -113,6 +113,8 @@ direction LR
 ```
 
 ### Signup and Login
+
+/_ cSpell:disable _/
 
 ```mermaid
 sequenceDiagram
@@ -172,6 +174,8 @@ gw->>user: index.html + token cookie
 end
 ```
 
+/_ cSpell:enable _/
+
 ### Badger DB Schema
 
 /_ cSpell:disable _/
@@ -191,7 +195,7 @@ end
 | pepperkey:{keyID}                                         | []byte                   | pepper key               |
 | session:{sessionid}#userID:{userID}#expires               | int64                    | session expiration time  |
 | user:{id}#activity:{id}#program:{id}                      | []byte                   | training program         |
-| user:{id}#activity:{id}#program:{id}#instance:{id}        | []byte                   | A run of a program       |
+| user:{id}#program:{id}#instance:{id}                      | []byte                   | A run of a program       |
 | user:{id}#activity:{id}#active-program                    | string                   | {programID}:{instanceID} |
 
 /_ cSpell:enable _/

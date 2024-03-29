@@ -1,17 +1,32 @@
 import { vi } from 'vitest';
-import { config, flushPromises, mount, shallowMount } from '@vue/test-utils';
+import {
+  config,
+  enableAutoUnmount,
+  flushPromises,
+  mount,
+} from '@vue/test-utils';
 import ActivityProgram from './../src/components/ActivityProgram.vue';
 import { states } from './../src/modules/utils';
 import ProgramBlock from '../src/components/ProgramBlock.vue';
-import { Quasar, QBtn, QInput } from 'quasar';
+import { QBtn, QInput } from 'quasar';
 import * as data from '../mocks/data';
 import { focus } from '../src/modules/directives';
 import { nextTick } from 'vue';
+import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-vitest';
 
-config.global.plugins.push(Quasar);
 config.global.directives = {
   focus: focus,
 };
+
+config.global.errorHandler = (err) => {
+  throw err;
+};
+
+enableAutoUnmount(afterEach);
+
+installQuasarPlugin({
+  components: { QBtn, QInput },
+});
 
 vi.mock('../src/modules/state');
 
@@ -22,7 +37,7 @@ describe('ActivityProgram component', () => {
 
   it('renders read only', () => {
     const wrapper = mount(ActivityProgram, {
-      components: { ProgramBlock, QBtn, QInput },
+      components: { ProgramBlock },
       global: {
         provide: {
           state: { value: states.READ_ONLY },
@@ -38,7 +53,7 @@ describe('ActivityProgram component', () => {
 
   it('form components read only', async () => {
     const wrapper = mount(ActivityProgram, {
-      components: { ProgramBlock, QBtn, QInput },
+      components: { ProgramBlock },
       global: {
         provide: {
           state: { value: states.READ_ONLY },
@@ -64,7 +79,7 @@ describe('ActivityProgram component', () => {
 
   it('done and save buttons in EDIT state', async () => {
     const wrapper = mount(ActivityProgram, {
-      components: { ProgramBlock, QBtn, QInput },
+      components: { ProgramBlock },
       global: {
         provide: {
           state: { value: states.EDIT },

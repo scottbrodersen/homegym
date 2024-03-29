@@ -30,7 +30,7 @@
       v-model="intensity"
       :suffix="unitsState[props.type]"
       :mask="formatProps.mask"
-      :rules="[formatProps.validate]"
+      :rules="[(value) => formatProps.validate(value) || 'fix it']"
       lazy-rules
       filled
       dense

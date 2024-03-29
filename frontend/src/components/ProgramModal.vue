@@ -1,11 +1,5 @@
 <script setup>
-  import {
-    useDialogPluginComponent,
-    QCard,
-    QDialog,
-    QInput,
-    QSelect,
-  } from 'quasar';
+  import { useDialogPluginComponent, QCard, QDialog, QInput } from 'quasar';
   import { activityStore } from '../modules/state.js';
   import { computed, ref } from 'vue';
   import styles from '../style.module.css';
@@ -15,8 +9,8 @@
 
   const activity = activityStore.get(props.activityID);
   const programTitle = ref('');
-  const numBlocks = ref(0);
-  const numCycles = ref(0);
+  const numBlocks = ref(1);
+  const numCycles = ref(1);
   const cycleSpan = ref(7);
 
   const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
@@ -29,12 +23,12 @@
     return false;
   });
 
-  const formIsValid = () => {
+  const formIsValid = computed(() => {
     if (!nameIsInValid && numBlocks > 0 && numCycles > 0 && cycleSpan > 0) {
       return true;
     }
     return false;
-  };
+  });
 
   const onOKClick = () => {
     onDialogOK({
@@ -53,19 +47,8 @@
       dark
       :class="[styles.blockPadSm, styles.blockBorder]"
     >
-      <div>
-        <q-select
-          label="Activity"
-          stack-label
-          v-model="activity"
-          :options="activityStore.getAll()"
-          option-label="name"
-          option-value="id"
-          dark
-          :class="[styles.selActivity]"
-        />
-      </div>
-      <div :v-show="!!activity">
+      <div>New Program for {{ activity.name }}</div>
+      <div :v-show="activity">
         <q-input v-model="programTitle" label="Program Name" stack-label dark />
         <q-input
           v-model="numBlocks"
@@ -89,22 +72,19 @@
           label="Days in microcycles"
           stack-label
           dark
-          :rules="[(val) => (val > 0 && val < 10) || 'Must be between 1 and 9']"
+          :rules="[
+            (val) => (val > 0 && val < 15) || 'Must be between 1 and 14',
+          ]"
         />
       </div>
       <q-card-actions align="right">
+        <q-btn color="primary" icon="close" round @click="onDialogCancel" />
         <q-btn
-          color="accent"
-          text-color="dark"
-          label="Cancel"
-          @click="onDialogCancel"
-        />
-        <q-btn
-          color="accent"
-          text-color="dark"
-          label="Save"
+          color="primary"
+          icon="done"
+          round
           @click="onOKClick"
-          :disabled="formIsValid()"
+          :disabled="formIsValid"
         />
       </q-card-actions>
     </q-card>

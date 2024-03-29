@@ -16,13 +16,13 @@ import (
 )
 
 const (
-	testfolder       = "./temp/"
-	testdb           = "testdb"
-	testUserID       = "testuser"
-	testActivtyName  = "testActivity"
+	testFolder       = "./temp/"
+	testDB           = "testDB"
+	testUserID       = "testUser"
+	testActivityName = "testActivity"
 	testEmail        = "test@example.com"
 	testUserName     = "test user"
-	testHash         = "testhash"
+	testHash         = "testHash"
 	testPwdVersion   = "v1"
 	testExerciseName = "testExercise"
 	tokenUsage       = "token"
@@ -33,7 +33,7 @@ const (
 
 var testEvent []byte = []byte("test event")
 var testExercise = []byte("test exercise type")
-var testpath string = fmt.Sprintf("%s%s", testfolder, testdb)
+var testPath string = fmt.Sprintf("%s%s", testFolder, testDB)
 
 func init() {
 	cleanup()
@@ -59,7 +59,7 @@ func TestDal(t *testing.T) {
 		})
 	})
 	Convey("When we create a dal client", t, func() {
-		client, err = InitClient(testpath)
+		client, err = InitClient(testPath)
 		defer client.Destroy()
 		Convey("Then the database is created", func() {
 			So(err, ShouldBeNil)
@@ -70,7 +70,7 @@ func TestDal(t *testing.T) {
 func TestUsersDal(t *testing.T) {
 	defer cleanup()
 	Convey("Given a dal client", t, func() {
-		client, err := InitClient(testpath)
+		client, err := InitClient(testPath)
 		if err != nil {
 			log.Fatal("failed to create dal client")
 		}
@@ -168,19 +168,19 @@ func TestLogItemsDal(t *testing.T) {
 
 	defer cleanup()
 	Convey("Given a dal client", t, func() {
-		client, err := InitClient(testpath)
+		client, err := InitClient(testPath)
 		if err != nil {
 			log.Fatal()
 		}
 		defer client.Destroy()
 		Convey("when we add an activity", func() {
-			err = client.AddActivity(testUserID, testActivityID, testActivtyName)
+			err = client.AddActivity(testUserID, testActivityID, testActivityName)
 			Convey("Then nil error is returned", func() {
 				So(err, ShouldBeNil)
 			})
 		})
 		Convey("When we add the activity again", func() {
-			err := client.AddActivity(testUserID, testActivityID, testActivtyName)
+			err := client.AddActivity(testUserID, testActivityID, testActivityName)
 			Convey("Then nils are returned", func() {
 				So(err, ShouldBeNil)
 			})
@@ -384,7 +384,7 @@ func TestKeysDal(t *testing.T) {
 	defer cleanup()
 
 	Convey("Given a dal client", t, func() {
-		db, err := InitClient(testpath)
+		db, err := InitClient(testPath)
 		if err != nil {
 			log.Fatal()
 		}
@@ -464,7 +464,7 @@ func TestKeysDal(t *testing.T) {
 func TestSessionssDal(t *testing.T) {
 	defer cleanup()
 	Convey("Given a dal client", t, func() {
-		client, err := InitClient(testpath)
+		client, err := InitClient(testPath)
 		if err != nil {
 			log.Fatal()
 		}
@@ -510,7 +510,7 @@ func TestSessionssDal(t *testing.T) {
 }
 
 func cleanup() {
-	err := os.RemoveAll(testfolder)
+	err := os.RemoveAll(testFolder)
 	if err != nil {
 		log.WithError(err).Error("failed to delete test db")
 	}

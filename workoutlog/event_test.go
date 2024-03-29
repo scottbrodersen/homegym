@@ -130,11 +130,11 @@ func TestEvents(t *testing.T) {
 		})
 
 		Convey("When we get an event's exercise instances", func() {
-			exercisebytes, err := json.Marshal(testExerciseInstance)
+			exerciseBytes, err := json.Marshal(testExerciseInstance)
 			if err != nil {
 				t.Fatal()
 			}
-			instancesByte := [][]byte{exercisebytes}
+			instancesByte := [][]byte{exerciseBytes}
 
 			db.On("GetEventExercises", mock.Anything, mock.Anything).Return(instancesByte, err)
 			eMgr.On("GetExerciseType", mock.Anything, mock.Anything).Return(&exerciseType, nil)
@@ -147,6 +147,14 @@ func TestEvents(t *testing.T) {
 		})
 
 		Convey("When we get a page of events", func() {
+			exerciseBytes, err := json.Marshal(testExerciseInstance)
+
+			if err != nil {
+				t.Fatal()
+			}
+			instancesByte := [][]byte{exerciseBytes}
+			db.On("GetEventExercises", mock.Anything, mock.Anything).Return(instancesByte, err)
+
 			eventsByte, err := getEventPageReturnValuesMaker()
 			db.On("GetEventPage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(eventsByte, err)
 

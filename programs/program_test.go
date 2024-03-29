@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/scottbrodersen/homegym/dal"
 	. "github.com/smartystreets/goconvey/convey"
@@ -26,10 +27,12 @@ var testProgram Program = Program{
 }
 
 var testProgramInstance ProgramInstance = ProgramInstance{
-	ID:         testProgramInstanceID,
-	ProgramID:  testProgramID,
-	Title:      testProgramInstanceTitle,
-	ActivityID: testActivityID,
+	Program: Program{
+		Title:      testProgramInstanceTitle,
+		ActivityID: testProgram.ActivityID,
+	},
+	ID:        testProgramInstanceID,
+	ProgramID: testProgramID,
 }
 
 func TestPrograms(t *testing.T) {
@@ -104,25 +107,29 @@ func TestPrograms(t *testing.T) {
 			id, err := ProgramManager.AddProgram(testUserID, program)
 
 			So(err, ShouldNotBeNil)
-			So(errors.Is(err, ErrInvalidProgram), ShouldBeTrue)
+			So(errors.As(err, new(ErrInvalidProgram)), ShouldBeTrue)
 			So(id, ShouldBeNil)
 		})
 
 		Convey("When we add a program instance", func() {
-			db.On("AddProgramInstance", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+			db.On("AddProgramInstance", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 			db.On("ReadActivity", mock.Anything, mock.Anything).Return(&testProgram.ActivityID, []string{}, nil)
 			db.On("GetProgramPage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return([][]byte{[]byte(testActivityID)}, nil)
 
 			programInstance := ProgramInstance{
-				ProgramID:  testProgramID,
-				Title:      testProgramInstanceTitle,
-				ActivityID: testActivityID,
+				Program: Program{
+					Title:      testProgramInstanceTitle,
+					ActivityID: testActivityID,
+				},
+				ID:        "",
+				ProgramID: testProgramID,
+				StartTime: time.Now().Local().Unix(),
 			}
 
-			id, err := ProgramManager.AddProgramInstance(testUserID, programInstance)
+			err := ProgramManager.AddProgramInstance(testUserID, &programInstance)
 
 			So(err, ShouldBeNil)
-			So(id, ShouldNotBeEmpty)
+			So(programInstance.ID, ShouldNotBeEmpty)
 		})
 
 		Convey("When we get the program instance", func() {
@@ -132,7 +139,7 @@ func TestPrograms(t *testing.T) {
 			}
 			db.On("GetProgramInstancePage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return([][]byte{testInstanceByte}, nil)
 
-			instances, err := ProgramManager.GetProgramInstancesPage(testUserID, testActivityID, testProgramID, testProgramInstanceID, 1)
+			instances, err := ProgramManager.GetProgramInstancesPage(testUserID, testProgramID, testProgramInstanceID, 1)
 
 			So(err, ShouldBeNil)
 			So(instances, ShouldHaveLength, 1)
@@ -163,7 +170,7 @@ func TestPrograms(t *testing.T) {
 			}
 			db.On("GetActiveProgramInstance", mock.Anything, mock.Anything, mock.Anything).Return(instanceBytes, nil)
 
-			inst, err := ProgramManager.GetActiveProgramInstance(testUserID, testActivityID, testProgramID)
+			inst, err := ProgramManager.GetActiveProgramInstance(testUserID, testActivityID)
 
 			So(err, ShouldBeNil)
 			So(*inst, ShouldResemble, testProgramInstance)

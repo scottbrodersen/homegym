@@ -51,7 +51,7 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		log.Error(err)
-		http.Error(w, "something went wrong", http.StatusInternalServerError)
+		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
 
@@ -106,7 +106,7 @@ func HandleSignup(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		log.Error(err)
-		http.Error(w, "could not create membership", http.StatusInternalServerError)
+		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
 
@@ -161,7 +161,7 @@ func readPostedBody(w http.ResponseWriter, r *http.Request, maxBytes int64) cred
 
 		default:
 			log.Print(err.Error())
-			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			http.Error(w, internalServerError, http.StatusInternalServerError)
 		}
 	}
 	return *credentials

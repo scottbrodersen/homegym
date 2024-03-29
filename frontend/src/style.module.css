@@ -461,7 +461,7 @@ header a:hover {
   composes: blockPadSm;
 }
 
-.buttonArray button {
+.buttonArray .q-btn--round {
   width: 40px;
 }
 
@@ -469,6 +469,13 @@ header a:hover {
   composes: horiz;
   justify-content: space-between;
   align-items: center;
+}
+
+.pgmItem {
+}
+
+.pgmInstItem {
+  padding-left: 10px;
 }
 
 .pgmSelect :global(.q-btn) {

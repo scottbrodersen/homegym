@@ -28,7 +28,7 @@ func ActivitiesApi(w http.ResponseWriter, r *http.Request) {
 	rxpProgramsID := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]*)/programs/([a-zA-Z0-9-]*)/?$", rootpath))
 	rxpProgramInstances := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]*)/programs/([a-zA-Z0-9-]*)/instances/?$", rootpath))
 	rxpProgramInstancesID := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]*)/programs/([a-zA-Z0-9-]*)/instances/([a-zA-Z0-9-]{7,})/?$", rootpath))
-	rxpProgramInstancesActive := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]*)/programs/([a-zA-Z0-9-]*)/instances/active(/|\\?id=[a-zA-Z0-9-]+)?$", rootpath))
+	rxpProgramInstancesActive := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]*)/programs/instances/active/?$", rootpath))
 
 	if rxpRootPath.MatchString(r.URL.Path) {
 		if r.Method == http.MethodPost {
@@ -82,7 +82,7 @@ func ActivitiesApi(w http.ResponseWriter, r *http.Request) {
 			addProgramInstance(*username, activityID, programID, w, r)
 			return
 		} else if r.Method == http.MethodGet {
-			getProgramInstancePage(*username, activityID, programID, w, r)
+			getProgramInstancePage(*username, programID, w, r)
 			return
 		}
 	} else if rxpProgramInstancesID.MatchString(r.URL.Path) {
@@ -95,19 +95,32 @@ func ActivitiesApi(w http.ResponseWriter, r *http.Request) {
 			updateProgramInstance(*username, activityID, programID, instanceID, w, r)
 			return
 		} else if r.Method == http.MethodGet {
-			getProgramInstance(*username, activityID, programID, instanceID, w)
+			getProgramInstance(*username, programID, instanceID, w)
 			return
 		}
 	} else if rxpProgramInstancesActive.MatchString(r.URL.Path) {
 		ids := rxpProgramInstancesActive.FindStringSubmatch(r.URL.Path)
 		activityID := ids[1]
-		programID := ids[2]
 
 		if r.Method == http.MethodPost {
-			setActiveProgramInstance(*username, activityID, programID, w, r)
+			programID := r.URL.Query().Get("programid")
+			if programID == "" {
+				http.Error(w, `{"message":"missing programid query parameter"}`, http.StatusBadRequest)
+				return
+			}
+
+			instanceID := r.URL.Query().Get("instanceid")
+			if instanceID == "" {
+				http.Error(w, `{"message":"missing instanceid query parameter"}`, http.StatusBadRequest)
+				return
+			}
+
+			setActiveProgramInstance(*username, activityID, programID, instanceID, w, r)
+
 			return
 		} else if r.Method == http.MethodGet {
-			getActiveProgramInstance(*username, activityID, programID, w)
+			getActiveProgramInstance(*username, activityID, w)
+
 			return
 		}
 	}
@@ -118,12 +131,12 @@ func ActivitiesApi(w http.ResponseWriter, r *http.Request) {
 func listActivities(username string, w http.ResponseWriter) {
 	activities, err := workoutlog.ActivityManager.GetActivityNames(username)
 	if err != nil {
-		http.Error(w, `{"message":"failed to get activities"}`, http.StatusInternalServerError)
+		http.Error(w, internalServerError, http.StatusInternalServerError)
 	}
 
 	body, err := json.Marshal(activities)
 	if err != nil {
-		http.Error(w, `{"message":"failed to get activities"}`, http.StatusInternalServerError)
+		http.Error(w, internalServerError, http.StatusInternalServerError)
 	}
 
 	h := w.Header()
@@ -149,13 +162,13 @@ func newActivity(username string, w http.ResponseWriter, r *http.Request) {
 			http.Error(w, `{"message":"name is not unique"}`, http.StatusBadRequest)
 			return
 		}
-		http.Error(w, `{"message":"failed to add activity"}`, http.StatusInternalServerError)
+		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
 
 	body, err := json.Marshal(activity)
 	if err != nil {
-		http.Error(w, `{"message":"failed to add activity"}`, http.StatusInternalServerError)
+		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
 
@@ -168,13 +181,13 @@ func listExercises(username, activityID string, w http.ResponseWriter) {
 	activity := workoutlog.Activity{ID: activityID}
 	err := activity.GetActivityExercises(username)
 	if err != nil {
-		http.Error(w, "failed to get exercises", http.StatusInternalServerError)
+		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
 
 	body, err := json.Marshal(activity.ExerciseIDs)
 	if err != nil {
-		http.Error(w, "failed to get exercises", http.StatusInternalServerError)
+		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
 
@@ -221,7 +234,7 @@ func updateActivity(username string, w http.ResponseWriter, r *http.Request) {
 				http.Error(w, `{"message":"name is not unique"}`, http.StatusBadRequest)
 				return
 			} else {
-				http.Error(w, `{"message":"failed to rename activity"}`, http.StatusInternalServerError)
+				http.Error(w, internalServerError, http.StatusInternalServerError)
 				return
 			}
 		}

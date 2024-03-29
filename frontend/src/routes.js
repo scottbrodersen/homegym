@@ -1,7 +1,7 @@
 import * as VueRouter from 'vue-router';
-import EventsGrid from './components/EventsGrid.vue';
-import ActivityPage from './components/ActivityPage.vue';
 import EventPage from './components/EventPage.vue';
+import ActivityPage from './components/ActivityPage.vue';
+import HomePage from './components/HomePage.vue';
 import PageHeader from './components/PageHeader.vue';
 import ExerciseTypesPage from './components/ExerciseTypesPage.vue';
 import ProgramsPage from './components/ProgramsPage.vue';
@@ -9,7 +9,7 @@ import ProgramsPage from './components/ProgramsPage.vue';
 const routes = [
   {
     path: '/homegym/home/',
-    components: { default: PageHeader, main: EventsGrid },
+    components: { default: PageHeader, main: HomePage },
     name: 'home',
   },
   {

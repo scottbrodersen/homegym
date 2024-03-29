@@ -5,8 +5,8 @@
   import EventMeta from './EventMeta.vue';
   import ExerciseInstance from './ExerciseInstance.vue';
   import { eventStore, activityStore } from '../modules/state';
-  import { fetchEventPage } from '../modules/utils';
-  import { QBtn } from 'quasar';
+  import { fetchEventPage, openConfirmModal } from '../modules/utils';
+  import { QBtn, QSelect } from 'quasar';
   import {
     authPrompt,
     storeEvent,
@@ -14,6 +14,9 @@
     ErrNotLoggedIn,
     toast,
   } from '../modules/utils.js';
+  import { useRouter } from 'vue-router';
+
+  const router = useRouter();
 
   const props = defineProps({
     eventId: String,
@@ -22,16 +25,19 @@
   const thisEvent = ref({});
   const thisEventActivityName = ref('');
   const activityNames = [];
+  let baseline = ref();
+
+  const setBaseline = (eventID) => {
+    baseline.value = JSON.stringify(eventStore.getByID(props.eventId));
+  };
 
   // populate state when opening an existing event
   if (props.eventId) {
     if (!eventStore.getByID(props.eventId)) {
       await fetchEventPage(props.eventId);
     }
-
-    thisEvent.value = JSON.parse(
-      JSON.stringify(eventStore.getByID(props.eventId))
-    );
+    setBaseline();
+    thisEvent.value = JSON.parse(baseline.value);
 
     if (thisEvent.value.activityID) {
       thisEventActivityName.value = activityStore.get(
@@ -114,6 +120,9 @@
           eventStore.add(thisEvent.value);
           // event was just created so no exercises to update
         }
+        setBaseline();
+        //baseline = JSON.stringify(thisEvent.value);
+        //changed.value = false;
         toast('Saved', 'positive');
       })
       .catch((e) => {
@@ -146,6 +155,18 @@
           console.log(e);
         }
       });
+  };
+  const changed = computed(() => {
+    return baseline.value != JSON.stringify(thisEvent.value);
+  });
+
+  const cancel = async () => {
+    const route = { name: 'home' };
+    if (changed.value) {
+      openConfirmModal('Lose unsaved changes?', route, router);
+    } else {
+      await router.replace(route);
+    }
   };
 </script>
 
@@ -192,18 +213,20 @@
       />
     </div>
   </div>
-
-  <div :class="[styles.buttonArray]" v-show="!!thisEvent.activityID">
+  <div>
     <q-btn
       label="Add exercise"
-      color="accent"
-      text-color="dark"
+      color="primary"
       @click="setExerciseInstance(null, null)"
     />
+  </div>
+  <div :class="[styles.buttonArray]" v-show="!!thisEvent.activityID">
+    <q-btn label="Cancel" color="accent" text-color="dark" @click="cancel" />
     <q-btn
       :label="updateButtonText"
       color="accent"
       text-color="dark"
+      :disabled="!changed"
       @click="saveThisEvent"
     />
   </div>

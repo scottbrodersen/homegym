@@ -69,7 +69,7 @@ func newExerciseType(username string, w http.ResponseWriter, r *http.Request) {
 		} else if errors.As(err, &workoutlog.ErrInvalidExercise{}) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 		} else {
-			http.Error(w, "failed to add exercise", http.StatusInternalServerError)
+			http.Error(w, internalServerError, http.StatusInternalServerError)
 		}
 		return
 	}
@@ -77,7 +77,7 @@ func newExerciseType(username string, w http.ResponseWriter, r *http.Request) {
 	body := returnedID{ID: *id}
 	bodyJson, err := json.Marshal(body)
 	if err != nil {
-		http.Error(w, "failed to add exercise", http.StatusInternalServerError)
+		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
 
@@ -112,7 +112,7 @@ func updateExerciseType(username, typeID string, w http.ResponseWriter, r *http.
 		} else if errors.As(err, &workoutlog.ErrInvalidExercise{}) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 		} else {
-			http.Error(w, `"message": "failed to add exercise"`, http.StatusInternalServerError)
+			http.Error(w, internalServerError, http.StatusInternalServerError)
 		}
 		return
 	}
@@ -125,14 +125,14 @@ func updateExerciseType(username, typeID string, w http.ResponseWriter, r *http.
 func listExerciseTypes(username string, w http.ResponseWriter) {
 	types, err := workoutlog.ExerciseManager.GetExerciseTypes(username)
 	if err != nil {
-		http.Error(w, "failed to get exercise types", http.StatusInternalServerError)
+		http.Error(w, internalServerError, http.StatusInternalServerError)
 	}
 
 	body, err := json.Marshal(types)
 	if err != nil {
 		message := struct{ Message string }{Message: "failed to get exercise types"}
 		body, _ = json.Marshal(message)
-		http.Error(w, string(body), http.StatusInternalServerError)
+		http.Error(w, internalServerError, http.StatusInternalServerError)
 	}
 
 	h := w.Header()

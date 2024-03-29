@@ -47,11 +47,12 @@
         <div :class="[, styles.sibSpxSmall]">
           ({{ props.microcycle.span }} days):
         </div>
+
+      </div>
         <div :class="[styles.sibSpxSmall]">
           {{ props.microcycle.description }}
         </div>
-      </div>
-      <div :class="[styles.pgmMcWorkouts]">
+              <div :class="[styles.pgmMcWorkouts]">
         <ProgramWorkout
           v-for="(workout, ix) of props.microcycle.workouts"
           :key="ix"

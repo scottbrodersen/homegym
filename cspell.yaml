@@ -1,10 +1,14 @@
 version: "0.2"
 language: en
 words:
+  - activeprogram
   - addevent
   - checkmark
   - colours
+  - composables
   - Debugf
+  - dgraph
+  - Dstore
   - Editbles
   - Errorf
   - eventstore
@@ -15,17 +19,25 @@ words:
   - homegym
   - horiz
   - Infof
+  - instanceid
   - logrus
   - microcycle
+  - microcycles
   - moveahead
   - moveback
   - MOVEFWD
   - newevent
+  - openapi
+  - phash
+  - programid
+  - programinstance
   - samesite
   - scottbrodersen
   - signup
   - sirupsen
   - stretchr
+  - testtesttest
+  - tokenkey
   - unfound
   - upsert
   - vnode

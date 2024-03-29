@@ -1,22 +1,21 @@
 <script setup>
-  import { ref, watch, computed, onBeforeMount } from 'vue';
+  import { ref, computed } from 'vue';
   import styles from '../style.module.css';
+  import { QTime, QInput, QPopupProxy, QDate, QBtn } from 'quasar';
 
   // stored epoch is in seconds utc
-  const props = defineProps(['dateValue']);
+  const props = defineProps({ dateValue: Number, hideTime: Boolean });
   const emit = defineEmits(['update']);
 
   // javascript epoch is in milliseconds
-  const epoch = !!props.dateValue
-    ? props.dateValue * 1000
-    : Date.now().valueOf();
+  const epoch = props.dateValue ? props.dateValue * 1000 : Date.now().valueOf();
 
   const dateObj = new Date(epoch);
 
   // prefix single-digit date numbers
-  const prefixed = (datenumber) => {
-    const prefix = datenumber < 10 ? '0' : '';
-    return `${prefix}${datenumber}`;
+  const prefixed = (dateNumber) => {
+    const prefix = dateNumber < 10 ? '0' : '';
+    return `${prefix}${dateNumber}`;
   };
 
   // date format is YYYY-MM-DD
@@ -27,7 +26,9 @@
   );
 
   // time format is HH:mm
-  const time = ref(`${dateObj.getHours()}:${dateObj.getMinutes()}`);
+  const time = props.hideTime
+    ? ref('')
+    : ref(`${dateObj.getHours()}:${dateObj.getMinutes()}`);
 
   const dateTime = ref(`${date.value} ${time.value}`);
 
@@ -43,7 +44,7 @@
   };
 
   // emit date if it was set to now
-  if (!!!props.dateValue) {
+  if (!props.dateValue) {
     emit('update', stringToEpoch(dateTime.value));
   }
 
@@ -63,9 +64,9 @@
               <div class="row items-center justify-end">
                 <q-btn
                   v-close-popup
-                  label="Close"
+                  label="OK"
                   color="primary"
-                  text-color="dark"
+                  dark
                   flat
                   @click="updateTime()"
                 />
@@ -76,16 +77,20 @@
       </template>
 
       <template v-slot:append>
-        <q-icon name="access_time" class="cursor-pointer">
+        <q-icon
+          v-show="!props.hideTime"
+          name="access_time"
+          class="cursor-pointer"
+        >
           <q-popup-proxy cover transition-show="scale" transition-hide="scale">
             <q-time v-model="time" mask="HH:mm" format24h dark>
               <div class="row items-center justify-end">
                 <q-btn
                   v-close-popup
-                  label="Close"
+                  label="OK"
                   color="primary"
-                  text-color="dark"
                   flat
+                  dark
                   @click="updateTime()"
                 />
               </div>

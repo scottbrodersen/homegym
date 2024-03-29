@@ -1,7 +1,10 @@
 import './patch-fetch.js';
-import { expect, test, beforeAll, afterAll, afterEach } from 'vitest';
+import { expect, beforeAll, afterAll, afterEach, vi } from 'vitest';
 import * as utils from '../src/modules/utils.js';
 import server from '../mocks/server.js';
+import * as data from '../mocks/data.js';
+
+vi.mock('../src/modules/state');
 
 describe('utils', () => {
   beforeAll(() => {
@@ -72,5 +75,12 @@ describe('utils', () => {
       caught = true;
     }
     expect(caught).toBeTruthy;
+  });
+
+  it('when we add a new program instance', async () => {
+    const testProgramInstance = data.testProgramInstance(data.testActivityID);
+    delete testProgramInstance.id;
+    const newID = await utils.updateProgramInstance(testProgramInstance);
+    expect(newID).toEqual(data.testProgramInstanceID);
   });
 });

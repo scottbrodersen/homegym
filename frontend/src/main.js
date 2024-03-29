@@ -7,6 +7,7 @@ import './style.module.css';
 import App from './App.vue';
 import router from './routes.js';
 import { select, focus } from './modules/directives.js';
+import 'vite/modulepreload-polyfill';
 
 const app = createApp(App);
 
@@ -16,7 +17,6 @@ app.use(Quasar, {
 });
 
 app.use(router);
-
 app.directive('focus', focus);
 app.directive('select', select);
 app.mount('#app');

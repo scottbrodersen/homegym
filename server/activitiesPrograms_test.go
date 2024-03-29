@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"time"
 
 	"github.com/scottbrodersen/homegym/dal"
 	"github.com/scottbrodersen/homegym/programs"
@@ -28,6 +29,8 @@ const (
 	testProgramInstanceTitle     = "program instance title"
 	testEventID                  = "test-event-id"
 )
+
+var testStartDate int64 = time.Now().Local().Unix()
 
 func testSegment() programs.WorkoutSegment {
 	return programs.WorkoutSegment{
@@ -87,13 +90,18 @@ func testProgram() programs.Program {
 }
 
 func testProgramInstance() programs.ProgramInstance {
-	return programs.ProgramInstance{
-		ID:         testProgramInstanceID,
-		ProgramID:  testProgramID,
-		Title:      testProgramInstanceTitle,
-		StartEvent: testEventID,
-		ActivityID: testActivityID,
+	inst := programs.ProgramInstance{
+		Program:   testProgram(),
+		ID:        testProgramInstanceID,
+		ProgramID: testProgramID,
+		StartTime: testStartDate,
 	}
+
+	inst.Program.ID = ""
+	instTime := time.UnixMicro(inst.StartTime * 1000)
+	inst.Program.Title = fmt.Sprintf("%s - %s", inst.Program.Title, instTime.Format("Jan _2, 2006"))
+
+	return inst
 }
 
 func TestHandlePrograms(t *testing.T) {
@@ -215,7 +223,7 @@ func TestHandlePrograms(t *testing.T) {
 		Convey("When we receive a request to add a program instance", func() {
 			piURL := fmt.Sprintf("%s/%s/instances", url, testProgramID)
 			id := testProgramInstanceID
-			mpm.On("AddProgramInstance", mock.Anything, mock.Anything).Return(&id, nil)
+			mpm.On("AddProgramInstance", mock.Anything, mock.Anything).Return(nil)
 			testInstance := testProgramInstance()
 			testInstance.ID = ""
 			jsonStr, err := json.Marshal(testInstance)
@@ -234,7 +242,7 @@ func TestHandlePrograms(t *testing.T) {
 			So(w.Result().StatusCode, ShouldEqual, http.StatusOK)
 			So(w.Result().Header.Get("content-type"), ShouldEqual, "application/json")
 
-			body := struct{ ID string }{}
+			body := new(programs.ProgramInstance)
 
 			if err := json.NewDecoder(w.Result().Body).Decode(&body); err != nil {
 				t.Fail()
@@ -326,7 +334,7 @@ func TestHandlePrograms(t *testing.T) {
 		})
 
 		Convey("When we receive a request to set the active program instance", func() {
-			piURL := fmt.Sprintf("%s/%s/instances/active?id=%s", url, testProgramID, testProgramInstanceID)
+			piURL := fmt.Sprintf("%s/instances/active?programid=%s&instanceid=%s", url, testProgramID, testProgramInstanceID)
 			mpm.On("SetActiveProgramInstance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
 			req := httptest.NewRequest(http.MethodPost, piURL, nil)
@@ -341,7 +349,7 @@ func TestHandlePrograms(t *testing.T) {
 		})
 
 		Convey("When we receive a request to get the active program instance", func() {
-			piURL := fmt.Sprintf("%s/%s/instances/active", url, testProgramID)
+			piURL := fmt.Sprintf("%s/instances/active", url)
 			instance := testProgramInstance()
 			mpm.On("GetActiveProgramInstance", mock.Anything, mock.Anything, mock.Anything).Return(&instance, nil)
 

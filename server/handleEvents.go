@@ -80,14 +80,14 @@ func addEvent(username string, w http.ResponseWriter, r *http.Request) {
 			http.Error(w, `{"message":"invalid event"}`, http.StatusBadRequest)
 			return
 		}
-		http.Error(w, `{"message":"failed to add event"}`, http.StatusInternalServerError)
+		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
 
 	body := returnedID{ID: *eventID}
 	bodyJson, err := json.Marshal(body)
 	if err != nil {
-		http.Error(w, `{"message":"failed to add event"}`, http.StatusInternalServerError)
+		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
 
@@ -98,19 +98,19 @@ func addEvent(username string, w http.ResponseWriter, r *http.Request) {
 }
 
 func updateEvent(username, currentDate string, w http.ResponseWriter, r *http.Request) {
-	newEvent := new(workoutlog.Event)
+	updatedEvent := new(workoutlog.Event)
 
 	currentDateInt, err := stringToInt64(currentDate)
 	if err != nil {
 		http.Error(w, "invalid date format", http.StatusBadRequest)
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(newEvent); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(updatedEvent); err != nil {
 		http.Error(w, `{"message": "invalid request body"}`, http.StatusBadRequest)
 		return
 	}
 
-	if err := workoutlog.EventManager.UpdateEvent(username, currentDateInt, *newEvent); err != nil {
+	if err := workoutlog.EventManager.UpdateEvent(username, currentDateInt, *updatedEvent); err != nil {
 		if errors.Is(err, workoutlog.ErrNotFound) {
 			http.Error(w, `{"message":"failed to update event"}`, http.StatusNotFound)
 			return
@@ -131,12 +131,12 @@ func updateEvent(username, currentDate string, w http.ResponseWriter, r *http.Re
 func getExercises(username, eventID string, w http.ResponseWriter) {
 	exercises, err := workoutlog.EventManager.GetEventExercises(username, eventID)
 	if err != nil {
-		http.Error(w, "failed to read exercises", http.StatusInternalServerError)
+		http.Error(w, internalServerError, http.StatusInternalServerError)
 	}
 
 	exercisesJson, err := json.Marshal(exercises)
 	if err != nil {
-		http.Error(w, "failed to read events", http.StatusInternalServerError)
+		http.Error(w, internalServerError, http.StatusInternalServerError)
 	}
 
 	h := w.Header()
@@ -167,7 +167,7 @@ func addExercise(username, eventDate, eventID string, w http.ResponseWriter, r *
 	}
 
 	if err := workoutlog.EventManager.AddExercisesToEvent(username, eventID, dateInt, exercisesArray); err != nil {
-		http.Error(w, "failed to add exercise instance", http.StatusInternalServerError)
+		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
 
@@ -208,14 +208,14 @@ func getPageOfEvents(username string, w http.ResponseWriter, r *http.Request) {
 	events, err := workoutlog.EventManager.GetPageOfEvents(username, event, pageSize)
 	if err != nil {
 		log.Debug(err)
-		http.Error(w, "failed to read events", http.StatusInternalServerError)
+		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
 
 	eventsJson, err := json.Marshal(events)
 	if err != nil {
 		log.Debug(err)
-		http.Error(w, "failed to read events", http.StatusInternalServerError)
+		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
 
