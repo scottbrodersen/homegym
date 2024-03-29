@@ -160,7 +160,7 @@ paths:
       security:
         - token: []
       description:
-        updates an acitivty. Body includes the list of exercises and optionally
+        updates an activity. Body includes the list of exercises and optionally
         the activity name
       tags:
         - activities
@@ -217,7 +217,7 @@ paths:
     parameters:
       - name: activityID
         description: |
-          The ID of the activity to which the prorams pertain.
+          The ID of the activity to which the programs pertain.
         in: path
         required: true
         schema:
@@ -229,7 +229,7 @@ paths:
       tags:
         - programs
       parameters:
-        - name: count
+        - name: size
           description: The number of programs to return
           in: query
           required: true
@@ -271,7 +271,7 @@ paths:
     parameters:
       - name: activityID
         description: |
-          The ID of the activity to which the proram pertains.
+          The ID of the activity to which the program pertains.
         in: path
         required: true
         schema:
@@ -316,7 +316,7 @@ paths:
     parameters:
       - name: activityID
         description: |
-          The ID of the activity to which the proram pertains.
+          The ID of the activity to which the program pertains.
         in: path
         required: true
         schema:
@@ -335,7 +335,7 @@ paths:
       tags:
         - programInstances
       parameters:
-        - name: count
+        - name: size
           description: The number of instances to return
           in: query
           required: true
@@ -365,28 +365,32 @@ paths:
         - programInstances
       requestBody:
         description: |
-          A program instance object.
+          Details about the program instance
         content:
           json/application:
             schema:
-              $ref: '#/components/schemas/programInstance'
+              $ref: '#/components/schemas/programInstanceDetails'
       responses:
         '201':
-          $ref: '#/components/responses/201'
+          description: OK
+          content:
+            json/application:
+              schema:
+                $ref: '#/components/schemas/programInstance'
 
-  /api/activities/{activityID}/programs/{programID}/instances/active:
+  /api/activities/{activityID}/programs/instances/active:
     parameters:
       - name: activityID
         description: |
-          The ID of the activity to which the proram pertains.
+          The ID of the activity to which the program pertains.
         in: path
         required: true
         schema:
           type: string
-      - name: programID
+      - name: instanceid
         description: |
-          The ID of the program.
-        in: path
+          The ID of the program instance.
+        in: query
         required: true
         schema:
           type: string
@@ -406,13 +410,13 @@ paths:
     post:
       security:
         - token: []
-      description: Sets the active program instance for a program.
+      description: Sets the active program instance for an activity.
       tags:
         - programInstances
       parameters:
-        - name: id
+        - name: programid
           description: |
-            The ID of the program instance to set as active.
+            The ID of the program.
           in: query
           required: true
           schema:
@@ -425,7 +429,7 @@ paths:
     parameters:
       - name: activityID
         description: |
-          The ID of the activity to which the proram pertains.
+          The ID of the activity to which the program pertains.
         in: path
         required: true
         schema:
@@ -666,16 +670,50 @@ components:
           type: string
         title:
           type: string
-        startEvent:
-          type: string
+        startDate:
+          type: number
         activityID:
           type: string
+        blocks:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/programBlock'
         complete:
           type: boolean
-        fulfillment:
+        events:
           type: object
           additionalProperties:
             additionalProperties: true
+      required:
+        - programID
+        - title
+        - activityID
+    programInstanceDetails:
+      type: object
+      properties:
+        programID:
+          type: string
+        title:
+          type: string
+        startDate:
+          type: number
+      required:
+        - programID
+        - title
+        - startDate
+    programInstanceAdded:
+      type: object
+      properties:
+        id:
+          type: string
+        programID:
+          type: string
+        title:
+          type: string
+        startDate:
+          type: number
+        activityID:
+          type: string
       required:
         - programID
         - title

@@ -3,5 +3,10 @@
 </script>
 
 <template>
-  <Suspense><InitState /></Suspense>
+  <Suspense>
+    <template #default>
+      <InitState />
+    </template>
+    <template #fallback> Product is loading... </template>
+  </Suspense>
 </template>

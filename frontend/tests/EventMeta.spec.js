@@ -1,9 +1,13 @@
 import EventMeta, { labels } from '../src/components/EventMeta.vue';
-import { config, mount } from '@vue/test-utils';
+import { config, enableAutoUnmount, mount } from '@vue/test-utils';
 import { Quasar, QInput, QRating } from 'quasar';
 import { focus, select } from '../src/modules/directives';
+import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-vitest';
 
-config.global.plugins.push(Quasar);
+installQuasarPlugin({
+  components: { QInput, QRating },
+});
+
 config.global.directives = {
   focus: focus,
   select: select,
@@ -11,6 +15,8 @@ config.global.directives = {
 config.global.errorHandler = (err) => {
   throw err;
 };
+
+enableAutoUnmount(afterEach);
 
 describe('EventMeta component', () => {
   it('renders correctly with all meta in read only', () => {

@@ -275,15 +275,15 @@ func (d *MockDal) GetProgramPage(userID, activityID, previousProgramID string, p
 	return args.Get(0).([][]byte), nil
 }
 
-func (d *MockDal) AddProgramInstance(userID, activityID, programID, instanceID string, instance []byte) error {
-	args := d.Called(userID, activityID, programID, instanceID, instance)
+func (d *MockDal) AddProgramInstance(userID, programID, instanceID, activityID string, instance []byte) error {
+	args := d.Called(userID, programID, instanceID, activityID, instance)
 	if args.Error(0) != nil {
 		return args.Error(0)
 	}
 	return nil
 }
-func (d *MockDal) GetProgramInstancePage(userID, activityID, programID, instanceID string, pageSize int) ([][]byte, error) {
-	args := d.Called(userID, activityID, programID, instanceID)
+func (d *MockDal) GetProgramInstancePage(userID, programID, instanceID string, pageSize int) ([][]byte, error) {
+	args := d.Called(userID, programID, instanceID)
 	if args.Error(1) != nil {
 		return nil, args.Error(0)
 	}
@@ -299,7 +299,7 @@ func (d *MockDal) SetActiveProgramInstance(userID, activityID, programID, instan
 	return nil
 }
 
-func (d *MockDal) GetActiveProgramInstance(userID, activityID, programID string) ([]byte, error) {
+func (d *MockDal) GetActiveProgramInstance(userID, activityID string) ([]byte, error) {
 	args := d.Called(userID, activityID)
 	if args.Error(1) != nil {
 		return nil, args.Error(0)

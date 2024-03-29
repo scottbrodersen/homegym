@@ -167,7 +167,7 @@ func addExerciseInstances(activity workoutlog.Activity, event workoutlog.Event) 
 		inst.Index = int(i)
 		numParts := rand.Intn(3)
 		for p := 0; p <= numParts; p++ {
-			inst.Segments = append(inst.Segments, exerciseSegmentMaker(exerciseTypes[etID]))
+			inst.Segments = append(inst.Segments, exerciseSegmentMaker())
 		}
 
 		instByte, err := json.Marshal(inst)
@@ -187,7 +187,7 @@ func addExerciseInstances(activity workoutlog.Activity, event workoutlog.Event) 
 	return nil
 }
 
-func exerciseSegmentMaker(exType workoutlog.ExerciseType) workoutlog.ExerciseSegment {
+func exerciseSegmentMaker() workoutlog.ExerciseSegment {
 	max := float32(150.0)
 	min := float32(20.0)
 	intensity := float32(min + rand.Float32()*(max-min))
@@ -211,39 +211,45 @@ func exerciseSegmentMaker(exType workoutlog.ExerciseType) workoutlog.ExerciseSeg
 func addProgram(activity workoutlog.Activity, title string) {
 
 	microcycle1 := programs.MicroCycle{
-		Title:       "week 1",
+		Title:       title + " week 1",
 		Span:        7,
 		Description: "Intensity of the first week",
 		Workouts: []programs.Workout{
 			workoutMaker("Day1", "heavy single X 5", "heavy double X 3"),
 			workoutMaker("Day2", "80% single X 5", "heavy double X 3"),
-			workoutMaker("Day3", "70% doubles X 5", "heavy double X 3"),
-			workoutMaker("Day4", "max out", "heavy double X 3"),
+			workoutMaker("Day3", "", ""),
+			workoutMaker("Day4", "70% doubles X 5", "heavy double X 3"),
+			workoutMaker("Day5", "max out", "heavy double X 3"),
+			workoutMaker("Day6", "", ""),
+			workoutMaker("Day7", "", ""),
 		},
 	}
 
 	microcycle2 := programs.MicroCycle{
-		Title:       "week 2",
+		Title:       title + " week 2",
 		Span:        7,
 		Description: "Intensity of the second week",
 		Workouts: []programs.Workout{
 			workoutMaker("Monday", "80% doubles x 3", "heavy double X 3"),
 			workoutMaker("Tuesday", "80% single X 5", "heavy double X 3"),
+			workoutMaker("Wednesday", "", ""),
 			workoutMaker("Thursday", "70% doubles X 5", "heavy double X 3"),
 			workoutMaker("Friday", "max out", "heavy double X 3"),
+			workoutMaker("Saturday", "", ""),
+			workoutMaker("Sunday", "", ""),
 		},
 	}
 
 	block1 := programs.Block{
-		Title:       "Max out",
-		Description: "High intenstiy",
+		Title:       title + " Max out",
+		Description: "High intensity",
 		MicroCycles: []programs.MicroCycle{
 			microcycle1,
 			microcycle2,
 		},
 	}
 	block2 := programs.Block{
-		Title:       "Taper",
+		Title:       title + " Taper",
 		Description: "Test",
 		MicroCycles: []programs.MicroCycle{
 			microcycle1,
@@ -269,6 +275,12 @@ func addProgram(activity workoutlog.Activity, title string) {
 }
 
 func workoutMaker(title, pSn, pSq string) programs.Workout {
+	if pSn == "" && pSq == "" {
+		return programs.Workout{
+			Title:       title,
+			Description: "Rest",
+		}
+	}
 	ws1 := programs.WorkoutSegment{
 		ExerciseTypeID: snatchID,
 		Prescription:   pSn,

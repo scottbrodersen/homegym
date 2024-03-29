@@ -1,3 +1,6 @@
+export const testProgramID = 'test-program-id';
+export const testActivityID = 'test-activity-id';
+
 export const fetchedEvents = (pageSize) => {
   events = [];
   for (let i; i < pageSize; i++) {
@@ -22,7 +25,7 @@ export const randomIntFromInterval = (min, max) => {
 
 export const fetchedTestActivities = [
   {
-    id: 'activity1',
+    id: testActivityID,
     name: 'test activity 1',
     exercises: ['exercise1', 'exercise2'],
   },
@@ -102,29 +105,68 @@ export const fetchedEventExercises = () => {
   }
   return instances;
 };
-
+export const numBlocks = 3;
+export const numCycles = 2;
+export const cycleSpan = 7;
+// 3 blocks of 2 microcycles of span 7
 export const testProgram = () => {
+  const blocks = new Array();
+  for (let i = 0; i < numBlocks; i++) {
+    blocks.push(testBlock(i, numCycles));
+  }
   return {
-    id: 'test-program-id',
-    activityID: 'test-activity-id',
+    id: testProgramID,
+    activityID: testActivityID,
     title: 'test program title',
-    blocks: [
-      {
-        title: 'test block',
-        microCycles: [
-          {
-            title: 'test Microcycle',
-            workouts: [
-              {
-                title: 'test workout',
-                segments: [
-                  { title: 'test segment', prescription: 'test prescription' },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-    ],
+    blocks: blocks,
   };
+};
+
+const testBlock = (index, numMicros) => {
+  const micros = new Array();
+  for (let i = 0; i < numMicros; i++) {
+    micros.push(testMicroCycle(i, cycleSpan));
+  }
+  return {
+    title: `test block ${index}`,
+    microCycles: micros,
+  };
+};
+
+const testMicroCycle = (index, span) => {
+  const workouts = new Array();
+  for (let i = 0; i < span; i++) {
+    workouts.push(testWorkout(i));
+  }
+  return {
+    title: `test Microcycle ${index}`,
+    span: span,
+    workouts: workouts,
+  };
+};
+
+const testWorkout = (index) => {
+  return {
+    title: `test workout ${index}`,
+    segments: [{ title: 'test segment', prescription: 'test prescription' }],
+  };
+};
+
+export const testProgramInstanceID = 'test-program-instance-id';
+export const numCompleted = 14;
+// if arg is not the test ID, interpret it as the start date
+export const testProgramInstance = (arg) => {
+  const inst = testProgram();
+  inst.programID = inst.id;
+  inst.id = testProgramInstanceID;
+  inst.title += ' instance';
+  if (arg != testProgramInstanceID) {
+    inst.startDate = arg;
+  }
+  const events = new Map();
+  for (let i = 0; i < numCompleted; i++) {
+    events.set(i, 'not null');
+  }
+  inst.events = events;
+  return inst;
 };

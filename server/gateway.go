@@ -90,7 +90,7 @@ func (g *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		log.Error(err.Error())
-		http.Error(w, `{"message": "something went wrong"}`, http.StatusInternalServerError)
+		http.Error(w, internalServerError, http.StatusInternalServerError)
 	}
 
 	ctx := r.Context()

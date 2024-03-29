@@ -84,7 +84,7 @@ export const exerciseTypeStore = reactive({
 });
 
 export const programsStore = reactive({
-  // key is the activityID, value is a map of (activityID, program)
+  // key is the activityID, value is a map of (programID, program)
   programs: new Map(),
   add(program) {
     if (this.programs.get(program.activityID)) {
@@ -116,6 +116,88 @@ export const programsStore = reactive({
       return this.programs.get(activityID).get(programID);
     }
     return undefined;
+  },
+});
+
+export const programInstanceStore = reactive({
+  // key is the programID, value is a map of (programInstanceID, programInstance)
+  programInstances: new Map(),
+  // key is the activityID, value is an object with fields programID, instanceID
+  activeInstances: new Map(),
+  add(instance) {
+    if (this.programInstances.get(instance.programID)) {
+      this.programInstances.get(instance.programID).set(instance.id, instance);
+    } else {
+      this.programInstances.set(
+        instance.programID,
+        new Map([[instance.id, instance]])
+      );
+    }
+  },
+  addBulk(instances) {
+    for (const program of instances) {
+      this.add(program);
+    }
+  },
+  getByProgram(programID) {
+    if (this.programInstances.has(programID)) {
+      const instances = [];
+      const iter = this.programInstances.get(programID).values();
+      let p = iter.next();
+      while (!p.done) {
+        instances.push(p.value);
+        p = iter.next();
+      }
+      return instances;
+    }
+    console.warn('Instances of program not yet added');
+    return undefined;
+  },
+  get(instanceID, programID) {
+    if (programID) {
+      if (this.programInstances.has(programID)) {
+        return this.programInstances.get(programID).get(instanceID);
+      }
+    } else {
+      const instanceMaps = this.programInstances.values();
+      let found = false;
+      let inst;
+      let imap = instanceMaps.next();
+      while (!found && !imap.done) {
+        inst = imap.value.get(instanceID);
+        if (inst) found = true;
+        imap = instanceMaps.next();
+      }
+      return inst;
+    }
+
+    return undefined;
+  },
+  // An instance value of null indicates no active instance
+  setActive(activityID, instance) {
+    if (instance) {
+      this.activeInstances.set(activityID, {
+        programID: instance.programID,
+        instanceID: instance.id,
+      });
+
+      this.add(instance);
+    } else {
+      this.activeInstances.set(activityID, null);
+    }
+  },
+  getActive(activityID) {
+    let programID;
+    let instanceID;
+    if (this.activeInstances.has(activityID)) {
+      const mapping = this.activeInstances.get(activityID);
+      if (mapping) {
+        programID = mapping.programID;
+        instanceID = mapping.instanceID;
+        return this.get(instanceID, programID);
+      }
+      return null;
+    }
   },
 });
 

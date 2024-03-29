@@ -1,5 +1,14 @@
-import { mount } from '@vue/test-utils';
+import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-vitest';
+import { config, mount, enableAutoUnmount } from '@vue/test-utils';
 import BinaryRep from './../src/components/BinaryRep.vue';
+
+installQuasarPlugin();
+
+config.global.errorHandler = (err) => {
+  throw err;
+};
+
+enableAutoUnmount(afterEach);
 
 describe('BinaryRep', () => {
   test('renders a good rep', () => {

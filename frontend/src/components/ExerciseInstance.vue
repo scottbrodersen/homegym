@@ -102,7 +102,7 @@
   };
 
   const updateIntensity = (value, segmentIndex) => {
-    instance.value.parts[segmentIndex].intensity = value;
+    instance.value.parts[segmentIndex].intensity = Number(value);
     emit('update', instance.value);
   };
 </script>
@@ -148,7 +148,7 @@
       </div>
       <div :class="[styles.sibSpMed]">
         <ExerciseIntensity
-          :intensity="part.intensity"
+          :intensity="Number(part.intensity)"
           :type="exerciseTypeStore.get(instance.typeID).intensityType"
           :writable="props.writable"
           @update="(value) => updateIntensity(value, partIndex)"

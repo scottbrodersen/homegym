@@ -4,28 +4,31 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
+    "serve": "vite --mode dev",
     "dev": "vite build --mode dev",
     "build": "vite build --mode prod",
     "test": "vitest",
     "debug": "vitest --test-timeout 10000000"
   },
   "dependencies": {
-    "@quasar/extras": "^1.16.9",
-    "quasar": "^2.14.5",
+    "@quasar/extras": "^1.16.11",
+    "quasar": "^2.15.2",
     "vue": "^3.4.21",
-    "vue-router": "^4.2.5"
+    "vue-router": "^4.3.0"
   },
   "devDependencies": {
+    "@quasar/quasar-app-extension-testing-unit-vitest": "^1.0.0",
     "@quasar/vite-plugin": "^1.6.0",
-    "@vitejs/plugin-vue": "^5.0.3",
+    "@vitejs/plugin-vue": "^5.0.4",
     "@vitest/browser": "^1.4.0",
     "@vue/test-utils": "^2.4.5",
     "cross-fetch": "^4.0.0",
-    "jsdom": "^22.1.0",
+    "jsdom": "^24.0.0",
     "msw": "^2.1.5",
     "sass": "^1.63.6",
     "unplugin-auto-import": "^0.17.5",
-    "vite": "^5.1.4",
+    "vite": "^5.2.8",
+    "vite-plugin-vue-devtools": "^7.0.27",
     "vitest": "^1.4.0",
     "webdriverio": "^8.23.1"
   }

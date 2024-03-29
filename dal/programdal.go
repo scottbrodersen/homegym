@@ -30,7 +30,7 @@ func (c *DBClient) AddProgram(userID, activityID, programID string, program []by
 
 // GetProgramPage gets a page of programs.
 // To get a specific program, set pageSize to 1.
-// Returns nil if a specific program was requested and not found.
+// Returns nil when a specific program was requested and not found.
 func (c *DBClient) GetProgramPage(userID, activityID, previousProgramID string, pageSize int) ([][]byte, error) {
 	prefix := []string{userKey, userID, activityKey, activityID, programKey}
 	var startKey []byte = nil
@@ -55,7 +55,7 @@ func (c *DBClient) GetProgramPage(userID, activityID, previousProgramID string, 
 
 		return programs, nil
 	}
-	// When getting a speciric program, make sure we got the right one
+	// When getting a specific program, make sure we got the right one
 	if len(entries) == 0 {
 		return nil, nil
 	}
@@ -68,11 +68,24 @@ func (c *DBClient) GetProgramPage(userID, activityID, previousProgramID string, 
 	return programs, nil
 }
 
-func (c *DBClient) AddProgramInstance(userID, activityID, programID, instanceID string, instance []byte) error {
-	prefix := []string{userKey, userID, activityKey, activityID, programKey, programID, programInstanceKey, instanceID}
+// AddProgramInstance adds or updates a program instance.
+// Sets the instance as active when activityID is not an empty string.
+func (c *DBClient) AddProgramInstance(userID, programID, instanceID, activityID string, instance []byte) error {
+	instancePrefix := []string{userKey, userID, programKey, programID, programInstanceKey, instanceID}
 
-	instanceEntry := badger.NewEntry(key(prefix), instance)
+	instanceEntry := badger.NewEntry(key(instancePrefix), instance)
+
 	updates := []*badger.Entry{instanceEntry}
+
+	if activityID != "" {
+
+		activePrefix := []string{userKey, userID, activityKey, activityID, activeProgramKey}
+
+		// value is in format {instanceID}:{programID}
+		activeProgramEntry := badger.NewEntry(key(activePrefix), []byte(fmt.Sprintf("%s:%s", instanceID, programID)))
+
+		updates = append(updates, activeProgramEntry)
+	}
 
 	if err := writeUpdates(c, updates); err != nil {
 		return fmt.Errorf("failed to add program instance: %w", err)
@@ -81,11 +94,11 @@ func (c *DBClient) AddProgramInstance(userID, activityID, programID, instanceID 
 	return nil
 }
 
-// GetProgramInstancePage gets a page of program intances.
+// GetProgramInstancePage gets a page of program instances.
 // To get a specific instance, set pageSize to 1.
 // Returns nil if a specific instance was requested and not found.
-func (c *DBClient) GetProgramInstancePage(userID, activityID, programID, previousProgramInstanceID string, pageSize int) ([][]byte, error) {
-	prefix := []string{userKey, userID, activityKey, activityID, programKey, programID, programInstanceKey}
+func (c *DBClient) GetProgramInstancePage(userID, programID, previousProgramInstanceID string, pageSize int) ([][]byte, error) {
+	prefix := []string{userKey, userID, programKey, programID, programInstanceKey}
 	var startKey []byte = nil
 	firstPage := true
 	if previousProgramInstanceID != "" {
@@ -108,7 +121,7 @@ func (c *DBClient) GetProgramInstancePage(userID, activityID, programID, previou
 		return programInstances, nil
 	}
 
-	// When getting a speciric instance, make sure we got the right one
+	// When getting a specific instance, make sure we got the right one
 	if len(entries) == 0 {
 		return nil, nil
 	}
@@ -135,7 +148,7 @@ func (c *DBClient) SetActiveProgramInstance(userID, activityID, programID, insta
 	return nil
 }
 
-func (c *DBClient) GetActiveProgramInstance(userID, activityID, programID string) ([]byte, error) {
+func (c *DBClient) GetActiveProgramInstance(userID, activityID string) ([]byte, error) {
 
 	prefix := []string{userKey, userID, activityKey, activityID, activeProgramKey}
 	entry, err := readItem(c, key(prefix))
@@ -150,7 +163,7 @@ func (c *DBClient) GetActiveProgramInstance(userID, activityID, programID string
 
 	ids := strings.Split(string(entry.Value), ":")
 
-	instancePage, err := c.GetProgramInstancePage(userID, activityID, ids[1], ids[0], 1)
+	instancePage, err := c.GetProgramInstancePage(userID, ids[1], ids[0], 1)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read program instance: %w", err)
 	}

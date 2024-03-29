@@ -3,24 +3,35 @@
     authPrompt,
     fetchActivities,
     fetchExerciseTypes,
+    fetchActiveProgramInstance,
     ErrNotLoggedIn,
   } from '../modules/utils';
-  import { exerciseTypeStore } from '../modules/state';
+  import { activityStore, exerciseTypeStore } from '../modules/state';
   import styles from '../style.module.css';
 
-  try {
-    if (exerciseTypeStore.exerciseTypes.size === 0) {
-      await fetchExerciseTypes();
-      await fetchActivities();
+  const init = async () => {
+    try {
+      if (exerciseTypeStore.exerciseTypes.size === 0) {
+        await fetchExerciseTypes();
+        await fetchActivities();
+
+        const promises = [];
+        for (const activity of activityStore.getAll()) {
+          promises.push(fetchActiveProgramInstance(activity.id));
+        }
+        await Promise.all(promises);
+      }
+    } catch (e) {
+      if (e instanceof ErrNotLoggedIn) {
+        console.log(e.message);
+        authPrompt(init);
+      } else {
+        console.log(e);
+      }
     }
-  } catch (e) {
-    if (e instanceof ErrNotLoggedIn) {
-      console.log(e.message);
-      authPrompt(setup);
-    } else {
-      console.log(e);
-    }
-  }
+  };
+
+  await init();
 </script>
 <template>
   <div :id="styles.wrapper">

@@ -1,11 +1,14 @@
 import ExerciseIntensity from '../src/components/ExerciseIntensity.vue';
-import { config, mount } from '@vue/test-utils';
-import { Quasar, QInput } from 'quasar';
+import { config, enableAutoUnmount, mount } from '@vue/test-utils';
+import { QInput } from 'quasar';
 import { focus, select } from '../src/modules/directives';
 import { intensityProps } from '../src/modules/utils';
-//import { nextTick } from 'vue';
+import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-vitest';
 
-config.global.plugins.push(Quasar);
+installQuasarPlugin({
+  components: { QInput },
+});
+
 config.global.directives = {
   focus: focus,
   select: select,
@@ -14,12 +17,13 @@ config.global.errorHandler = (err) => {
   throw err;
 };
 
+enableAutoUnmount(afterEach);
+
 describe('ExerciseIntensity component', () => {
   it('weight value renders correctly read only', () => {
     const testWeight = 100;
     const testType = 'weight';
     const wrapper = mount(ExerciseIntensity, {
-      components: { QInput },
       props: {
         intensity: testWeight,
         writable: false,
@@ -41,7 +45,6 @@ describe('ExerciseIntensity component', () => {
     const testWeight = 1;
     const testType = 'bodyweight';
     const wrapper = mount(ExerciseIntensity, {
-      components: { QInput },
       props: {
         intensity: testWeight,
         writable: false,
@@ -64,7 +67,6 @@ it('weight value renders correctly when editing', async () => {
   const testWeight = 100;
   const testType = 'weight';
   const wrapper = mount(ExerciseIntensity, {
-    components: { QInput },
     attachTo: document.body,
     props: {
       intensity: testWeight,
@@ -81,9 +83,4 @@ it('weight value renders correctly when editing', async () => {
   expect(wrapper.emitted('update')[0]).toEqual([
     intensityProps(testType).value(testWeight + 1),
   ]);
-
-  //   await nextTick();
-  //   expect(document.activeElement).toBe(input.element);
-
-  //   wrapper.unmount();
 });

@@ -1,5 +1,15 @@
 <script setup>
-  import { useDialogPluginComponent, QCheckbox, QList } from 'quasar';
+  import {
+    useDialogPluginComponent,
+    QBtn,
+    QCard,
+    QCardActions,
+    QCheckbox,
+    QDialog,
+    QInput,
+    QItem,
+    QList,
+  } from 'quasar';
   import { ref } from 'vue';
   import { exerciseTypeStore } from '../modules/state';
   import styles from '../style.module.css';

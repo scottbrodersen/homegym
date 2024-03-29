@@ -290,14 +290,16 @@ func (mpm *MockProgramManager) GetProgramsPageForActivity(userID, activityID, pr
 	return args.Get(0).([]programs.Program), nil
 }
 
-func (mpm *MockProgramManager) AddProgramInstance(userID string, instance programs.ProgramInstance) (*string, error) {
+func (mpm *MockProgramManager) AddProgramInstance(userID string, instance *programs.ProgramInstance) error {
 	args := mpm.Called(userID, instance)
 
-	if args.Error(1) != nil {
-		return nil, args.Error(1)
+	if args.Error(0) != nil {
+		return args.Error(0)
 	}
 
-	return args.Get(0).(*string), nil
+	instance.ID = testProgramInstanceID
+
+	return nil
 }
 
 func (mpm *MockProgramManager) UpdateProgramInstance(userID string, instance programs.ProgramInstance) error {
@@ -310,8 +312,8 @@ func (mpm *MockProgramManager) UpdateProgramInstance(userID string, instance pro
 	return nil
 }
 
-func (mpm *MockProgramManager) GetProgramInstancesPage(userID, activityID, programID, previousProgramInstanceID string, pageSize int) ([]programs.ProgramInstance, error) {
-	args := mpm.Called(userID, activityID, previousProgramInstanceID, pageSize)
+func (mpm *MockProgramManager) GetProgramInstancesPage(userID, programID, previousProgramInstanceID string, pageSize int) ([]programs.ProgramInstance, error) {
+	args := mpm.Called(userID, previousProgramInstanceID, pageSize)
 
 	if args.Error(1) != nil {
 		return nil, args.Error(1)
@@ -330,8 +332,8 @@ func (mpm *MockProgramManager) SetActiveProgramInstance(userID, activityID, prog
 	return nil
 }
 
-func (mpm *MockProgramManager) GetActiveProgramInstance(userID, activityID, programID string) (*programs.ProgramInstance, error) {
-	args := mpm.Called(userID, activityID, programID)
+func (mpm *MockProgramManager) GetActiveProgramInstance(userID, activityID string) (*programs.ProgramInstance, error) {
+	args := mpm.Called(userID, activityID)
 
 	if args.Error(1) != nil {
 		return nil, args.Error(1)

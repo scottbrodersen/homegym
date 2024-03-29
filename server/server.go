@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 
@@ -16,15 +17,16 @@ import (
 )
 
 const (
-	usernameKey        GymContextKey = "username"
-	roleKey            GymContextKey = "role"
-	cookieToken                      = "token"
-	cookieSession                    = "session"
-	cookieUsername                   = "username"
-	cookieRoute                      = "followroute"
-	allowedCorsOrigin                = "http://192.168.2.55:80"
-	allowedCorsMethods               = "*"
-	allowedCorsHeaders               = "Set-Cookie"
+	usernameKey         GymContextKey = "username"
+	roleKey             GymContextKey = "role"
+	cookieToken                       = "token"
+	cookieSession                     = "session"
+	cookieUsername                    = "username"
+	cookieRoute                       = "followroute"
+	allowedCorsOrigin                 = "http://192.168.0.26:3000"
+	allowedCorsMethods                = "*"
+	allowedCorsHeaders                = "Set-Cookie"
+	internalServerError               = `{"message":"something went wrong"}`
 )
 
 var samesite http.SameSite = http.SameSiteLaxMode
@@ -149,4 +151,21 @@ func whoIsIt(ctx context.Context) (*string, *string, error) {
 	}
 
 	return &username, &role, nil
+}
+
+func jsonSafeError(e error) string {
+	replacement := ": "
+
+	var replacer = strings.NewReplacer(
+		"\r\n", replacement,
+		"\r", replacement,
+		"\n", replacement,
+		"\v", replacement,
+		"\f", replacement,
+		"\u0085", replacement,
+		"\u2028", replacement,
+		"\u2029", replacement,
+	)
+	r := replacer.Replace(e.Error())
+	return r
 }
