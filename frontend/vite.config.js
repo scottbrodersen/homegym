@@ -50,26 +50,26 @@ export default defineConfig(({ command, mode }) => {
     };
     config.server = {
       hmr: {
-        host: '192.168.0.26',
+        host: '127.0.0.1',
         overlay: true,
       },
       proxy: {
         '/homegym/login': {
-          target: 'http://192.168.0.26:3000',
+          target: 'http://127.0.0.1:3000',
           changeOrigin: true,
           secure: false,
           ws: true,
           configure: defaultProxyConfig,
         },
         '/homegym/login/': {
-          target: 'http://192.168.0.26:3000',
+          target: 'http://127.0.0.1:3000',
           changeOrigin: true,
           secure: false,
           ws: true,
           configure: defaultProxyConfig,
         },
         '/homegym/api': {
-          target: 'http://192.168.0.26:3000',
+          target: 'http://127.0.0.1:3000',
           changeOrigin: true,
           secure: false,
           ws: true,

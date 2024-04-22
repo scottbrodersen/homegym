@@ -59,7 +59,6 @@
 
   // callback for new program modal
   const initProgram = (programProps) => {
-    //activity.value = activityStore.get(programProps.activityID);
     if (!programProps) {
       state.value = states.READ_ONLY;
       return;
@@ -84,6 +83,12 @@
           intensity: null,
           workouts: new Array(),
         });
+        for (let k = 0; k < programProps.cycleSpan; k++) {
+          program.value.blocks[i].microCycles[j].workouts.push({
+            title: `Day ${k + 1}`,
+            segments: [{ exerciseTypeID: '', prescription: '' }],
+          });
+        }
       }
     }
   };
@@ -120,7 +125,6 @@
   };
 
   const cancel = () => {
-    // init(program.value.id);
     emit('done', program.value.id);
     changed.value = false;
   };

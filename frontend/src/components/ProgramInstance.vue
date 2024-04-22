@@ -1,21 +1,50 @@
 <script setup>
-  import { watch } from 'vue';
+  import { onBeforeMount, ref, watch } from 'vue';
   import ActivityProgram from './ActivityProgram.vue';
   import { programInstanceStore, programsStore } from './../modules/state';
 
   const props = defineProps({ instanceID: String, programID: String });
-  let instance = props.instanceID ? programInstanceStore.get(newID) : null;
+
+  const getInstance = (instanceID) => {
+    return instanceID ? programInstanceStore.get(props.instanceID) : null;
+  };
+
+  const getProgramTitle = (activityID, programID) => {
+    return programsStore.get(activityID, programID).title;
+  };
+
+  let instance;
+  const programTitle = ref();
+
   watch(
     () => props.instanceID,
     (newID) => {
-      instance = newID ? programInstanceStore.get(newID) : null;
+      instance = getInstance(newID);
+      programTitle.value = getProgramTitle(
+        instance.activityID,
+        instance.programID
+      );
     }
   );
+  onBeforeMount(() => {
+    instance = getInstance(props.instanceID);
+    programTitle.value = getProgramTitle(
+      instance.activityID,
+      instance.programID
+    );
+  });
 </script>
 <template>
   <div v-if="instance">
-    Start Date: {{ instance.startDate }} Base Program:
-    {{ programsStore.get(instance.activityID, instance.programID).title }}
-    <ActivityProgram :programID="instance.programID" />
+    <div>Start Date: {{ instance.startDate }}</div>
+    <div>
+      Base Program:
+      {{ programTitle }}
+    </div>
+    <div>Events:</div>
+    <div v-for="(eventID, dayIndex) of instance.events" :key="dayIndex">
+      {{ dayIndex }}: {{ eventID }}
+    </div>
+    <ActivityProgram :programID="instance.id" />
   </div>
 </template>

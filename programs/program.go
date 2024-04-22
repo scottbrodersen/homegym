@@ -22,7 +22,7 @@ type ProgramInstance struct {
 	ProgramID string         `json:"programID"`
 	StartTime int64          `json:"startDate"`
 	Complete  bool           `json:"complete,omitempty"`
-	Events    map[int]string `json:"events,omitempty"`
+	Events    map[int]string `json:"events"`
 }
 
 type ErrInvalidProgram struct {
@@ -74,6 +74,7 @@ type Workout struct {
 	Title       string           `json:"title"`
 	Segments    []WorkoutSegment `json:"segments"`
 	Description string           `json:"description,omitempty"`
+	RestDay     bool             `json:"restDay"`
 }
 
 func (w Workout) validate() error {
@@ -174,7 +175,7 @@ type ProgramAdmin interface {
 	UpdateProgram(userID string, program Program) error
 	GetProgramsPageForActivity(userID, activityID, previousProgramID string, pageSize int) ([]Program, error)
 	AddProgramInstance(userID string, instance *ProgramInstance) error
-	UpdateProgramInstance(userID string, instance ProgramInstance) error
+	UpdateProgramInstance(userID string, instance ProgramInstance) (*ProgramInstance, error)
 	GetProgramInstancesPage(userID, programID, previousProgramInstanceID string, pageSize int) ([]ProgramInstance, error)
 	SetActiveProgramInstance(userID, activityID, programID, instanceID string) error
 	GetActiveProgramInstance(userID, activityID string) (*ProgramInstance, error)
@@ -326,31 +327,60 @@ func (pu ProgramUtil) AddProgramInstance(userID string, instance *ProgramInstanc
 	return nil
 }
 
-func (pu ProgramUtil) UpdateProgramInstance(userID string, instance ProgramInstance) error {
+func (pu ProgramUtil) UpdateProgramInstance(userID string, instance ProgramInstance) (*ProgramInstance, error) {
 	if err := instance.validate(); err != nil {
-		return err
+		return nil, err
 	}
 
 	existing, err := dal.DB.GetProgramInstancePage(userID, instance.ProgramID, instance.ID, 1)
 	if err != nil {
-		return fmt.Errorf("failed to update: %w", err)
+		return nil, fmt.Errorf("failed to update: %w", err)
 	}
 
 	if existing == nil {
-		return fmt.Errorf("program instance not found")
+		return nil, fmt.Errorf("program instance not found")
 	}
 
+	if instance.Events != nil && len(instance.Events) > 0 {
+		// sanitize the events if the last index is an unexpected value
+		// first get the largest key
+		expectedLastDay := len(instance.Events) - 1
+		lastDay := 0
+
+		_, ok := instance.Events[expectedLastDay]
+		if !ok {
+			for k := range instance.Events {
+				if k > lastDay {
+					lastDay = k
+				}
+			}
+		}
+
+		// fill in missing keys between the last day and the next largest day
+		for i := lastDay - 1; i >= 0; i-- {
+			_, ok := instance.Events[i]
+			if !ok {
+				instance.Events[i] = ""
+			} else {
+				break
+			}
+		}
+
+		// sanity check
+		if lastDay != len(instance.Events)-1 {
+			return nil, errors.Join(ErrInvalidProgramInstance, fmt.Errorf("program instance events is malformed"))
+		}
+	}
 	programJSON, err := json.Marshal(instance)
 	if err != nil {
-		return fmt.Errorf("failed to parse program instance: %w", err)
+		return nil, fmt.Errorf("failed to parse program instance: %w", err)
 	}
 
 	if err := dal.DB.AddProgramInstance(userID, instance.ProgramID, instance.ID, "", programJSON); err != nil {
-		return fmt.Errorf("failed to update program: %w", err)
+		return nil, fmt.Errorf("failed to update program: %w", err)
 	}
 
-	return nil
-
+	return &instance, nil
 }
 
 func (pu ProgramUtil) GetProgramInstancesPage(userID, programID, previousProgramInstanceID string, pageSize int) ([]ProgramInstance, error) {

@@ -153,8 +153,8 @@ const testWorkout = (index) => {
 };
 
 export const testProgramInstanceID = 'test-program-instance-id';
-export const numCompleted = 14;
-// if arg is not the test ID, interpret it as the start date
+export const numCompleted = 14; // one block completed
+// if arg is not testProgramInstanceID, interpret it as the start date
 export const testProgramInstance = (arg) => {
   const inst = testProgram();
   inst.programID = inst.id;
@@ -163,10 +163,9 @@ export const testProgramInstance = (arg) => {
   if (arg != testProgramInstanceID) {
     inst.startDate = arg;
   }
-  const events = new Map();
+  inst.events = {};
   for (let i = 0; i < numCompleted; i++) {
-    events.set(i, 'not null');
+    inst.events[i] = 'not null';
   }
-  inst.events = events;
   return inst;
 };

@@ -1,6 +1,6 @@
 <script async setup>
   import { programsStore, programInstanceStore } from '../modules/state';
-  import { ref, watch } from 'vue';
+  import { onBeforeMount, ref, watch } from 'vue';
   import styles from '../style.module.css';
   import {
     authPrompt,
@@ -8,7 +8,7 @@
     fetchProgramInstances,
     ErrNotLoggedIn,
   } from '../modules/utils';
-  const props = defineProps({ activityID: String });
+  const props = defineProps({ activityID: String, programID: String });
   const emit = defineEmits(['selected']);
 
   const listItems = ref([]);
@@ -67,6 +67,20 @@
       emit('selected', idObj);
     }
   );
+  onBeforeMount(async () => {
+    if (props.activityID) {
+      await getPrograms(props.activityID);
+    }
+
+    if (props.programID) {
+      for (let i = 0; i < listItems.value.length; i++) {
+        if (props.programID == listItems.value[i].id) {
+          selectedObj.value = listItems.value[i];
+          break;
+        }
+      }
+    }
+  });
 </script>
 <template>
   <q-select

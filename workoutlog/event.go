@@ -43,14 +43,6 @@ type EventMeta struct {
 	Notes      string `json:"notes"`
 }
 
-//	func (e *Event) UnmarshalJSON(b []byte) error {
-//	 var evt any
-//	 if err := json.Unmarshal(b, &evt); err != nil {
-//		return err
-//	}
-//
-//		return nil
-//	}
 var exerciseTypeCache sync.Map = sync.Map{}
 
 func (em *eventManager) GetCachedExerciseType(exerciseTypeID string) *ExerciseType {
@@ -154,7 +146,6 @@ func (em *eventManager) AddExercisesToEvent(userID, eventID string, eventDate in
 		}
 
 		err = exerciseType.validateInstance(&inst)
-
 		if err != nil {
 			return fmt.Errorf("could not ingest the exercise instance: %w", err)
 		}

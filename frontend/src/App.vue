@@ -5,7 +5,9 @@
 <template>
   <Suspense>
     <template #default>
-      <InitState />
+      <Suspense>
+        <InitState />
+      </Suspense>
     </template>
     <template #fallback> Product is loading... </template>
   </Suspense>

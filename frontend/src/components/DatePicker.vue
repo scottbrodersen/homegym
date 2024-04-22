@@ -8,9 +8,9 @@
   const emit = defineEmits(['update']);
 
   // javascript epoch is in milliseconds
-  const epoch = props.dateValue ? props.dateValue * 1000 : Date.now().valueOf();
-
-  const dateObj = new Date(epoch);
+  const dateObj = props.dateValue
+    ? new Date(props.dateValue * 1000)
+    : new Date();
 
   // prefix single-digit date numbers
   const prefixed = (dateNumber) => {

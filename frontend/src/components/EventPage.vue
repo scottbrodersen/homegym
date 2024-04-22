@@ -4,8 +4,11 @@
   import DatePicker from './DatePicker.vue';
   import EventMeta from './EventMeta.vue';
   import ExerciseInstance from './ExerciseInstance.vue';
-  import { eventStore, activityStore } from '../modules/state';
-  import { fetchEventPage, openConfirmModal } from '../modules/utils';
+  import {
+    eventStore,
+    activityStore,
+    programInstanceStore,
+  } from '../modules/state';
   import { QBtn, QSelect } from 'quasar';
   import {
     authPrompt,
@@ -13,6 +16,9 @@
     storeEventExerciseInstances,
     ErrNotLoggedIn,
     toast,
+    fetchEventPage,
+    openConfirmModal,
+    updateProgramInstance,
   } from '../modules/utils.js';
   import { useRouter } from 'vue-router';
 
@@ -20,11 +26,18 @@
 
   const props = defineProps({
     eventId: String,
+    programInstanceID: String,
+    blockIndex: String,
+    microCycleIndex: String,
+    workoutIndex: String,
+    dayIndex: String,
   });
 
   const thisEvent = ref({});
   const thisEventActivityName = ref('');
   const activityNames = [];
+  let programInstance;
+  let updateProgram = false;
   let baseline = ref();
 
   const setBaseline = (eventID) => {
@@ -43,6 +56,30 @@
       thisEventActivityName.value = activityStore.get(
         thisEvent.value.activityID
       ).name;
+    }
+  } else if (props.programInstanceID && props.dayIndex) {
+    updateProgram = true;
+    baseline.value = '';
+    programInstance = programInstanceStore.get(props.programInstanceID);
+
+    thisEvent.value = { activityID: programInstance.activityID };
+
+    thisEventActivityName.value = activityStore.get(
+      thisEvent.value.activityID
+    ).name;
+
+    thisEvent.value.exercises = {};
+    const workout =
+      programInstance.blocks[props.blockIndex].microCycles[
+        props.microCycleIndex
+      ].workouts[props.workoutIndex];
+
+    for (let i = 0; i < workout.segments.length; i++) {
+      thisEvent.value.exercises[i] = {
+        index: i,
+        typeID: workout.segments[i].exerciseTypeID,
+        parts: [{ intensity: 0, volume: [] }],
+      };
     }
   }
 
@@ -109,21 +146,26 @@
 
     storeEvent(url, thisEvent.value)
       .then((responseEvent) => {
-        if (!!thisEvent.value.id && thisEvent.value.id != responseEvent.id) {
-          throw new Error('Event id mismatch');
-        }
         thisEvent.value.id = responseEvent.id;
-        if (!!eventStore.getByID(responseEvent.id)) {
+
+        if (eventStore.getByID(responseEvent.id)) {
           eventStore.update(thisEvent.value);
-          saveExerciseInstances();
         } else {
           eventStore.add(thisEvent.value);
-          // event was just created so no exercises to update
         }
+        return saveExerciseInstances();
+      })
+      .then(() => {
         setBaseline();
-        //baseline = JSON.stringify(thisEvent.value);
-        //changed.value = false;
         toast('Saved', 'positive');
+        // update the program instance if props.instanceID
+        if (updateProgram) {
+          programInstance.events[props.dayIndex] = thisEvent.value.id;
+          updateProgramInstance(programInstance);
+        }
+      })
+      .then(() => {
+        updateProgram = false;
       })
       .catch((e) => {
         if (e instanceof ErrNotLoggedIn) {
@@ -143,7 +185,7 @@
       thisEvent.value.exercises
     )
       .then((responses) => {
-        if (!!responses) {
+        if (responses) {
           console.log(responses);
         }
       })
@@ -163,7 +205,12 @@
   const cancel = async () => {
     const route = { name: 'home' };
     if (changed.value) {
-      openConfirmModal('Lose unsaved changes?', route, router);
+      const response = await openConfirmModal(
+        'Lose unsaved changes?',
+        async () => {
+          await router.replace(route);
+        }
+      );
     } else {
       await router.replace(route);
     }
@@ -220,7 +267,7 @@
       @click="setExerciseInstance(null, null)"
     />
   </div>
-  <div :class="[styles.buttonArray]" v-show="!!thisEvent.activityID">
+  <div :class="[styles.buttonArray]" v-show="thisEvent.activityID">
     <q-btn label="Cancel" color="accent" text-color="dark" @click="cancel" />
     <q-btn
       :label="updateButtonText"

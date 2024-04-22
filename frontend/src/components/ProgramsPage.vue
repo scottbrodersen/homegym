@@ -15,35 +15,45 @@
   import ProgramSelect from './ProgramSelect.vue';
   import ProgramInstance from './ProgramInstance.vue';
 
-  // props used only in unit tests
-  const props = defineProps({ activity: Object, programID: String });
+  const props = defineProps({
+    activityID: String,
+    programID: String,
+    instanceID: String,
+  });
 
   const selectedProgram = ref(props.programID ? props.programID : '');
-  const selectedProgramInstance = ref('');
-  const activity = ref(props.activity);
+  const selectedProgramInstance = ref(props.instanceID ? props.instanceID : '');
+  const activity = ref(activityStore.get(props.activityID));
 
   const state = ref(states.READ_ONLY);
 
   provide('activity', activity);
+
   provide('state', state);
 
   const setState = (value) => {
     state.value = value;
   };
 
-  const setSelection = (obj) => {
-    if (obj.programID) {
-      selectedProgramInstance.value = '';
-      selectedProgram.value = obj.programID;
-    } else {
-      selectedProgram.value = '';
-      selectedProgramInstance.value = obj.programInstanceID;
+  const setProgramSelection = (obj) => {
+    if (obj) {
+      if (obj.programID) {
+        selectedProgramInstance.value = '';
+        selectedProgram.value = obj.programID;
+      } else {
+        selectedProgram.value = '';
+        selectedProgramInstance.value = obj.programInstanceID;
+      }
     }
     setState(states.READ_ONLY);
   };
 
   const disableEdit = computed(() => {
-    return state != states.READ_ONLY && !selectedProgram.value;
+    return (
+      state != states.READ_ONLY &&
+      !selectedProgram.value &&
+      !selectedProgramInstance.value
+    );
   });
 
   const startProgram = () => {
@@ -109,7 +119,14 @@
       <Suspense>
         <ProgramSelect
           :activityID="activity ? activity.id : ''"
-          @selected="setSelection"
+          :programID="
+            props.programID
+              ? props.programID
+              : props.instanceID
+              ? props.instanceID
+              : ''
+          "
+          @selected="setProgramSelection"
         />
       </Suspense>
       <div>
@@ -137,9 +154,9 @@
     </div>
     <div>
       <ActivityProgram
-        v-show="selectedProgram"
+        v-if="selectedProgram || state == states.NEW"
         :programID="selectedProgram"
-        @done="setSelection"
+        @done="setProgramSelection"
       />
       <ProgramInstance
         v-show="selectedProgramInstance"

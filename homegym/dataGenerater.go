@@ -66,7 +66,9 @@ func AddData() error {
 	}
 
 	addProgram(*activity, "program 1")
-	addProgram(*activity, "program 2")
+	p2 := addProgram(*activity, "program 2")
+
+	programInstanceMaker(p2, testDate)
 
 	return nil
 }
@@ -208,7 +210,7 @@ func exerciseSegmentMaker() workoutlog.ExerciseSegment {
 
 }
 
-func addProgram(activity workoutlog.Activity, title string) {
+func addProgram(activity workoutlog.Activity, title string) programs.Program {
 
 	microcycle1 := programs.MicroCycle{
 		Title:       title + " week 1",
@@ -265,20 +267,25 @@ func addProgram(activity workoutlog.Activity, title string) {
 		},
 	}
 
-	_, err := programs.ProgramManager.AddProgram(username, program)
+	programID, err := programs.ProgramManager.AddProgram(username, program)
 	if err != nil {
 		fmt.Println("error creating program")
 		fmt.Println(err.Error())
 	}
 
+	program.ID = *programID
+
 	fmt.Println("program created")
+
+	return program
 }
 
 func workoutMaker(title, pSn, pSq string) programs.Workout {
 	if pSn == "" && pSq == "" {
 		return programs.Workout{
 			Title:       title,
-			Description: "Rest",
+			RestDay:     true,
+			Description: "Rest Day",
 		}
 	}
 	ws1 := programs.WorkoutSegment{
@@ -299,7 +306,22 @@ func workoutMaker(title, pSn, pSq string) programs.Workout {
 	return programs.Workout{
 		Title:       title,
 		Segments:    segments,
-		Description: "Whatever this is going to look like",
+		Description: "Leg day",
 	}
+
+}
+
+func programInstanceMaker(program programs.Program, testDate int64) {
+	startTime := testDate - 3.5*24*60*60
+	program.Title = "Test program instance"
+
+	pi := programs.ProgramInstance{
+		Program:   program,
+		StartTime: startTime,
+		ProgramID: program.ID,
+	}
+
+	pi.Program.ID = ""
+	programs.ProgramManager.AddProgramInstance(username, &pi)
 
 }

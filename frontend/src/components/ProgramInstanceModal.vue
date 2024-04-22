@@ -42,6 +42,7 @@
     instance.title = instanceTitle.value;
     instance.startDate = startDate.value;
     instance.programID = props.programID;
+    instance.events = new Map();
     delete instance.id;
 
     onDialogOK(instance);

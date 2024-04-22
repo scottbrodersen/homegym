@@ -15,8 +15,9 @@ import VariationModal from './../components/VariationModal.vue';
 import ProgramModal from './../components/ProgramModal.vue';
 import ConfirmModal from './../components/ConfirmModal.vue';
 import ProgramInstanceModal from './../components/ProgramInstanceModal.vue';
+import { toRaw, isRef, isReactive, isProxy, unref } from 'vue';
 
-const pageSize = 10;
+const pageSize = 5;
 const fetchPageSize = 20;
 
 const intensityTypes = [
@@ -246,21 +247,40 @@ const fetchExerciseTypes = async () => {
   });
 };
 
-const fetchActivityExercises = async (activityID) => {
-  const resp = await fetch(`/homegym/api/activities/${activityID}/exercises/`, {
+const fetchActivityExercises = (activityID) => {
+  // const resp = await fetch(`/homegym/api/activities/${activityID}/exercises/`, {
+  //   method: 'GET',
+  //   mode: 'same-origin',
+  // });
+
+  // if (resp.status == 401) {
+  //   throw new ErrNotLoggedIn('unauthorized fetch of activity exercises');
+  // }
+  // const exercises = await resp.json();
+
+  // const activity = activityStore.get(activityID);
+  // activity.exercises = exercises;
+  // activityStore.add(activity);
+  // return exercises;
+  fetch(`/homegym/api/activities/${activityID}/exercises/`, {
     method: 'GET',
     mode: 'same-origin',
-  });
-
-  if (resp.status == 401) {
-    throw new ErrNotLoggedIn('unauthorized fetch of activity exercises');
-  }
-  const exercises = await resp.json();
-
-  const activity = activityStore.get(activityID);
-  activity.exercises = exercises;
-  activityStore.add(activity);
-  return exercises;
+  })
+    .then((resp) => {
+      if (resp.status == 401) {
+        throw new ErrNotLoggedIn('unauthorized fetch of activity exercises');
+      }
+      return resp.json();
+    })
+    .then((exercises) => {
+      const activity = activityStore.get(activityID);
+      activity.exercises = exercises;
+      activityStore.add(activity);
+      return exercises;
+    })
+    .catch((e) => {
+      throw e;
+    });
 };
 
 const authPrompt = (after, args) => {
@@ -329,6 +349,7 @@ const newProgramModal = (activityID, callback) => {
     })
     .onDismiss(() => {});
 };
+
 const newProgramInstanceModal = (activityID, programID, callback) => {
   Dialog.create({
     component: ProgramInstanceModal,
@@ -363,13 +384,13 @@ const openVariationModal = (exerciseTypeID, basisID, callback) => {
     .onCancel(() => {});
 };
 
-const openConfirmModal = (message, route, router) => {
+const openConfirmModal = async (message, callback) => {
   Dialog.create({
     component: ConfirmModal,
-    componentProps: { message: message, route: route },
+    componentProps: { message: message },
   })
     .onOk(async () => {
-      await router.replace(route);
+      await callback();
     })
     .onCancel(() => {});
 };
@@ -526,23 +547,24 @@ const updateProgram = async (program) => {
 };
 
 const updateProgramInstance = async (instance) => {
-  if (!instance.activityID) {
+  const rawInstance = deepToRaw(instance);
+  if (!rawInstance.activityID) {
     throw new Error('missing activity ID');
   }
-  if (!instance.programID) {
+  if (!rawInstance.programID) {
     throw new Error('missing program ID');
   }
-  const isNewInstance = instance.id ? true : false;
-  const url = `/homegym/api/activities/${instance.activityID}/programs/${
-    instance.programID
-  }/instances/${instance.id ? instance.id : ''}`;
+  const isNewInstance = rawInstance.id ? true : false;
+  const url = `/homegym/api/activities/${rawInstance.activityID}/programs/${
+    rawInstance.programID
+  }/instances/${rawInstance.id ? rawInstance.id : ''}`;
 
   const headers = new Headers();
   headers.set('content-type', 'application/json');
 
   const options = {
     method: 'POST',
-    body: JSON.stringify(instance),
+    body: JSON.stringify(rawInstance),
     headers: headers,
   };
 
@@ -555,19 +577,19 @@ const updateProgramInstance = async (instance) => {
     throw new Error(errBody.message);
   }
 
-  if (!instance.id) {
+  if (!rawInstance.id) {
     const respBody = await resp.json();
 
-    instance.id = respBody.id;
+    rawInstance.id = respBody.id;
   }
 
   // New instances are set as active
   if (!isNewInstance) {
-    programInstanceStore.setActive(instance.activityID, instance);
+    programInstanceStore.setActive(rawInstance.activityID, rawInstance);
   } else {
-    programInstanceStore.add(instance);
+    programInstanceStore.add(rawInstance);
   }
-  return instance.id;
+  return rawInstance.id;
 };
 
 // event param has no id if it is new
@@ -748,6 +770,27 @@ const deleteCookie = (name) => {
   }
 };
 
+//https://github.com/vuejs/core/issues/5303#issuecomment-1543596383
+const deepToRaw = (sourceObj) => {
+  const objectIterator = (input) => {
+    if (Array.isArray(input)) {
+      return input.map((item) => objectIterator(item));
+    }
+    if (isRef(input) || isReactive(input) || isProxy(input)) {
+      return objectIterator(toRaw(input));
+    }
+    if (input && typeof input === 'object') {
+      return Object.keys(input).reduce((acc, key) => {
+        acc[key] = objectIterator(input[key]);
+        return acc;
+      }, {});
+    }
+    return input;
+  };
+
+  return objectIterator(unref(sourceObj));
+};
+
 export {
   authPrompt,
   fetchActivities,
@@ -782,4 +825,5 @@ export {
   states,
   OrderedList,
   getCookieValue,
+  deepToRaw,
 };
