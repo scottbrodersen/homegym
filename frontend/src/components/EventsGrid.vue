@@ -195,98 +195,85 @@
 </script>
 
 <template>
-  <div :class="[styles.horiz, styles.alignCenter, styles.blockPadSm]">
-    <div :class="[styles.sibSpMed]">
-      <h1>Event Log</h1>
-    </div>
-    <div :class="[styles.sibSpMed]">
-      <q-btn
-        round
-        size="0.65em"
-        color="primary"
-        icon="add"
-        :to="{ name: 'event' }"
-        id="addevent"
-      />
-    </div>
-  </div>
-  <div :class="styles.eventsTable">
-    <q-table
-      ref="table"
-      :rows="rows"
-      :columns="columns"
-      row-key="id"
-      v-model:pagination="pagination"
-      v-model:expanded="expanded"
-      :rowsPerPageOptions="[]"
-      @request="setPage"
-      dark
-    >
-      <template v-slot:body="props">
-        <q-tr :props="props">
-          <q-td
-            v-for="col in props.cols"
-            :key="col.name"
-            :props="props"
-            @click="expandRow(props)"
-          >
-            {{ col.value }}
-          </q-td>
-        </q-tr>
-        <Transition name="scale">
-          <EventDetails
-            v-show="props.expand"
-            :event-id="props.key"
-            class="slider"
+  <div>
+    <div :class="styles.eventsTable">
+      <q-table
+        ref="table"
+        :rows="rows"
+        :columns="columns"
+        row-key="id"
+        v-model:pagination="pagination"
+        v-model:expanded="expanded"
+        :rowsPerPageOptions="[]"
+        @request="setPage"
+        dark
+      >
+        <template v-slot:body="props">
+          <q-tr :props="props" :id="props.key">
+            <q-td
+              v-for="col in props.cols"
+              :key="col.name"
+              :props="props"
+              @click="expandRow(props)"
+            >
+              {{ col.value }}
+            </q-td>
+          </q-tr>
+          <Transition name="scale">
+            <EventDetails
+              v-show="props.expand"
+              :event-id="props.key"
+              class="slider"
+            />
+          </Transition>
+        </template>
+        <template v-slot:bottom="scope">
+          <q-btn
+            :class="[styles.maxRight]"
+            v-if="scope.pagesNumber > 2"
+            icon="first_page"
+            color="grey-8"
+            round
+            dense
+            flat
+            :disable="scope.isFirstPage"
+            @click="scope.firstPage"
           />
-        </Transition>
-      </template>
-      <template v-slot:bottom="scope">
-        <q-btn
-          :class="[styles.maxRight]"
-          v-if="scope.pagesNumber > 2"
-          icon="first_page"
-          color="grey-8"
-          round
-          dense
-          flat
-          :disable="scope.isFirstPage"
-          @click="scope.firstPage"
-        />
-        <q-btn
-          :class="scope.pagesNumber > 2 ? '' : [styles.maxRight]"
-          icon="chevron_left"
-          color="grey-8"
-          round
-          dense
-          flat
-          :disable="scope.isFirstPage"
-          @click="scope.prevPage"
-        />
-        <div>Page {{ pagination.page }} of {{ Math.ceil(pagesNumber) }}</div>
-        <q-btn
-          :class="scope.pagesNumber > 2 ? '' : [styles.maxLeft]"
-          icon="chevron_right"
-          color="grey-8"
-          round
-          dense
-          flat
-          :disable="scope.isLastPage"
-          @click="scope.nextPage"
-        />
-        <q-btn
-          :class="[styles.maxLeft]"
-          v-if="scope.pagesNumber > 2"
-          icon="last_page"
-          color="grey-8"
-          round
-          dense
-          flat
-          :disable="scope.isLastPage"
-          @click="scope.lastPage"
-        />
-      </template>
-    </q-table>
+          <q-btn
+            :class="scope.pagesNumber > 2 ? '' : [styles.maxRight]"
+            icon="chevron_left"
+            color="grey-8"
+            round
+            dense
+            flat
+            :disable="scope.isFirstPage"
+            @click="scope.prevPage"
+          />
+          <div>Page {{ pagination.page }} of {{ Math.ceil(pagesNumber) }}</div>
+          <q-btn
+            :class="scope.pagesNumber > 2 ? '' : [styles.maxLeft]"
+            icon="chevron_right"
+            color="grey-8"
+            round
+            dense
+            flat
+            :disable="scope.isLastPage"
+            @click="scope.nextPage"
+          />
+          <q-btn
+            :class="[styles.maxLeft]"
+            v-if="scope.pagesNumber > 2"
+            icon="last_page"
+            color="grey-8"
+            round
+            dense
+            flat
+            :disable="scope.isLastPage"
+            @click="scope.lastPage"
+          />
+        </template>
+      </q-table>
+    </div>
   </div>
 </template>
 <style>

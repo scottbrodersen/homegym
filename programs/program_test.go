@@ -26,13 +26,15 @@ var testProgram Program = Program{
 	ActivityID: testActivityID,
 }
 
-var testProgramInstance ProgramInstance = ProgramInstance{
-	Program: Program{
-		Title:      testProgramInstanceTitle,
-		ActivityID: testProgram.ActivityID,
-	},
-	ID:        testProgramInstanceID,
-	ProgramID: testProgramID,
+func testProgramInstance() ProgramInstance {
+	return ProgramInstance{
+		Program: Program{
+			Title:      testProgramInstanceTitle,
+			ActivityID: testProgram.ActivityID,
+		},
+		ID:        testProgramInstanceID,
+		ProgramID: testProgramID,
+	}
 }
 
 func TestPrograms(t *testing.T) {
@@ -133,7 +135,7 @@ func TestPrograms(t *testing.T) {
 		})
 
 		Convey("When we get the program instance", func() {
-			testInstanceByte, err := json.Marshal(testProgramInstance)
+			testInstanceByte, err := json.Marshal(testProgramInstance())
 			if err != nil {
 				t.FailNow()
 			}
@@ -143,28 +145,58 @@ func TestPrograms(t *testing.T) {
 
 			So(err, ShouldBeNil)
 			So(instances, ShouldHaveLength, 1)
-			So(instances[0], ShouldResemble, testProgramInstance)
+			So(instances[0], ShouldResemble, testProgramInstance())
 		})
 
 		Convey("When we update a program instance", func() {
 			db.On("GetProgramInstancePage", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return([][]byte{[]byte("any")}, nil)
 			db.On("AddProgramInstance", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
-			err := ProgramManager.UpdateProgramInstance(testUserID, testProgramInstance)
+			pi, err := ProgramManager.UpdateProgramInstance(testUserID, testProgramInstance())
 
 			So(err, ShouldBeNil)
+			So(*pi, ShouldResemble, (testProgramInstance()))
+		})
+
+		Convey("When we update a program instance with non-contiguous events", func() {
+			db.On("GetProgramInstancePage", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return([][]byte{[]byte("any")}, nil)
+			db.On("AddProgramInstance", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+
+			testPI := testProgramInstance()
+			testPI.Events = map[int]string{0: "", 1: "", 3: ""}
+			expectedProgramInstance := testProgramInstance()
+			expectedProgramInstance.Events = map[int]string{0: "", 1: "", 2: "", 3: ""}
+
+			pi, err := ProgramManager.UpdateProgramInstance(testUserID, testPI)
+
+			So(err, ShouldBeNil)
+			So(*pi, ShouldResemble, expectedProgramInstance)
+		})
+
+		Convey("When we update a program instance with duplicate events", func() {
+			db.On("GetProgramInstancePage", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return([][]byte{[]byte("any")}, nil)
+			db.On("AddProgramInstance", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+
+			testPI := testProgramInstance()
+			testPI.Events = map[int]string{0: "", 1: "", -1: "", 3: ""}
+
+			pi, err := ProgramManager.UpdateProgramInstance(testUserID, testPI)
+
+			So(err, ShouldNotBeNil)
+			So(pi, ShouldBeNil)
 		})
 
 		Convey("When we set the active program instance", func() {
 			db.On("SetActiveProgramInstance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
+			testProgramInstance := testProgramInstance()
 			err := ProgramManager.SetActiveProgramInstance(testUserID, testProgramInstance.ActivityID, testProgramInstance.ActivityID, testProgramInstance.ID)
 
 			So(err, ShouldBeNil)
 		})
 
 		Convey("When we get the active program instance", func() {
-			instanceBytes, err := json.Marshal(testProgramInstance)
+			instanceBytes, err := json.Marshal(testProgramInstance())
 			if err != nil {
 				t.FailNow()
 			}
@@ -173,7 +205,7 @@ func TestPrograms(t *testing.T) {
 			inst, err := ProgramManager.GetActiveProgramInstance(testUserID, testActivityID)
 
 			So(err, ShouldBeNil)
-			So(*inst, ShouldResemble, testProgramInstance)
+			So(*inst, ShouldResemble, testProgramInstance())
 		})
 	})
 }

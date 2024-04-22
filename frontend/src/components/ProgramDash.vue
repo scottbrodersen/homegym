@@ -1,36 +1,34 @@
 <script setup>
   import { programInstanceStore } from '../modules/state';
-  import { useProgramInstanceStatus } from '../composables/programInstanceStatus';
   import styles from '../style.module.css';
-  import { ref } from 'vue';
+  import { provide, ref } from 'vue';
+  import WorkoutAgent from './WorkoutAgent.vue';
+  import { states } from '../modules/utils';
+  import { getProgramInstanceStatus } from '../modules/programUtils';
 
+  provide('state', states.READ_ONLY);
   const props = defineProps({ activityID: String });
-  const activeInstance = ref(
-    props.activityID ? programInstanceStore.getActive(props.activityID) : null
-  );
+  const activeInstance = props.activityID
+    ? programInstanceStore.getActive(props.activityID)
+    : null;
 
-  const {
-    percentComplete,
-    adherence,
-    blockIndex,
-    microCycleIndex,
-    workoutIndex,
-  } = activeInstance.value
-    ? useProgramInstanceStatus(activeInstance.value.id)
-    : {
-        percentComplete: null,
-        adherence: null,
-        blockIndex: null,
-        microCycleIndex: null,
-        workoutIndex: null,
-      };
+  const [percentComplete, adherence, workoutCoords, dayIndex] = activeInstance
+    ? getProgramInstanceStatus(activeInstance.id)
+    : [null, null, null, null];
 </script>
 <template>
   <div v-if="activeInstance">
-    <div>{{ activeInstance.title }}</div>
-    <div :class="[styles.horiz]">
+    <h1>Current Focus: {{ activeInstance.title }}</h1>
+    <div :class="[styles.pgmStatus]">
       <div>Progress: {{ percentComplete }}%</div>
       <div>Adherence: {{ adherence }}%</div>
+    </div>
+    <div>
+      <WorkoutAgent
+        :activityID="props.activityID"
+        :workoutCoords="workoutCoords"
+        :dayIndex="dayIndex"
+      />
     </div>
   </div>
 </template>

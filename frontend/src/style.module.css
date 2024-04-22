@@ -20,7 +20,8 @@
   --hg-white: #fcfcfc;
   --hg-mid: #555555;
   --hg-blue: #1976d2;
-  --hg-green: #6df31f;
+  --hg-green: #6df31f77;
+  --hg-red: #db2a2a77;
 
   --hg-bold-weight: 600;
 
@@ -471,9 +472,6 @@ header a:hover {
   align-items: center;
 }
 
-.pgmItem {
-}
-
 .pgmInstItem {
   padding-left: 10px;
 }
@@ -482,8 +480,112 @@ header a:hover {
   font-size: 0.65em;
 }
 
+.missedWorkout {
+  background-color: var(--hg-red);
+}
+
+.futureWorkout {
+  background-color: var(--hg-blue);
+}
+
+.doneWorkout {
+  background-color: var(--hg-green);
+}
+
 :global(.q-dialog__backdrop) {
   background: rgba(0, 0, 0, 0.7);
+}
+.pgmDash {
+  margin-bottom: var(--hg-med);
+}
+
+.pgmDash h1 {
+  color: var(--hg-yellow);
+}
+
+.pgmStatus {
+  composes: horiz;
+  justify-content: space-around;
+}
+
+.workoutStatus {
+  composes: blockPadXSm;
+  height: 100px;
+}
+.carouselWrap {
+  composes: blockPadSm;
+}
+.carouselNav {
+  composes: horiz;
+  justify-content: center;
+  align-items: center;
+}
+.carouselNavWindow {
+  max-width: 75%;
+  overflow-x: hidden;
+  mask-image: gradient(
+    linear,
+    left top,
+    left bottom,
+    from(rgba(0, 0, 0, 1)),
+    to(rgba(0, 0, 0, 0))
+  );
+  mask-image: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0) 0%,
+    black 20% 80%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+.carouselNavWindow::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+.carouselNavButtonArray {
+  composes: buttonArray;
+  padding-left: var(--hg-xlg);
+  padding-right: var(--hg-xlg);
+  padding-top: var(--hg-med);
+}
+.carouselNavBtnWrap {
+  composes: horiz;
+}
+.carouselNavBtnWrap div {
+  padding: 0px 14px 0px 14px;
+}
+.carouselNavBtn {
+  min-width: 14px;
+  min-height: 14px;
+  width: 14px;
+  height: 14px;
+}
+.carouselNavCurrent {
+  min-width: 18px;
+  min-height: 18px;
+}
+
+.carouselNavToday {
+  background: transparent;
+  margin-top: -16px;
+  height: 14px;
+  width: 14px;
+}
+
+:global(#program-dash .q-carousel__slide) {
+  padding-left: 45px;
+  padding-right: 45px;
+  padding-bottom: var(--hg-small);
+}
+:global(#program-dash .q-carousel__next-arrow--horizontal) {
+  right: var(--hg-xsmall);
+}
+:global(#program-dash .q-carousel__prev-arrow--horizontal) {
+  left: 0px;
+}
+
+:global(.evtHighlight) {
+  background-color: rgb(60, 59, 59);
+  outline: var(--hg-white) solid 1px;
 }
 
 @media (prefers-color-scheme: light) {

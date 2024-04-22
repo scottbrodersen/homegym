@@ -21,7 +21,16 @@ const routes = [
     path: '/homegym/event/:eventId?',
     components: { default: PageHeader, main: EventPage },
     name: 'event',
-    props: { main: true },
+    props: {
+      main: (route) => ({
+        eventId: route.params.eventId,
+        programInstanceID: route.query.instance,
+        dayIndex: route.query.day,
+        blockIndex: route.query.block,
+        microCycleIndex: route.query.cycle,
+        workoutIndex: route.query.workout,
+      }),
+    },
   },
   {
     path: '/homegym/exercises/',
@@ -32,6 +41,13 @@ const routes = [
     path: '/homegym/programs/',
     components: { default: PageHeader, main: ProgramsPage },
     name: 'programs',
+    props: {
+      main: (route) => ({
+        activityID: route.query.activity,
+        programID: route.query.program,
+        instanceID: route.query.instance,
+      }),
+    },
   },
 ];
 

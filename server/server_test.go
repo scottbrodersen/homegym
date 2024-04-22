@@ -302,14 +302,14 @@ func (mpm *MockProgramManager) AddProgramInstance(userID string, instance *progr
 	return nil
 }
 
-func (mpm *MockProgramManager) UpdateProgramInstance(userID string, instance programs.ProgramInstance) error {
+func (mpm *MockProgramManager) UpdateProgramInstance(userID string, instance programs.ProgramInstance) (*programs.ProgramInstance, error) {
 	args := mpm.Called(userID, instance)
 
-	if args.Error(0) != nil {
-		return args.Error(0)
+	if args.Error(1) != nil {
+		return nil, args.Error(1)
 	}
 
-	return nil
+	return args.Get(0).(*programs.ProgramInstance), nil
 }
 
 func (mpm *MockProgramManager) GetProgramInstancesPage(userID, programID, previousProgramInstanceID string, pageSize int) ([]programs.ProgramInstance, error) {

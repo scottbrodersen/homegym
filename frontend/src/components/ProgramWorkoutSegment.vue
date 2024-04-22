@@ -8,9 +8,13 @@
   import ListActions from './ListActions.vue';
 
   const state = inject('state');
-  const requiredField = inject('requiredField');
+
+  if (state != states.READ_ONLY) {
+      const requiredField = inject('requiredField');
   const maxField = inject('maxField');
   const activity = inject('activity');
+}
+
   const props = defineProps({ segment: Object });
   const emit = defineEmits(['update']);
 

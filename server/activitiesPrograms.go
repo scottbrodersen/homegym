@@ -232,7 +232,7 @@ func updateProgramInstance(username, activityID, programID, instanceID string, w
 		return
 	}
 
-	err := programs.ProgramManager.UpdateProgramInstance(username, *programInstance)
+	pi, err := programs.ProgramManager.UpdateProgramInstance(username, *programInstance)
 	if err != nil {
 		if errors.Is(err, programs.ErrInvalidProgramInstance) {
 			http.Error(w, `{"message":"invalid program instance"}`, http.StatusBadRequest)
@@ -242,9 +242,15 @@ func updateProgramInstance(username, activityID, programID, instanceID string, w
 		return
 	}
 
+	body, err := json.Marshal(*pi)
+	if err != nil {
+		http.Error(w, internalServerError, http.StatusInternalServerError)
+		return
+	}
+
 	h := w.Header()
 	standardHeaders(&h)
-	w.WriteHeader(http.StatusOK)
+	w.Write(body)
 }
 
 func getProgramInstance(username, programID, instanceID string, w http.ResponseWriter) {

@@ -4,6 +4,7 @@ words:
   - activeprogram
   - addevent
   - checkmark
+  - colour
   - colours
   - composables
   - Debugf
@@ -36,6 +37,7 @@ words:
   - signup
   - sirupsen
   - stretchr
+  - swipeable
   - testtesttest
   - tokenkey
   - unfound

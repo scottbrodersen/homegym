@@ -254,9 +254,9 @@ func TestHandlePrograms(t *testing.T) {
 
 		Convey("When we receive a request to update a program instance", func() {
 			piURL := fmt.Sprintf("%s/%s/instances/%s", url, testProgramID, testProgramInstanceID)
-			mpm.On("UpdateProgramInstance", mock.Anything, mock.Anything).Return(nil)
-			testInstance := testProgramInstance()
-			jsonStr, err := json.Marshal(testInstance)
+			testPI := testProgramInstance()
+			mpm.On("UpdateProgramInstance", mock.Anything, mock.Anything).Return(&testPI, nil)
+			jsonStr, err := json.Marshal(testPI)
 
 			if err != nil {
 				t.Errorf("failed to marshal test program instance: %s", err.Error())
@@ -272,6 +272,13 @@ func TestHandlePrograms(t *testing.T) {
 			So(w.Result().StatusCode, ShouldEqual, http.StatusOK)
 			So(w.Result().Header.Get("content-type"), ShouldEqual, "application/json")
 
+			body := programs.ProgramInstance{}
+
+			if err := json.NewDecoder(w.Result().Body).Decode(&body); err != nil {
+				t.Fail()
+			}
+
+			So(body, ShouldResemble, testProgramInstance())
 		})
 
 		Convey("When we receive a request to get a program instance", func() {

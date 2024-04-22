@@ -23,7 +23,7 @@ const (
 	cookieSession                     = "session"
 	cookieUsername                    = "username"
 	cookieRoute                       = "followroute"
-	allowedCorsOrigin                 = "http://192.168.0.26:3000"
+	allowedCorsOrigin                 = "http://127.0.0.1:3000"
 	allowedCorsMethods                = "*"
 	allowedCorsHeaders                = "Set-Cookie"
 	internalServerError               = `{"message":"something went wrong"}`

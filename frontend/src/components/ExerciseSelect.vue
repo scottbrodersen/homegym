@@ -1,5 +1,5 @@
 <script setup>
-  import { computed, ref, watch } from 'vue';
+  import { computed, onBeforeMount, ref, watch } from 'vue';
   import { activityStore, exerciseTypeStore } from '../modules/state.js';
   import { QSelect } from 'quasar';
   import styles from '../style.module.css';
@@ -29,7 +29,7 @@
 
   const exerciseNames = computed(() => {
     const names = [];
-    if (props.activityID) {
+    if (props.activityID && activityStore.get(props.activityID).exercises) {
       activityStore.get(props.activityID).exercises.forEach((exerciseID) => {
         const eType = exerciseTypeStore.get(exerciseID);
         eTypeIDs.push(eType.id);
@@ -39,17 +39,31 @@
     return names;
   });
 
-  const getActivityExercises = async (activityID) => {
+  const getActivityExercises = (activityID) => {
     // fetch activity exercises types if needed
     if (activityStore.get(activityID).exercises == null) {
-      await fetchActivityExercises(activityID).catch((e) => {
+      try {
+        fetchActivityExercises(activityID);
+      } catch (e) {
         if (e instanceof ErrNotLoggedIn) {
           console.log(e.message);
           authPrompt(getActivityExercises, activityID);
         } else {
           console.log(e);
         }
-      });
+      }
+      // fetchActivityExercises(activityID)
+      //   .then((exercises) => {
+      //     console.log(exercises);
+      //   })
+      //   .catch((e) => {
+      //     if (e instanceof ErrNotLoggedIn) {
+      //       console.log(e.message);
+      //       authPrompt(getActivityExercises, activityID);
+      //     } else {
+      //       console.log(e);
+      //     }
+      //   });
     }
   };
 
@@ -61,7 +75,9 @@
       await getActivityExercises(newID);
     }
   );
-  await getActivityExercises(props.activityID);
+  onBeforeMount(() => {
+    getActivityExercises(props.activityID);
+  });
 </script>
 <template>
   <q-select
