@@ -83,7 +83,7 @@ func TestEvents(t *testing.T) {
 		ExerciseManager = eMgr
 
 		Convey("when we create an event", func() {
-			db.On("AddEvent", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+			db.On("AddEvent", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
 			newEvent := newTestEvent()
 			eventID, err := EventManager.NewEvent(testUserID, newEvent)
@@ -94,37 +94,11 @@ func TestEvents(t *testing.T) {
 
 		Convey("when we update an event", func() {
 			db.On("GetEvent", mock.Anything, mock.Anything, mock.Anything).Return([]byte("test event"), nil)
-			db.On("AddEvent", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+			db.On("UpdateEvent", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
 			newEvent := newTestEvent()
 			newEvent.ID = testEventID
 			err := EventManager.UpdateEvent(testUserID, testDate, newEvent)
-
-			So(err, ShouldBeNil)
-		})
-
-		Convey("when we add an exercise to the event", func() {
-			db.On("AddExercisesToEvent", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
-			testEvent := newTestEvent()
-			jsonEvent, err := json.Marshal(testEvent)
-			if err != nil {
-				t.Fatal()
-			}
-			db.On("GetEvent", mock.Anything, mock.Anything, mock.Anything).Return(jsonEvent, nil)
-			db.On("ReadActivity", mock.Anything, mock.Anything).Return(&testActivityName, []string{testExerciseID}, nil)
-
-			testEtype := testExerciseType()
-			eMgr.On("GetExerciseType", mock.Anything, mock.Anything).Return(&testEtype, nil)
-
-			exerciseInstances := []ExerciseInstance{
-				{
-					TypeID:   testExerciseID,
-					Index:    0,
-					Segments: []ExerciseSegment{testSetsRepsSegmentMaker()},
-				},
-			}
-
-			err = EventManager.AddExercisesToEvent(testUserID, testEvent.ID, time.Now().Unix(), exerciseInstances)
 
 			So(err, ShouldBeNil)
 		})
@@ -143,7 +117,6 @@ func TestEvents(t *testing.T) {
 			So(err, ShouldBeNil)
 			So(instances, ShouldNotBeEmpty)
 			So(len(instances), ShouldEqual, len(instancesByte))
-			//So(instances[testIngestedExerciseInstance.Index], ShouldResemble, testExportedExerciseInstance)
 		})
 
 		Convey("When we get a page of events", func() {

@@ -1,14 +1,12 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"math/rand"
 	"time"
 
 	"github.com/scottbrodersen/homegym/auth"
-	"github.com/scottbrodersen/homegym/dal"
 	"github.com/scottbrodersen/homegym/programs"
 	"github.com/scottbrodersen/homegym/workoutlog"
 )
@@ -55,14 +53,10 @@ func AddData() error {
 
 	for i := 0; i < 25; i++ {
 		date := now + int64(i*3600*25)
-		event, err := newEvent(date, activity.ID)
+		_, err := newEvent(date, *activity)
 		if err != nil {
 			return err
 		}
-		if err := addExerciseInstances(*activity, *event); err != nil {
-			return err
-		}
-
 	}
 
 	addProgram(*activity, "program 1")
@@ -120,12 +114,19 @@ func createActivity() (*workoutlog.Activity, error) {
 	return activity, nil
 }
 
-func newEvent(date int64, activityID string) (*workoutlog.Event, error) {
+func newEvent(date int64, activity workoutlog.Activity) (*workoutlog.Event, error) {
 	event := workoutlog.Event{
 		Date:       date,
-		ActivityID: activityID,
+		ActivityID: activity.ID,
 		EventMeta:  metaMaker(),
 	}
+
+	exInstances, err := exerciseInstancesMaker(activity)
+	if err != nil {
+		return nil, err
+	}
+
+	event.Exercises = exInstances
 
 	eventID, err := workoutlog.EventManager.NewEvent(username, event)
 	if err != nil {
@@ -148,20 +149,19 @@ func metaMaker() workoutlog.EventMeta {
 
 }
 
-func addExerciseInstances(activity workoutlog.Activity, event workoutlog.Event) error {
+func exerciseInstancesMaker(activity workoutlog.Activity) (map[int]workoutlog.ExerciseInstance, error) {
 	numInstances := rand.Intn(4)
 
 	exerciseTypes := []workoutlog.ExerciseType{}
 	for _, etID := range activity.ExerciseIDs {
 		e, err := workoutlog.ExerciseManager.GetExerciseType(username, etID)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		exerciseTypes = append(exerciseTypes, *e)
 	}
 
-	exerciseInstances := map[int][]byte{}
-	exerciseIDs := map[int]string{}
+	exerciseInstances := map[int]workoutlog.ExerciseInstance{}
 
 	for i := 0; i < numInstances; i++ {
 		etID := rand.Intn(len(exerciseTypes))
@@ -171,22 +171,10 @@ func addExerciseInstances(activity workoutlog.Activity, event workoutlog.Event) 
 		for p := 0; p <= numParts; p++ {
 			inst.Segments = append(inst.Segments, exerciseSegmentMaker())
 		}
-
-		instByte, err := json.Marshal(inst)
-		if err != nil {
-			return err
-		}
-		exerciseInstances[int(i)] = instByte
-		exerciseIDs[int(i)] = inst.TypeID
+		exerciseInstances[int(i)] = inst
 	}
 
-	err := dal.DB.AddExercisesToEvent(username, event.ID, exerciseIDs, exerciseInstances)
-	if err != nil {
-		return err
-	}
-
-	log.Print("exercises added to event")
-	return nil
+	return exerciseInstances, nil
 }
 
 func exerciseSegmentMaker() workoutlog.ExerciseSegment {

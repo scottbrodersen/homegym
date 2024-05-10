@@ -11,8 +11,6 @@ import (
 
 	"github.com/scottbrodersen/homegym/workoutlog"
 	log "github.com/sirupsen/logrus"
-	"golang.org/x/exp/maps"
-	"golang.org/x/exp/slices"
 )
 
 func EventsApi(w http.ResponseWriter, r *http.Request) {
@@ -44,14 +42,10 @@ func EventsApi(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	} else if rxpExercisesPath.MatchString(r.URL.Path) {
-		eventDate := rxpExercisesPath.FindStringSubmatch(r.URL.Path)[1]
 		eventID := rxpExercisesPath.FindStringSubmatch(r.URL.Path)[2]
 
 		if r.Method == http.MethodGet {
 			getExercises(*username, eventID, w)
-			return
-		} else if r.Method == http.MethodPost {
-			addExercise(*username, eventDate, eventID, w, r)
 			return
 		}
 	} else if rxpEventPath.MatchString(r.URL.Path) {
@@ -142,39 +136,6 @@ func getExercises(username, eventID string, w http.ResponseWriter) {
 	h := w.Header()
 	standardHeaders(&h)
 	w.Write(exercisesJson)
-}
-
-func addExercise(username, eventDate, eventID string, w http.ResponseWriter, r *http.Request) {
-	exercises := map[string]workoutlog.ExerciseInstance{}
-
-	if err := json.NewDecoder(r.Body).Decode(&exercises); err != nil {
-		http.Error(w, "invalid request body", http.StatusBadRequest)
-		return
-	}
-
-	dateInt, err := stringToInt64(eventDate)
-	if err != nil {
-		http.Error(w, "invalid date format", http.StatusBadRequest)
-		return
-	}
-
-	exIndexes := maps.Keys(exercises)
-	slices.Sort(exIndexes)
-
-	exercisesArray := []workoutlog.ExerciseInstance{}
-	for _, v := range exIndexes {
-		exercisesArray = append(exercisesArray, exercises[v])
-	}
-
-	if err := workoutlog.EventManager.AddExercisesToEvent(username, eventID, dateInt, exercisesArray); err != nil {
-		http.Error(w, internalServerError, http.StatusInternalServerError)
-		return
-	}
-
-	h := w.Header()
-	standardHeaders(&h)
-
-	w.WriteHeader(http.StatusOK)
 }
 
 func getPageOfEvents(username string, w http.ResponseWriter, r *http.Request) {

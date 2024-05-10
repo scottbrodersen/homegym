@@ -104,12 +104,6 @@ func (e *mockEventAdmin) UpdateEvent(userID string, currentDate int64, event wor
 	return args.Error(0)
 }
 
-func (e *mockEventAdmin) AddExercisesToEvent(userID, eventID string, eventDate int64, instances []workoutlog.ExerciseInstance) error {
-	args := e.Called(userID, eventID, eventDate, instances)
-
-	return args.Error(0)
-}
-
 func (e *mockEventAdmin) GetEventExercises(userID, eventID string) (map[int]workoutlog.ExerciseInstance, error) {
 	args := e.Called(userID, eventID)
 

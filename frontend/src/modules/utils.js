@@ -622,34 +622,6 @@ const storeEvent = async (url, event) => {
   return event;
 };
 
-const storeEventExerciseInstances = async (
-  eventID,
-  eventDate,
-  exerciseInstances
-) => {
-  const headers = new Headers();
-  const options = {
-    method: 'POST',
-    body: JSON.stringify(exerciseInstances),
-    headers: headers,
-  };
-
-  const url = `/homegym/api/events/${eventDate}/${eventID}/exercises/`;
-
-  try {
-    const resp = await fetch(url, options);
-
-    if (resp.status == 401) {
-      throw new ErrNotLoggedIn('unauthorized upsert of event');
-    } else if (resp.status < 200 || resp.status >= 300) {
-      console.log('failed to store exercise instance');
-      throw new Error();
-    }
-  } catch (e) {
-    throw e;
-  }
-};
-
 const toast = (message, type) => {
   const color = type == 'positive' ? 'green' : 'red';
   const icon = type == 'positive' ? 'checkmark' : 'error';
@@ -817,7 +789,6 @@ export {
   newProgramInstanceModal,
   updateProgramInstance,
   storeEvent,
-  storeEventExerciseInstances,
   openVolumeModal,
   toast,
   openCompositionModal,

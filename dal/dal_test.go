@@ -268,13 +268,7 @@ func TestLogItemsDal(t *testing.T) {
 		})
 
 		Convey("When we add an event", func() {
-			err := client.AddEvent(testUserID, testEventID, testActivityID, testEventTime, testEvent)
-
-			So(err, ShouldBeNil)
-		})
-
-		Convey("When we add an exercise to the event", func() {
-			err := client.AddExercisesToEvent(testUserID, testEventID, testExerciseIDs, testExerciseInstances)
+			err := client.AddEvent(testUserID, testEventID, testActivityID, testEventTime, testEvent, testExerciseIDs, testExerciseInstances)
 
 			So(err, ShouldBeNil)
 		})
@@ -289,7 +283,7 @@ func TestLogItemsDal(t *testing.T) {
 		})
 
 		Convey("When we update the event exercises", func() {
-			err := client.AddExercisesToEvent(testUserID, testEventID, testExerciseIDs2, testExerciseInstances2)
+			err := client.UpdateEvent(testUserID, testEventID, testActivityID, testEventTime, testEventTime, testEvent, testExerciseIDs2, testExerciseInstances2)
 
 			So(err, ShouldBeNil)
 		})
@@ -313,7 +307,7 @@ func TestLogItemsDal(t *testing.T) {
 
 		newTime := testEventTime + 1
 		Convey("When we shift the event's time", func() {
-			err := client.ShiftEvent(testUserID, testEventID, testActivityID, testEventTime, newTime, testEvent)
+			err := client.UpdateEvent(testUserID, testEventID, testActivityID, testEventTime, newTime, testEvent, testExerciseIDs, testExerciseInstances)
 
 			So(err, ShouldBeNil)
 		})
@@ -340,7 +334,7 @@ func TestLogItemsDal(t *testing.T) {
 				eventID := fmt.Sprintf("%s%d", testEventID, i)
 				eventTime := testEventTime + int64(timeIncrement*i)
 				event := []byte(fmt.Sprintf("%s_%d", eventID, eventTime))
-				err := client.AddEvent(testUserID, eventID, testActivityID, eventTime, event)
+				err := client.AddEvent(testUserID, eventID, testActivityID, eventTime, event, testExerciseIDs, testExerciseInstances)
 				So(err, ShouldBeNil)
 				testEvents = append(testEvents, event)
 				testEventTimes = append(testEventTimes, eventTime)
