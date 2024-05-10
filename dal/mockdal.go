@@ -137,16 +137,16 @@ func (d *MockDal) AddExerciseToActivity(userID, activityID, exerciseID string) e
 	}
 	return nil
 }
-func (d *MockDal) AddEvent(userID, eventID, activityID string, date int64, event []byte) error {
-	args := d.Called(userID, eventID, activityID, date, event)
+func (d *MockDal) AddEvent(userID, eventID, activityID string, date int64, event []byte, exerciseIDs map[int]string, exerciseInstances map[int][]byte) error {
+	args := d.Called(userID, eventID, activityID, date, event, exerciseIDs, exerciseInstances)
 	if args.Error(0) != nil {
 		return args.Error(0)
 	}
 	return nil
 }
 
-func (d *MockDal) ShiftEvent(userID, eventID, activityID string, currentDate, newDate int64, event []byte) error {
-	args := d.Called(userID, eventID, activityID, currentDate, newDate, event)
+func (d *MockDal) UpdateEvent(userID, eventID, activityID string, currentDate, newDate int64, event []byte, exerciseIDs map[int]string, exerciseInstances map[int][]byte) error {
+	args := d.Called(userID, eventID, activityID, currentDate, newDate, event, exerciseIDs, exerciseInstances)
 	if args.Error(0) != nil {
 		return args.Error(0)
 	}
@@ -180,17 +180,6 @@ func (d *MockDal) GetEventPage(userID, previousEventID string, previousDate int6
 	}
 
 	return args.Get(0).([][]byte), nil
-
-}
-
-func (d *MockDal) AddExercisesToEvent(userID, eventID string, exerciseIDs map[int]string, exerciseInstances map[int][]byte) error {
-	args := d.Called(userID, eventID, exerciseIDs, exerciseInstances)
-
-	if args.Error(0) != nil {
-		return args.Error(0)
-	}
-
-	return nil
 
 }
 

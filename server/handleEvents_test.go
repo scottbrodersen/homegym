@@ -115,27 +115,6 @@ func TestHandleEvents(t *testing.T) {
 			So(updateEventCalledArgs.Get(2), ShouldResemble, *eventStruct)
 		})
 
-		Convey("When we add an exercise to an event", func() {
-			mockEventManager.On("AddExercisesToEvent", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
-			mockEventManager.On("GetCachedExerciseType", mock.Anything).Return(&testExType, nil)
-
-			exJson, err := json.Marshal(map[int]workoutlog.ExerciseInstance{0: testInstance})
-			if err != nil {
-				t.Fail()
-			}
-
-			reqUrl := fmt.Sprintf("%s13456/test-event-id/exercises", url)
-
-			req := httptest.NewRequest(http.MethodPost, reqUrl, bytes.NewBuffer(exJson))
-			req = req.WithContext(testContext())
-
-			w := httptest.NewRecorder()
-
-			EventsApi(w, req)
-
-			So(w.Result().StatusCode, ShouldEqual, http.StatusOK)
-		})
-
 		Convey("When we get event exercises", func() {
 			mockEventManager.On("GetEventExercises", mock.Anything, mock.Anything, mock.Anything).Return(testExercises, nil)
 

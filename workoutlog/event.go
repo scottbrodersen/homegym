@@ -17,7 +17,6 @@ var ErrInvalidEvent = fmt.Errorf("invalid event")
 
 type EventAdmin interface {
 	NewEvent(userID string, event Event) (*string, error)
-	AddExercisesToEvent(userID, eventID string, eventDate int64, exercises []ExerciseInstance) error
 	GetPageOfEvents(userID string, previousEvent Event, pageSize int) ([]Event, error)
 	GetCachedExerciseType(exerciseTypeID string) *ExerciseType
 	GetEventExercises(userID, eventID string) (map[int]ExerciseInstance, error)
@@ -63,22 +62,29 @@ func (em *eventManager) NewEvent(userID string, event Event) (*string, error) {
 	if userID == "" || event.ActivityID == "" || event.Date == 0 {
 		return nil, ErrInvalidEvent
 	}
-	// remove exercise instances
-	event.Exercises = nil
 
 	event.ID = uuid.New().String()
 
-	err := upsertEvent(userID, event)
-
+	eventJson, err := json.Marshal(event)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create event: %w", err)
+	}
+
+	// prepare exercise instances
+	typeIDs, exercisesJSON, err := prepEventExercises(userID, event.ID, event.Date, event.Exercises)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create event: %w", err)
+	}
+
+	err = dal.DB.AddEvent(userID, event.ID, event.ActivityID, event.Date, eventJson, typeIDs, exercisesJSON)
+	if err != nil {
+		return nil, fmt.Errorf("failed to add event: %w", err)
 	}
 
 	return &event.ID, nil
 }
 
 // UpdateEvent replaces a stored event.
-// Any exercise instances in the event argument are ignored.
 func (em *eventManager) UpdateEvent(userID string, currentDate int64, event Event) error {
 	if userID == "" || event.ID == "" || event.ActivityID == "" || event.Date == 0 {
 		return ErrInvalidEvent
@@ -93,44 +99,26 @@ func (em *eventManager) UpdateEvent(userID string, currentDate int64, event Even
 		return ErrNotFound
 	}
 
-	// remove exercise instances
-	event.Exercises = nil
+	eventJson, err := json.Marshal(event)
+	if err != nil {
+		return err
+	}
 
-	if currentDate == event.Date {
-		err = upsertEvent(userID, event)
-		if err != nil {
-			return fmt.Errorf("failed to update event: %w", err)
-		}
-	} else {
-		err = shiftEvent(userID, currentDate, event)
-		if err != nil {
-			return fmt.Errorf("failed to update event: %w", err)
-		}
+	// prepare exercise instances
+	typeIDs, exercisesJSON, err := prepEventExercises(userID, event.ID, event.Date, event.Exercises)
+	if err != nil {
+		return fmt.Errorf("failed to update event: %w", err)
+	}
+
+	err = dal.DB.UpdateEvent(userID, event.ID, event.ActivityID, currentDate, event.Date, eventJson, typeIDs, exercisesJSON)
+	if err != nil {
+		return fmt.Errorf("failed to update event: %w", err)
 	}
 
 	return nil
 }
 
-func shiftEvent(userID string, currentDate int64, event Event) error {
-	eventJson, err := json.Marshal(event)
-	if err != nil {
-		return err
-	}
-
-	return dal.DB.ShiftEvent(userID, event.ID, event.ActivityID, currentDate, event.Date, eventJson)
-}
-
-func upsertEvent(userID string, event Event) error {
-	eventJson, err := json.Marshal(event)
-	if err != nil {
-		return err
-	}
-
-	return dal.DB.AddEvent(userID, event.ID, event.ActivityID, event.Date, eventJson)
-}
-
-// overwrites existing exercise that has the same index
-func (em *eventManager) AddExercisesToEvent(userID, eventID string, eventDate int64, exerciseInstances []ExerciseInstance) error {
+func prepEventExercises(userID, eventID string, eventDate int64, exerciseInstances map[int]ExerciseInstance) (map[int]string, map[int][]byte, error) {
 	exInstances := map[int][]byte{}
 	exTypeIDs := map[int]string{}
 
@@ -138,34 +126,28 @@ func (em *eventManager) AddExercisesToEvent(userID, eventID string, eventDate in
 		// check that the activity supports the exercise type
 		err := checkActivityForExerciseType(userID, eventID, inst.TypeID, eventDate)
 		if err != nil {
-			return err
+			return nil, nil, err
 		}
 		exerciseType, err := ExerciseManager.GetExerciseType(userID, inst.TypeID)
 		if err != nil {
-			return err
+			return nil, nil, err
 		}
 
 		err = exerciseType.validateInstance(&inst)
 		if err != nil {
-			return fmt.Errorf("could not ingest the exercise instance: %w", err)
+			return nil, nil, fmt.Errorf("invalid exercise instance: %w", err)
 		}
 
 		instanceByte, err := json.Marshal(inst)
 		if err != nil {
 			log.WithError(err).Debug("failed to marshal exercise instance")
-			return fmt.Errorf("failed to add exercise: %w", err)
+			return nil, nil, fmt.Errorf("failed to add exercise: %w", err)
 		}
 		exInstances[int(k)] = instanceByte
 		exTypeIDs[int(k)] = inst.TypeID
 	}
 
-	if err := dal.DB.AddExercisesToEvent(userID, eventID, exTypeIDs, exInstances); err != nil {
-		log.WithError(err).Debug("failed to add exercise to event")
-
-		return fmt.Errorf("failed to add exercise: %w", err)
-	}
-
-	return nil
+	return exTypeIDs, exInstances, nil
 }
 
 func (em *eventManager) GetPageOfEvents(userID string, previousEvent Event, pageSize int) ([]Event, error) {

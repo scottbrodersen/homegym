@@ -13,7 +13,6 @@
   import {
     authPrompt,
     storeEvent,
-    storeEventExerciseInstances,
     ErrNotLoggedIn,
     toast,
     fetchEventPage,
@@ -58,6 +57,8 @@
       ).name;
     }
   } else if (props.programInstanceID && props.dayIndex) {
+    // prefill the form when creating an event from a program workout
+
     updateProgram = true;
     baseline.value = '';
     programInstance = programInstanceStore.get(props.programInstanceID);
@@ -153,7 +154,7 @@
         } else {
           eventStore.add(thisEvent.value);
         }
-        return saveExerciseInstances();
+        // return saveExerciseInstances();
       })
       .then(() => {
         setBaseline();
@@ -178,26 +179,6 @@
       });
   };
 
-  const saveExerciseInstances = () => {
-    storeEventExerciseInstances(
-      thisEvent.value.id,
-      thisEvent.value.date,
-      thisEvent.value.exercises
-    )
-      .then((responses) => {
-        if (responses) {
-          console.log(responses);
-        }
-      })
-      .catch((e) => {
-        if (e instanceof ErrNotLoggedIn) {
-          console.log(e.message);
-          authPrompt(saveExerciseInstances);
-        } else {
-          console.log(e);
-        }
-      });
-  };
   const changed = computed(() => {
     return baseline.value != JSON.stringify(thisEvent.value);
   });

@@ -34,12 +34,11 @@ type Dstore interface {
 	GetExercise(userID, exerciseID string) ([]byte, error)
 	GetExercises(userID string) ([][]byte, error)
 
-	AddEvent(userID, eventID, activityID string, date int64, event []byte) error
-	ShiftEvent(userID, eventID, activityID string, currentDate, newDate int64, event []byte) error
+	AddEvent(userID, eventID, activityID string, date int64, event []byte, exerciseIDs map[int]string, exerciseInstances map[int][]byte) error
+	UpdateEvent(userID, eventID, activityID string, currentDate, newDate int64, event []byte, exerciseIDs map[int]string, exerciseInstances map[int][]byte) error
 	GetEvent(userID, eventID string, eventDate int64) ([]byte, error)
 	GetEventPage(userID, previousEventID string, previousDate int64, pageSize int) ([][]byte, error)
 	GetEventExercises(userID, eventID string) ([][]byte, error)
-	AddExercisesToEvent(userID, eventID string, exerciseIDs map[int]string, exerciseInstances map[int][]byte) error
 
 	AddProgram(userID, activityID, programID string, program []byte) error
 	GetProgramPage(userID, activityID, previousProgramID string, pageSize int) ([][]byte, error)
@@ -375,12 +374,24 @@ func (c *DBClient) GetExercises(userID string) ([][]byte, error) {
 	return types, nil
 }
 
-func (c *DBClient) AddEvent(userID, eventID, activityID string, date int64, event []byte) error {
-	prefix := []string{userKey, userID, eventKey, fmt.Sprint(date), idKey, eventID, activityKey, activityID}
+func (c *DBClient) AddEvent(userID, eventID, activityID string, date int64, event []byte, exerciseIDs map[int]string, exerciseInstances map[int][]byte) error {
+	eventPrefix := []string{userKey, userID, eventKey, fmt.Sprint(date), idKey, eventID, activityKey, activityID}
 	// user:{id}#event:{date}#id:{id}#activity:{activityID}
-	eventEntry := badger.NewEntry(key(prefix), event)
+	eventEntry := badger.NewEntry(key(eventPrefix), event)
 
 	updates := []*badger.Entry{eventEntry}
+
+	exercisePrefix := []string{userKey, userID, eventKey, eventID, exerciseKey}
+
+	for k, e := range exerciseInstances {
+		exerciseID, ok := exerciseIDs[k]
+		if !ok {
+			return fmt.Errorf("mismatched key for exercise IDs")
+		}
+		prefix := append(exercisePrefix, exerciseID, indexKey, fmt.Sprint(k), instanceKey)
+		entry := badger.NewEntry(key(prefix), e)
+		updates = append(updates, entry)
+	}
 
 	if err := writeUpdates(c, updates); err != nil {
 		return fmt.Errorf("failed to add event: %w", err)
@@ -388,56 +399,52 @@ func (c *DBClient) AddEvent(userID, eventID, activityID string, date int64, even
 	return nil
 }
 
-// ShiftEvent updates an event that has a new date.
-// The date is part of the key so the existing must be deleted and the updated event is created.
-func (c *DBClient) ShiftEvent(userID, eventID, activityID string, currentDate, newDate int64, event []byte) error {
-	updates := []*badger.Entry{}
-	deletes := [][]byte{}
-	currentPrefix := []string{userKey, userID, eventKey, fmt.Sprint(currentDate), idKey, eventID, activityKey, activityID}
-	deletes = append(deletes, key(currentPrefix))
-
-	shiftedPrefix := []string{userKey, userID, eventKey, fmt.Sprint(newDate), idKey, eventID, activityKey, activityID}
-	updates = append(updates, badger.NewEntry(key(shiftedPrefix), event))
-
-	return updateDeleteItems(c, updates, deletes)
-}
-
-// Adds exercises instances to an event.
-// The event must have been previously added.
+// UpdateEvent updates an existing event.
+// If the date has changed the event is deleted and recreated because the key includes the date.
 // All existing exercise instances are deleted before the passed-in instances are added.
 // The key of the exerciseInstances map is the index of the instances which determines order. The value is the instance.
 // The key of the exerciseIDs map coincide with the index of the exerciseInstances map the index of the instances.
-func (c *DBClient) AddExercisesToEvent(userID, eventID string, exerciseIDs map[int]string, exerciseInstances map[int][]byte) error {
-	delPrefix := []string{userKey, userID, eventKey, eventID, exerciseKey}
-	exEntries, err := readKeyPrefix(c, keyPrefix(delPrefix))
+func (c *DBClient) UpdateEvent(userID, eventID, activityID string, currentDate, newDate int64, event []byte, exerciseIDs map[int]string, exerciseInstances map[int][]byte) error {
+	updates := []*badger.Entry{}
+	deletes := [][]byte{}
+
+	currentEventPrefix := []string{userKey, userID, eventKey, fmt.Sprint(currentDate), idKey, eventID, activityKey, activityID}
+
+	if currentDate != newDate {
+		deletes = append(deletes, key(currentEventPrefix))
+
+		shiftedPrefix := []string{userKey, userID, eventKey, fmt.Sprint(newDate), idKey, eventID, activityKey, activityID}
+
+		updates = append(updates, badger.NewEntry(key(shiftedPrefix), event))
+	} else {
+		updates = append(updates, badger.NewEntry(key(currentEventPrefix), event))
+	}
+
+	delExercisePrefix := []string{userKey, userID, eventKey, eventID, exerciseKey}
+
+	// delete existing exercise instances
+	exEntries, err := readKeyPrefix(c, keyPrefix(delExercisePrefix))
 	if err != nil {
 		return fmt.Errorf("error getting event exercises")
 	}
 
-	deletes := [][]byte{}
 	for _, e := range exEntries {
 		deletes = append(deletes, e.Key)
 	}
 
-	updates := []*badger.Entry{}
-
-	addPrefix := []string{userKey, userID, eventKey, eventID, exerciseKey}
+	addExercisePrefix := []string{userKey, userID, eventKey, eventID, exerciseKey}
 
 	for k, e := range exerciseInstances {
 		exerciseID, ok := exerciseIDs[k]
 		if !ok {
 			return fmt.Errorf("mismatched key for exercise IDs")
 		}
-		prefix := append(addPrefix, exerciseID, indexKey, fmt.Sprint(k), instanceKey)
+		prefix := append(addExercisePrefix, exerciseID, indexKey, fmt.Sprint(k), instanceKey)
 		entry := badger.NewEntry(key(prefix), e)
 		updates = append(updates, entry)
 	}
 
-	if err := updateDeleteItems(c, updates, deletes); err != nil {
-		return fmt.Errorf("failed to add exercise to event: %w", err)
-	}
-
-	return nil
+	return updateDeleteItems(c, updates, deletes)
 }
 
 // Returns a slice of exercise instances as byte slices.
