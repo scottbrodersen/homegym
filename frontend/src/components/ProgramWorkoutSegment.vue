@@ -1,29 +1,27 @@
-<script setup>
+<script async setup>
   import { exerciseTypeStore } from '../modules/state';
   import styles from '../style.module.css';
-  import { inject } from 'vue';
+  import { inject, Suspense } from 'vue';
   import { states } from '../modules/utils.js';
   import ExerciseSelect from './ExerciseSelect.vue';
   import { QInput } from 'quasar';
   import ListActions from './ListActions.vue';
 
-  const state = inject('state');
-
-  if (state != states.READ_ONLY) {
-      const requiredField = inject('requiredField');
-  const maxField = inject('maxField');
-  const activity = inject('activity');
-}
-
   const props = defineProps({ segment: Object });
   const emit = defineEmits(['update']);
+
+  const state = inject('state', states.READ_ONLY);
+
+  const requiredField = inject('requiredField', null);
+  const maxField = inject('maxField', null);
+  const activity = inject('activity', null);
 
   const update = (action) => {
     emit('update', action);
   };
   const setExercise = (exerciseID) => {
     props.segment.exerciseTypeID = exerciseID;
-  }
+  };
 </script>
 <template>
   <div v-if="state == states.READ_ONLY">
@@ -32,10 +30,11 @@
         {{
           props.segment.exerciseTypeID
             ? exerciseTypeStore.get(props.segment.exerciseTypeID).name
-            : '<no exercise selected>'
+            : '~~no exercise selected~~'
         }}:
       </span>
-      {{ props.segment.prescription }}</div>
+      {{ props.segment.prescription }}
+    </div>
   </div>
   <div v-else>
     <ListActions @update="update" />

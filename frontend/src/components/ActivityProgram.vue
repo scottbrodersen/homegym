@@ -19,6 +19,10 @@
 
   const state = inject('state');
   const activity = inject('activity');
+  const programIsValid = inject('programIsValid');
+  const maxField = inject('maxField');
+  const requiredField = inject('requiredField');
+
   const program = ref({});
   const changed = ref(false);
   const valid = ref(true);
@@ -26,7 +30,7 @@
   const defaultBlockTitle = 'Block';
   const defaultMicroCycleTitle = 'MicroCycle';
 
-  let blocks; // = new OrderedList(program.value.blocks);
+  let blocks; //
   let baseline = ''; // use to detect diff
 
   // Stores the stringified program as a baseline for detecting change
@@ -97,7 +101,7 @@
     () => {
       return state.value;
     },
-    (newState, oldState) => {
+    (newState) => {
       if (newState == states.NEW) {
         newProgramModal(activity.value.id, initProgram);
       }
@@ -133,73 +137,14 @@
     blocks.update(action, index);
   };
 
-  const programIsValid = () => {
-    let noProps = true;
-    for (const prop in program.value) {
-      if (Object.hasOwn(program.value, prop)) {
-        noProps = false;
-        break;
-      }
-    }
-    if (noProps) {
-      return false;
-    }
-
-    if (
-      requiredField(program.value.title) !== true &&
-      maxField(program.value.title) !== true
-    ) {
-      return false;
-    }
-    program.value.blocks.forEach((block) => {
-      if (
-        requiredField(block.title) !== true &&
-        maxField(block.title) !== true
-      ) {
-        return false;
-      }
-      block.microCycles.forEach((cycle) => {
-        if (
-          requiredField(cycle.title) !== true &&
-          maxField(cycle.title) !== true
-        ) {
-          return false;
-        }
-        cycle.workouts.forEach((workout) => {
-          if (
-            requiredField(workout.title) !== true &&
-            maxField(workout.title) !== true
-          ) {
-            return false;
-          }
-          if (!workout.segments) {
-            workout['segments'] = [];
-          }
-          workout.segments.forEach((segment) => {
-            if (requiredField(segment.exerciseTypeID) !== true) {
-              return false;
-            }
-            if (
-              requiredField(segment.prescription) !== true &&
-              maxField(segment.prescription !== true)
-            ) {
-              return false;
-            }
-          });
-        });
-      });
-    });
-    return true;
-  };
-
   // watch for changes and validate
   watch(
     () => {
-      return program;
+      return program.value;
     },
-    (newVal, oldVal) => {
-      changed.value = baseline != JSON.stringify(newVal.value);
-      valid.value = programIsValid();
+    (newVal) => {
+      changed.value = baseline != JSON.stringify(newVal);
+      valid.value = programIsValid(newVal);
     },
     { deep: true }
   );
@@ -211,19 +156,6 @@
   const doneButtonText = computed(() => {
     return changed.value ? 'Cancel' : 'Done';
   });
-
-  const requiredField = (val) => {
-    const result = (val && val.length > 0) || 'Required value.';
-    return result;
-  };
-
-  const maxField = (val) => {
-    const result = (val ? val.length < 256 : true) || 'Max 255 characters.';
-    return result;
-  };
-
-  provide('requiredField', requiredField);
-  provide('maxField', maxField);
 </script>
 <template>
   <div>

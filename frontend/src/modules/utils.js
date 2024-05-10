@@ -226,8 +226,9 @@ const fetchActivities = async () => {
   }
 
   const activities = await resp.json();
-  activities.forEach((a) => {
+  activities.forEach(async (a) => {
     activityStore.add(a);
+    await fetchActivityExercises(a.id);
   });
 };
 
@@ -247,40 +248,40 @@ const fetchExerciseTypes = async () => {
   });
 };
 
-const fetchActivityExercises = (activityID) => {
-  // const resp = await fetch(`/homegym/api/activities/${activityID}/exercises/`, {
-  //   method: 'GET',
-  //   mode: 'same-origin',
-  // });
-
-  // if (resp.status == 401) {
-  //   throw new ErrNotLoggedIn('unauthorized fetch of activity exercises');
-  // }
-  // const exercises = await resp.json();
-
-  // const activity = activityStore.get(activityID);
-  // activity.exercises = exercises;
-  // activityStore.add(activity);
-  // return exercises;
-  fetch(`/homegym/api/activities/${activityID}/exercises/`, {
+const fetchActivityExercises = async (activityID) => {
+  const resp = await fetch(`/homegym/api/activities/${activityID}/exercises/`, {
     method: 'GET',
     mode: 'same-origin',
-  })
-    .then((resp) => {
-      if (resp.status == 401) {
-        throw new ErrNotLoggedIn('unauthorized fetch of activity exercises');
-      }
-      return resp.json();
-    })
-    .then((exercises) => {
-      const activity = activityStore.get(activityID);
-      activity.exercises = exercises;
-      activityStore.add(activity);
-      return exercises;
-    })
-    .catch((e) => {
-      throw e;
-    });
+  });
+
+  if (resp.status == 401) {
+    throw new ErrNotLoggedIn('unauthorized fetch of activity exercises');
+  }
+  const exercises = await resp.json();
+
+  const activity = activityStore.get(activityID);
+  activity.exercises = exercises;
+  //activityStore.add(activity);
+  //return exercises;
+  // fetch(`/homegym/api/activities/${activityID}/exercises/`, {
+  //   method: 'GET',
+  //   mode: 'same-origin',
+  // })
+  //   .then((resp) => {
+  //     if (resp.status == 401) {
+  //       throw new ErrNotLoggedIn('unauthorized fetch of activity exercises');
+  //     }
+  //     return resp.json();
+  //   })
+  //   .then((exercises) => {
+  //     const activity = activityStore.get(activityID);
+  //     activity.exercises = exercises;
+  //     activityStore.add(activity);
+  //     return exercises;
+  //   })
+  //   .catch((e) => {
+  //     throw e;
+  //   });
 };
 
 const authPrompt = (after, args) => {

@@ -1,5 +1,6 @@
 <script setup>
   import InitState from './components/InitState.vue';
+  import { Suspense } from 'vue';
 </script>
 
 <template>

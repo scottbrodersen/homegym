@@ -14,6 +14,7 @@
   import ActivityProgram from './ActivityProgram.vue';
   import ProgramSelect from './ProgramSelect.vue';
   import ProgramInstance from './ProgramInstance.vue';
+  import * as programUtils from '../modules/programUtils';
 
   const props = defineProps({
     activityID: String,
@@ -28,8 +29,10 @@
   const state = ref(states.READ_ONLY);
 
   provide('activity', activity);
-
   provide('state', state);
+  provide('requiredField', programUtils.requiredFieldValidator);
+  provide('maxField', programUtils.maxFieldValidator);
+  provide('programIsValid', programUtils.programValidator);
 
   const setState = (value) => {
     state.value = value;
@@ -159,7 +162,7 @@
         @done="setProgramSelection"
       />
       <ProgramInstance
-        v-show="selectedProgramInstance"
+        v-if="selectedProgramInstance"
         :instanceID="selectedProgramInstance"
       />
     </div>

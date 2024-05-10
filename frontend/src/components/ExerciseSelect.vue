@@ -39,11 +39,11 @@
     return names;
   });
 
-  const getActivityExercises = (activityID) => {
+  const getActivityExercises = async (activityID) => {
     // fetch activity exercises types if needed
     if (activityStore.get(activityID).exercises == null) {
       try {
-        fetchActivityExercises(activityID);
+        await fetchActivityExercises(activityID);
       } catch (e) {
         if (e instanceof ErrNotLoggedIn) {
           console.log(e.message);
@@ -52,18 +52,6 @@
           console.log(e);
         }
       }
-      // fetchActivityExercises(activityID)
-      //   .then((exercises) => {
-      //     console.log(exercises);
-      //   })
-      //   .catch((e) => {
-      //     if (e instanceof ErrNotLoggedIn) {
-      //       console.log(e.message);
-      //       authPrompt(getActivityExercises, activityID);
-      //     } else {
-      //       console.log(e);
-      //     }
-      //   });
     }
   };
 
@@ -75,8 +63,8 @@
       await getActivityExercises(newID);
     }
   );
-  onBeforeMount(() => {
-    getActivityExercises(props.activityID);
+  onBeforeMount(async () => {
+    await getActivityExercises(props.activityID);
   });
 </script>
 <template>

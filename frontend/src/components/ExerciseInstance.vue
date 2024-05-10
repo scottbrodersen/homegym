@@ -1,5 +1,5 @@
 <script setup>
-  import { computed, ref } from 'vue';
+  import { computed, ref, Suspense } from 'vue';
   import { exerciseTypeStore } from '../modules/state';
   import ExerciseIntensity from './ExerciseIntensity.vue';
   import ExerciseSelect from './ExerciseSelect.vue';
