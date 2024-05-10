@@ -160,3 +160,72 @@ export const getProgramInstanceStatus = (instanceID) => {
 
   return [percentComplete, adherence, coords, dayIndex];
 };
+
+export const requiredFieldValidator = (val) => {
+  const result = (val && val.length > 0) || 'Required value.';
+  return result;
+};
+
+export const maxFieldValidator = (val) => {
+  const result = (val ? val.length < 256 : true) || 'Max 255 characters.';
+  return result;
+};
+
+export const programValidator = (program) => {
+  let noProps = true;
+  for (const prop in program) {
+    if (Object.hasOwn(program, prop)) {
+      noProps = false;
+      break;
+    }
+  }
+  if (noProps) {
+    return false;
+  }
+
+  if (
+    requiredFieldValidator(program.title) !== true &&
+    maxFieldValidator(program.title) !== true
+  ) {
+    return false;
+  }
+  program.blocks.forEach((block) => {
+    if (
+      requiredFieldValidator(block.title) !== true &&
+      maxFieldValidator(block.title) !== true
+    ) {
+      return false;
+    }
+    block.microCycles.forEach((cycle) => {
+      if (
+        requiredFieldValidator(cycle.title) !== true &&
+        maxFieldValidator(cycle.title) !== true
+      ) {
+        return false;
+      }
+      cycle.workouts.forEach((workout) => {
+        if (
+          requiredFieldValidator(workout.title) !== true &&
+          maxFieldValidator(workout.title) !== true
+        ) {
+          return false;
+        }
+        if (!workout.segments) {
+          workout['segments'] = [];
+        }
+        workout.segments.forEach((segment) => {
+          if (requiredFieldValidator(segment.exerciseTypeID) !== true) {
+            return false;
+          }
+          if (
+            requiredFieldValidator(segment.prescription) !== true &&
+            maxFieldValidator(segment.prescription !== true)
+          ) {
+            return false;
+          }
+        });
+      });
+    });
+  });
+  return true;
+};

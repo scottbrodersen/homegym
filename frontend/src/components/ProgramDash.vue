@@ -6,7 +6,7 @@
   import { states } from '../modules/utils';
   import { getProgramInstanceStatus } from '../modules/programUtils';
 
-  provide('state', states.READ_ONLY);
+  //provide('state', states.READ_ONLY);
   const props = defineProps({ activityID: String });
   const activeInstance = props.activityID
     ? programInstanceStore.getActive(props.activityID)

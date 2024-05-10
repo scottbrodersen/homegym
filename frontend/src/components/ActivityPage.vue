@@ -22,7 +22,6 @@
     QItemLabel,
   } from 'quasar';
   import styles from '../style.module.css';
-  import ExerciseTypesPage from './ExerciseTypesPage.vue';
 
   // selected activity
   const currentActivity = reactive({
