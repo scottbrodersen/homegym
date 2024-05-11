@@ -2,10 +2,19 @@
   import ProgramDash from './ProgramDash.vue';
   import EventsGrid from './EventsGrid.vue';
   import { activityStore, programInstanceStore } from '../modules/state';
-  import { ref } from 'vue';
+  import { provide, ref } from 'vue';
   import styles from './../style.module.css';
+
   const activityIDs = ref([]);
   const showAddWorkout = ref(true);
+  const focusedEvent = ref('');
+
+  const setFocusedEvent = (eventID) => {
+    focusedEvent.value = eventID;
+  };
+
+  provide('focusedEvent', { focusedEvent, setFocusedEvent });
+
   activityStore.getAll().forEach((activity) => {
     activityIDs.value.push(activity.id);
 

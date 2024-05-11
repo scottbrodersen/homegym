@@ -1,6 +1,6 @@
 <script setup>
   import WorkoutStatus from './WorkoutStatus.vue';
-  import { provide, ref } from 'vue';
+  import { inject, provide, ref } from 'vue';
   import { programInstanceStore } from '../modules/state';
   import { QCarousel, QCarouselSlide } from 'quasar';
   import { updateProgramInstance } from './../modules/utils';
@@ -10,6 +10,8 @@
   import CarouselNav from './CarouselNav.vue';
 
   const router = useRouter();
+
+  const { focusedEvent, setFocusedEvent } = inject('focusedEvent');
 
   const props = defineProps({
     activityID: String,
@@ -23,14 +25,14 @@
     activeInstance['events'] = {};
   }
 
-  const slides = ref();
+  // content for slides
+  const slides = ref(utils.getWorkouts(props.activityID));
 
-  slides.value = utils.getWorkouts(props.activityID);
-
+  // carousel model (slide index) is the workout day
   const slide = ref(props.dayIndex);
 
-  const currentIndex = ref(props.dayIndex);
-  provide('current', currentIndex);
+  provide('current', slide);
+  setFocusedEvent(activeInstance.events[slide.value]);
 
   const statusColourStyles = [];
   for (let i = 0; i < slides.value.length; i++) {
@@ -81,27 +83,6 @@
 
     updateProgramInstance(activeInstance);
   };
-
-  const setEvent = (carouselIndex) => {
-    const currentTableRowEl = document.getElementById(
-      activeInstance.events[currentIndex.value]
-    );
-    if (
-      currentTableRowEl &&
-      currentTableRowEl.classList.contains('evtHighlight')
-    ) {
-      currentTableRowEl.classList.remove('evtHighlight');
-    }
-    currentIndex.value = carouselIndex;
-    const tableRowEl = document.getElementById(
-      activeInstance.events[carouselIndex]
-    );
-    if (tableRowEl) {
-      tableRowEl.classList.add('evtHighlight');
-    }
-  };
-
-  const buttonSize = '10px';
 </script>
 <template>
   <div>
@@ -118,7 +99,7 @@
         height="100%"
         @update:model-value="
           (value) => {
-            setEvent(value);
+            setFocusedEvent(activeInstance.events[value]);
           }
         "
       >
@@ -137,43 +118,35 @@
     <div :class="[styles.carouselNavButtonArray]">
       <q-btn
         round
-        :size="buttonSize"
         icon="play_circle_filled"
         color="primary"
         @Click="
           () => {
-            startWorkout(currentIndex);
+            startWorkout(slide);
           }
         "
         :disable="
-          currentIndex != props.dayIndex ||
-          activeInstance.events[currentIndex] != undefined ||
-          slides[currentIndex].restDay
+          slide != props.dayIndex ||
+          activeInstance.events[slide] != undefined ||
+          slides[slide].restDay
         "
       />
       <q-btn
         round
-        :size="buttonSize"
         color="primary"
         icon="do_not_disturb"
         :disable="
-          currentIndex >= props.dayIndex ||
-          activeInstance.events[currentIndex] != undefined ||
-          slides[currentIndex].restDay
+          slide >= props.dayIndex ||
+          activeInstance.events[slide] != undefined ||
+          slides[slide].restDay
         "
         @Click="
           () => {
-            skipWorkout(currentIndex);
+            skipWorkout(slide);
           }
         "
       />
-      <q-btn
-        round
-        :size="buttonSize"
-        color="primary"
-        icon="visibility"
-        @Click="goToProgram"
-      />
+      <q-btn round color="primary" icon="visibility" @Click="goToProgram" />
     </div>
   </div>
 </template>

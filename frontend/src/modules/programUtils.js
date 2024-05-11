@@ -40,6 +40,7 @@ export const getStatusIcons = (workoutStatus) => {
   return { name: 'yard', colour: 'yellow' };
 };
 
+// Returns the planned workouts
 export const getWorkouts = (activityID) => {
   const activeInstance = programInstanceStore.getActive(activityID);
 

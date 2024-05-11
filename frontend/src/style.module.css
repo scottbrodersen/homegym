@@ -547,6 +547,11 @@ header a:hover {
   padding-right: var(--hg-xlg);
   padding-top: var(--hg-med);
 }
+
+.carouselNavButtonArray button {
+  font-size: 10px;
+}
+
 .carouselNavBtnWrap {
   composes: horiz;
 }
@@ -583,7 +588,7 @@ header a:hover {
   left: 0px;
 }
 
-:global(.evtHighlight) {
+.evtHighlight {
   background-color: rgb(60, 59, 59);
   outline: var(--hg-white) solid 1px;
 }
