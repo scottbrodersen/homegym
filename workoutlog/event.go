@@ -71,7 +71,7 @@ func (em *eventManager) NewEvent(userID string, event Event) (*string, error) {
 	}
 
 	// prepare exercise instances
-	typeIDs, exercisesJSON, err := prepEventExercises(userID, event.ID, event.Date, event.Exercises)
+	typeIDs, exercisesJSON, err := prepEventExercises(userID, event.ActivityID, event.Exercises)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create event: %w", err)
 	}
@@ -105,7 +105,7 @@ func (em *eventManager) UpdateEvent(userID string, currentDate int64, event Even
 	}
 
 	// prepare exercise instances
-	typeIDs, exercisesJSON, err := prepEventExercises(userID, event.ID, event.Date, event.Exercises)
+	typeIDs, exercisesJSON, err := prepEventExercises(userID, event.ActivityID, event.Exercises)
 	if err != nil {
 		return fmt.Errorf("failed to update event: %w", err)
 	}
@@ -118,13 +118,13 @@ func (em *eventManager) UpdateEvent(userID string, currentDate int64, event Even
 	return nil
 }
 
-func prepEventExercises(userID, eventID string, eventDate int64, exerciseInstances map[int]ExerciseInstance) (map[int]string, map[int][]byte, error) {
+func prepEventExercises(userID, activityID string, exerciseInstances map[int]ExerciseInstance) (map[int]string, map[int][]byte, error) {
 	exInstances := map[int][]byte{}
 	exTypeIDs := map[int]string{}
 
 	for k, inst := range exerciseInstances {
 		// check that the activity supports the exercise type
-		err := checkActivityForExerciseType(userID, eventID, inst.TypeID, eventDate)
+		err := checkActivityForExerciseType(userID, activityID, inst.TypeID)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -206,25 +206,7 @@ func (em *eventManager) GetEventExercises(userID, eventID string) (map[int]Exerc
 	return instances, nil
 }
 
-func checkActivityForExerciseType(userID, eventID, exerciseTypeID string, eventDate int64) error {
-
-	eventByte, err := dal.DB.GetEvent(userID, eventID, eventDate)
-	if err != nil {
-		log.WithError(err).Debug("failed to get event")
-		return fmt.Errorf("failed to check exercise belongs to event activity: %w", err)
-	}
-	if eventByte == nil {
-		log.WithError(err).Debug("event not found")
-		return fmt.Errorf("did not find the event: %w", err)
-	}
-
-	event := new(Event)
-	if err := json.Unmarshal(eventByte, event); err != nil {
-		log.WithError(err).Debug("failed to unmarshal stored event")
-		return fmt.Errorf("failed to check exercise belongs to event activity: %w", err)
-	}
-
-	activityID := event.ActivityID
+func checkActivityForExerciseType(userID, activityID, exerciseTypeID string) error {
 	_, exerciseIDs, err := dal.DB.ReadActivity(userID, activityID)
 	if err != nil {
 		log.WithError(err).Debug("failed to read activity")

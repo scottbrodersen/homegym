@@ -9,6 +9,7 @@
     states,
     toast,
     updateProgram,
+    deepToRaw,
   } from '../modules/utils';
   import { QBtn, QInput } from 'quasar';
   import styles from '../style.module.css';
@@ -40,13 +41,14 @@
       baseline = '';
       program.value = {};
     } else {
-      baseline = JSON.stringify(
+      program.value = deepToRaw(
         programsStore.get(activity.value.id, props.programID)
       );
-      program.value = JSON.parse(baseline);
       if (!program.value.blocks) {
         program.value.blocks = [{}];
       }
+      baseline = JSON.stringify(program.value);
+      changed.value = false;
       blocks = new OrderedList(program.value.blocks);
     }
   };
@@ -113,6 +115,9 @@
   const saveProgram = async () => {
     try {
       const id = await updateProgram(program.value);
+
+      baseline = JSON.stringify(program.value);
+
       toast('Saved', 'positive');
     } catch (e) {
       console.log(e.message);

@@ -4,7 +4,7 @@
     activityStore,
     eventMetricsStore,
   } from '../modules/state.js';
-  import { computed, ref } from 'vue';
+  import { computed, inject, ref } from 'vue';
   import { QTable, QTr, QTd, QBtn } from 'quasar';
   import {
     authPrompt,
@@ -32,6 +32,8 @@
   const pagesNumber = computed(() => {
     return eventStore.events.length / pageSize;
   });
+
+  const { focusedEvent, setFocusedEvent } = inject('focusedEvent');
 
   // row gradient
   const background = (eventID) => {
@@ -209,7 +211,11 @@
         dark
       >
         <template v-slot:body="props">
-          <q-tr :props="props" :id="props.key">
+          <q-tr
+            :props="props"
+            :id="props.key"
+            :class="props.key == focusedEvent ? styles.evtHighlight : 'blah'"
+          >
             <q-td
               v-for="col in props.cols"
               :key="col.name"

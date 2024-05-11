@@ -164,6 +164,7 @@
       <ProgramInstance
         v-if="selectedProgramInstance"
         :instanceID="selectedProgramInstance"
+        @done="setProgramSelection"
       />
     </div>
   </div>
