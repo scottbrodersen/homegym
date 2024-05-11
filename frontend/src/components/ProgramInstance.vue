@@ -5,13 +5,20 @@
   import { updateProgramInstance } from './../modules/utils';
   import { QBtn, QInput } from 'quasar';
   import styles from '../style.module.css';
-  import { authPrompt, ErrNotLoggedIn, states, toast } from '../modules/utils';
+  import {
+    authPrompt,
+    deepToRaw,
+    ErrNotLoggedIn,
+    states,
+    toast,
+  } from '../modules/utils';
+
   const props = defineProps({ instanceID: String });
   const emit = defineEmits(['done']);
 
   const instance = ref();
   let baseline = ''; // use to detect diff
-  const changed = ref(false);
+  const changed = ref();
   const valid = ref(true);
   const programTitle = ref();
 
@@ -22,16 +29,15 @@
   const requiredField = inject('requiredField');
 
   const init = (instanceID) => {
-    baseline = props.instanceID
-      ? JSON.stringify(programInstanceStore.get(props.instanceID))
-      : '';
+    instance.value = deepToRaw(programInstanceStore.get(instanceID));
+    baseline = JSON.stringify(instance.value);
 
-    instance.value = JSON.parse(baseline);
     programTitle.value = instance.value.programID
       ? programsStore.get(activity.value.id, instance.value.programID).title
       : '';
   };
 
+  // Re-initialize when a different instance is selected
   watch(
     () => props.instanceID,
     (newID) => {
@@ -45,20 +51,12 @@
       return instance.value;
     },
     (newVal) => {
-      changed.value = baseline != JSON.stringify(newVal);
-      valid.value = programIsValid(newVal);
+      if (state.value != states.READ_ONLY) {
+        changed.value = baseline != JSON.stringify(newVal);
+        valid.value = programIsValid(newVal);
+      }
     },
     { deep: true }
-  );
-
-  // Re-initialize when a different instance is selected
-  watch(
-    () => {
-      return props.instanceID;
-    },
-    (newID) => {
-      init();
-    }
   );
 
   onBeforeMount(() => {
