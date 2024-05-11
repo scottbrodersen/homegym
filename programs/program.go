@@ -332,45 +332,11 @@ func (pu ProgramUtil) UpdateProgramInstance(userID string, instance ProgramInsta
 		return nil, err
 	}
 
-	existing, err := dal.DB.GetProgramInstancePage(userID, instance.ProgramID, instance.ID, 1)
+	err := sanitizeEvents(instance.Events)
 	if err != nil {
-		return nil, fmt.Errorf("failed to update: %w", err)
+		return nil, errors.Join(ErrInvalidProgramInstance, err)
 	}
 
-	if existing == nil {
-		return nil, fmt.Errorf("program instance not found")
-	}
-
-	if instance.Events != nil && len(instance.Events) > 0 {
-		// sanitize the events if the last index is an unexpected value
-		// first get the largest key
-		expectedLastDay := len(instance.Events) - 1
-		lastDay := 0
-
-		_, ok := instance.Events[expectedLastDay]
-		if !ok {
-			for k := range instance.Events {
-				if k > lastDay {
-					lastDay = k
-				}
-			}
-		}
-
-		// fill in missing keys between the last day and the next largest day
-		for i := lastDay - 1; i >= 0; i-- {
-			_, ok := instance.Events[i]
-			if !ok {
-				instance.Events[i] = ""
-			} else {
-				break
-			}
-		}
-
-		// sanity check
-		if lastDay != len(instance.Events)-1 {
-			return nil, errors.Join(ErrInvalidProgramInstance, fmt.Errorf("program instance events is malformed"))
-		}
-	}
 	programJSON, err := json.Marshal(instance)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse program instance: %w", err)
@@ -381,6 +347,35 @@ func (pu ProgramUtil) UpdateProgramInstance(userID string, instance ProgramInsta
 	}
 
 	return &instance, nil
+}
+
+func sanitizeEvents(events map[int]string) error {
+	if len(events) > 0 {
+		// sanitize the events if the largest index is an unexpected value
+		lastDay := 0
+
+		for k := range events {
+			if k > lastDay {
+				lastDay = k
+			}
+		}
+
+		// fill in missing keys between the last day and the next largest day
+		for i := lastDay - 1; i >= 0; i-- {
+			_, ok := events[i]
+			if !ok {
+				events[i] = ""
+			} else {
+				break
+			}
+		}
+
+		// sanity check
+		if lastDay != len(events)-1 {
+			return fmt.Errorf("program instance events is malformed")
+		}
+	}
+	return nil
 }
 
 func (pu ProgramUtil) GetProgramInstancesPage(userID, programID, previousProgramInstanceID string, pageSize int) ([]ProgramInstance, error) {
@@ -397,6 +392,7 @@ func (pu ProgramUtil) GetProgramInstancesPage(userID, programID, previousProgram
 	if len(instancesByte) == 0 {
 		return nil, nil
 	}
+
 	instances := []ProgramInstance{}
 	for _, p := range instancesByte {
 		instance := new(ProgramInstance)
