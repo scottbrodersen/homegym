@@ -37,7 +37,47 @@ func testProgramInstance() ProgramInstance {
 	}
 }
 
+func goodEvent() map[int]string {
+	return map[int]string{
+		0: "",
+		1: "",
+		2: "",
+		3: "",
+		4: "",
+	}
+}
+
 func TestPrograms(t *testing.T) {
+
+	Convey("When we sanitize well-formed program events", t, func() {
+		testEvents := goodEvent()
+		err := sanitizeEvents(testEvents)
+
+		So(err, ShouldBeNil)
+		So(testEvents, ShouldResemble, goodEvent())
+	})
+	Convey("When we sanitize events with missing days", t, func() {
+		testEvents := map[int]string{
+			0: "",
+			1: "",
+			4: "",
+		}
+		err := sanitizeEvents(testEvents)
+
+		So(err, ShouldBeNil)
+		So(testEvents, ShouldResemble, goodEvent())
+	})
+	Convey("When we sanitize events with an early missing day", t, func() {
+		testEvents := map[int]string{
+			0: "",
+			2: "",
+			3: "",
+			4: "",
+		}
+		err := sanitizeEvents(testEvents)
+
+		So(err, ShouldNotBeNil)
+	})
 
 	Convey("Given a dal client", t, func() {
 		db := dal.NewMockDal()
