@@ -3,7 +3,7 @@
   import EventsGrid from './EventsGrid.vue';
   import { activityStore, programInstanceStore } from '../modules/state';
   import { provide, ref } from 'vue';
-  import styles from './../style.module.css';
+  import * as styles from './../style.module.css';
 
   const activityIDs = ref([]);
   const showAddWorkout = ref(true);

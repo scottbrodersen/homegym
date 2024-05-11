@@ -12,17 +12,15 @@
     deepToRaw,
   } from '../modules/utils';
   import { QBtn, QInput } from 'quasar';
-  import styles from '../style.module.css';
+  import * as styles from '../style.module.css';
   import { programsStore } from '../modules/state';
+  import * as programUtils from '../modules/programUtils';
 
   const props = defineProps({ programID: String });
   const emit = defineEmits(['done']);
 
   const state = inject('state');
-  const activity = inject('activity');
-  const programIsValid = inject('programIsValid');
-  const maxField = inject('maxField');
-  const requiredField = inject('requiredField');
+  const activityID = inject('activity').value;
 
   const program = ref({});
   const changed = ref(false);
@@ -41,9 +39,7 @@
       baseline = '';
       program.value = {};
     } else {
-      program.value = deepToRaw(
-        programsStore.get(activity.value.id, props.programID)
-      );
+      program.value = deepToRaw(programsStore.get(activityID, props.programID));
       if (!program.value.blocks) {
         program.value.blocks = [{}];
       }
@@ -72,7 +68,7 @@
     program.value = {
       id: null,
       title: programProps.title,
-      activityID: activity.value.id,
+      activityID: activityID,
       blocks: new Array(),
     };
 
@@ -105,7 +101,7 @@
     },
     (newState) => {
       if (newState == states.NEW) {
-        newProgramModal(activity.value.id, initProgram);
+        newProgramModal(activityID, initProgram);
       }
     }
   );
@@ -149,7 +145,7 @@
     },
     (newVal) => {
       changed.value = baseline != JSON.stringify(newVal);
-      valid.value = programIsValid(newVal);
+      valid.value = programUtils.programValidator(newVal);
     },
     { deep: true }
   );
@@ -170,7 +166,10 @@
         label="Program Name"
         stack-label
         dark
-        :rules="[requiredField, maxField]"
+        :rules="[
+          programUtils.requiredFieldValidator,
+          programUtils.maxFieldValidator,
+        ]"
       />
     </div>
     <ProgramBlock

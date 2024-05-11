@@ -1,6 +1,6 @@
 <script setup>
   import { programInstanceStore } from '../modules/state';
-  import styles from '../style.module.css';
+  import * as styles from '../style.module.css';
   import WorkoutAgent from './WorkoutAgent.vue';
   import { getProgramInstanceStatus } from '../modules/programUtils';
 

@@ -2,7 +2,7 @@
   import { useDialogPluginComponent, QOptionGroup } from 'quasar';
   import { ref, toValue } from 'vue';
   import { exerciseTypeStore } from '../modules/state';
-  import styles from '../style.module.css';
+  import * as styles from '../style.module.css';
 
   const props = defineProps({ exerciseID: String, basisID: String });
   const selectedID = ref(props.basisID);

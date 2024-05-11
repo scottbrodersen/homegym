@@ -4,7 +4,7 @@
   import { programInstanceStore, programsStore } from './../modules/state';
   import { updateProgramInstance } from './../modules/utils';
   import { QBtn, QInput } from 'quasar';
-  import styles from '../style.module.css';
+  import * as styles from '../style.module.css';
   import {
     authPrompt,
     deepToRaw,
@@ -12,6 +12,7 @@
     states,
     toast,
   } from '../modules/utils';
+  import * as programUtils from '../modules/programUtils';
 
   const props = defineProps({ instanceID: String });
   const emit = defineEmits(['done']);
@@ -23,17 +24,14 @@
   const programTitle = ref();
 
   const state = inject('state');
-  const activity = inject('activity');
-  const programIsValid = inject('programIsValid');
-  const maxField = inject('maxField');
-  const requiredField = inject('requiredField');
+  const activityID = inject('activity').value;
 
   const init = (instanceID) => {
     instance.value = deepToRaw(programInstanceStore.get(instanceID));
     baseline = JSON.stringify(instance.value);
 
     programTitle.value = instance.value.programID
-      ? programsStore.get(activity.value.id, instance.value.programID).title
+      ? programsStore.get(activityID, instance.value.programID).title
       : '';
   };
 
@@ -53,7 +51,7 @@
     (newVal) => {
       if (state.value != states.READ_ONLY) {
         changed.value = baseline != JSON.stringify(newVal);
-        valid.value = programIsValid(newVal);
+        valid.value = programUtils.programValidator(newVal);
       }
     },
     { deep: true }
@@ -111,7 +109,10 @@
         label="Name"
         stack-label
         dark
-        :rules="[requiredField, maxField]"
+        :rules="[
+          programUtils.requiredFieldValidator,
+          programUtils.maxFieldValidator,
+        ]"
       />
     </div>
     <ProgramBlock

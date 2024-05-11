@@ -1,7 +1,7 @@
 <script setup>
   import { ref } from 'vue';
   import { QBtn, QExpansionItem } from 'quasar';
-  import styles from '../style.module.css';
+  import * as styles from '../style.module.css';
   import { OrderedList } from '../modules/utils';
 
   const emit = defineEmits(['update']);

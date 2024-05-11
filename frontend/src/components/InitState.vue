@@ -9,7 +9,7 @@
     fetchPrograms,
   } from '../modules/utils';
   import { activityStore, exerciseTypeStore } from '../modules/state';
-  import styles from '../style.module.css';
+  import * as styles from '../style.module.css';
 
   const init = async () => {
     try {

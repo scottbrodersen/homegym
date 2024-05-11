@@ -2,7 +2,7 @@
   import { useDialogPluginComponent, QCard, QDialog, QInput } from 'quasar';
   import { activityStore } from '../modules/state.js';
   import { computed, ref } from 'vue';
-  import styles from '../style.module.css';
+  import * as styles from '../style.module.css';
 
   const props = defineProps({ activityID: String });
   defineEmits([...useDialogPluginComponent.emits]);

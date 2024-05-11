@@ -1,7 +1,7 @@
 <script setup>
   import { computed, ref } from 'vue';
   import ProgramWorkoutSegment from './ProgramWorkoutSegment.vue';
-  import styles from '../style.module.css';
+  import * as styles from '../style.module.css';
   import * as utils from '../modules/programUtils';
   import { QIcon } from 'quasar';
 

@@ -2,13 +2,12 @@
   import { inject, watch } from 'vue';
   import { QExpansionItem, QInput } from 'quasar';
   import ProgramMicrocycle from './ProgramMicrocycle.vue';
-  import styles from '../style.module.css';
+  import * as styles from '../style.module.css';
   import { OrderedList, states } from '../modules/utils.js';
   import ListActions from './ListActions.vue';
+  import * as programUtils from '../modules/programUtils';
 
   const state = inject('state');
-  const requiredField = inject('requiredField');
-  const maxField = inject('maxField');
   const props = defineProps({ block: Object });
   const emit = defineEmits(['update']);
 
@@ -65,7 +64,10 @@
             label-slot
             stack-label
             dark
-            :rules="[requiredField, maxField]"
+            :rules="[
+              programUtils.requiredFieldValidator,
+              programUtils.maxFieldValidator,
+            ]"
           >
             <template v-slot:label>
               <div :class="[styles.pgmBlockLabel]">Block Title</div>
@@ -77,7 +79,7 @@
             stack-label
             dark
             @focus="(event) => console.log(event)"
-            :rules="[maxField]"
+            :rules="[programUtils.maxFieldValidator]"
           />
         </div>
         <ListActions @update="update" />

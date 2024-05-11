@@ -12,7 +12,7 @@
     pageSize,
     ErrNotLoggedIn,
   } from '../modules/utils.js';
-  import styles from '../style.module.css';
+  import * as styles from '../style.module.css';
   import EventDetails from './EventDetails.vue';
 
   const table = ref();

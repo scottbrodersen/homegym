@@ -10,7 +10,7 @@
 <script setup>
   import { onBeforeMount, ref, watch } from 'vue';
   import { QRating } from 'quasar';
-  import styles from '../style.module.css';
+  import * as styles from '../style.module.css';
   const props = defineProps({
     mood: Number,
     energy: Number,

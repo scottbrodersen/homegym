@@ -8,7 +8,7 @@
   } from 'quasar';
   import { programsStore } from '../modules/state.js';
   import { computed, ref } from 'vue';
-  import styles from '../style.module.css';
+  import * as styles from '../style.module.css';
   import DatePicker from './DatePicker.vue';
 
   const props = defineProps({ activityID: String, programID: String });

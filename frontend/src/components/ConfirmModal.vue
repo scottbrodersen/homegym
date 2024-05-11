@@ -6,7 +6,7 @@
     QCardActions,
     QDialog,
   } from 'quasar';
-  import styles from '../style.module.css';
+  import * as styles from '../style.module.css';
 
   const props = defineProps({ message: String });
 

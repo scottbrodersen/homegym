@@ -1,6 +1,6 @@
 <script setup>
   import { unitsState } from '../modules/state.js';
-  import styles from '../style.module.css';
+  import * as styles from '../style.module.css';
   import { ref } from 'vue';
   import { intensityProps } from '../modules/utils';
   import { QInput } from 'quasar';

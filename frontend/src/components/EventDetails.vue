@@ -1,6 +1,6 @@
 <script setup>
   import ExerciseInstance from './ExerciseInstance.vue';
-  import styles from '../style.module.css';
+  import * as styles from '../style.module.css';
   import EventMeta from './EventMeta.vue';
   import { eventStore } from '../modules/state';
   import { QBtn, QTr, QTd } from 'quasar';
