@@ -1,14 +1,13 @@
 <script setup>
   import { inject, watch } from 'vue';
   import ProgramWorkout from './ProgramWorkout.vue';
-  import styles from '../style.module.css';
+  import * as styles from '../style.module.css';
   import { OrderedList, states } from '../modules/utils.js';
   import { QExpansionItem, QInput } from 'quasar';
   import ListActions from './ListActions.vue';
+  import * as programUtils from '../modules/programUtils';
 
   const state = inject('state');
-  const requiredField = inject('requiredField');
-  const maxField = inject('maxField');
   const props = defineProps({ microcycle: Object });
   const emit = defineEmits(['update']);
 
@@ -29,10 +28,13 @@
       workouts = new OrderedList(props.microcycle.workouts);
     }
   );
+
+  // emits the action on the workouts ordered list
   const update = (action) => {
     emit('update', action);
   };
 
+  // called when ProgramWorkout component emits an update
   const updateWorkouts = (action, index) => {
     workouts.update(action, index);
   };
@@ -67,16 +69,22 @@
         label="Microcycle Title"
         stack-label
         dark
-        :rules="[requiredField, maxField]"
+        :rules="[
+          programUtils.requiredFieldValidator,
+          programUtils.maxFieldValidator,
+        ]"
      />
-      <q-input v-model="props.microcycle.span" label="Days" stack-label dark :rules="[requiredField, maxField]"
+      <q-input v-model="props.microcycle.span" label="Days" stack-label dark :rules="[
+          programUtils.requiredFieldValidator,
+          programUtils.maxFieldValidator,
+        ]"
 />
       <q-input
         v-model="props.microcycle.description"
         label="Description"
         stack-label
         dark
-        :rules="[maxField]"
+        :rules="[programUtils.maxFieldValidator]"
       />
       <div :class="[styles.pgmChild]">
         <q-expansion-item

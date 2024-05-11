@@ -1,6 +1,6 @@
 <script setup>
   import { ref, computed } from 'vue';
-  import styles from '../style.module.css';
+  import * as styles from '../style.module.css';
   import { QTime, QInput, QPopupProxy, QDate, QBtn } from 'quasar';
 
   // stored epoch is in seconds utc

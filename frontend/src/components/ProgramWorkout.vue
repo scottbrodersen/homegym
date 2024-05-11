@@ -1,14 +1,13 @@
 <script setup>
   import { inject, watch } from 'vue';
   import ProgramWorkoutSegment from './ProgramWorkoutSegment.vue';
-  import styles from '../style.module.css';
+  import * as styles from '../style.module.css';
   import { OrderedList, states } from '../modules/utils.js';
   import ListActions from './ListActions.vue';
   import { QCheckbox, QInput } from 'quasar';
+  import * as programUtils from '../modules/programUtils';
 
   const state = inject('state');
-  const requiredField = inject('requiredField');
-  const maxField = inject('maxField');
   const props = defineProps({ workout: Object });
   const emit = defineEmits(['update']);
 
@@ -64,7 +63,10 @@
       label="Workout Title"
       stack-label
       dark
-      :rules="[requiredField, maxField]"
+      :rules="[
+        programUtils.requiredFieldValidator,
+        programUtils.maxFieldValidator,
+      ]"
     />
     <q-checkbox
       v-model="props.workout.restDay"
@@ -78,7 +80,7 @@
       label="Description"
       stack-label
       dark
-      :rules="[maxField]"
+      :rules="[programUtils.maxFieldValidator]"
     />
     <div v-show="!props.workout.restDay" :class="[styles.pgmChild]">
       <ProgramWorkoutSegment

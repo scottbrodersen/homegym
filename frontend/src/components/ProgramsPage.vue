@@ -8,7 +8,7 @@
     toast,
     updateProgramInstance,
   } from '../modules/utils';
-  import styles from '../style.module.css';
+  import * as styles from '../style.module.css';
   import { computed, onBeforeMount, provide, ref, Suspense } from 'vue';
   import { QSelect, QBtn } from 'quasar';
   import ActivityProgram from './ActivityProgram.vue';
@@ -24,15 +24,12 @@
 
   const selectedProgram = ref(props.programID ? props.programID : '');
   const selectedProgramInstance = ref(props.instanceID ? props.instanceID : '');
-  const activity = ref(activityStore.get(props.activityID));
+  const activityID = ref(props.activityID);
 
   const state = ref(states.READ_ONLY);
 
-  provide('activity', activity);
+  provide('activity', activityID);
   provide('state', state);
-  provide('requiredField', programUtils.requiredFieldValidator);
-  provide('maxField', programUtils.maxFieldValidator);
-  provide('programIsValid', programUtils.programValidator);
 
   const setState = (value) => {
     state.value = value;
@@ -61,7 +58,7 @@
 
   const startProgram = () => {
     newProgramInstanceModal(
-      activity.value.id,
+      activityID.value,
       selectedProgram.value,
       saveProgramInstance
     );
@@ -96,11 +93,15 @@
         id="activity"
         label="Activity"
         stack-label
-        v-model="activity"
+        :model-value="activityID"
         :options="activityStore.getAll()"
         option-label="name"
+        option-value="id"
         dark
         :class="[styles.selActivity]"
+        emit-value
+        map-options
+        @Update:model-value="(value) => (activityID = value)"
       />
       <div>
         <q-btn
@@ -110,18 +111,18 @@
           round
           dark
           color="primary"
-          :disable="state != states.READ_ONLY || !activity"
+          :disable="state != states.READ_ONLY || !activityID"
         />
       </div>
     </div>
     <div
       :class="[styles.pgmSelect]"
-      v-show="!!activity"
+      v-show="!!activityID"
       v-if="state == states.READ_ONLY"
     >
       <Suspense>
         <ProgramSelect
-          :activityID="activity ? activity.id : ''"
+          :activityID="activityID ? activityID : ''"
           :programID="
             props.programID
               ? props.programID

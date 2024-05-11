@@ -5,7 +5,7 @@
   import ExerciseSelect from './ExerciseSelect.vue';
   import VolumeReps from './VolumeReps.vue';
   import VolumeTime from './VolumeTime.vue';
-  import styles from '../style.module.css';
+  import * as styles from '../style.module.css';
   import { openVolumeModal } from '../modules/utils';
   import { QDialog, QBtn, QCard, QCardActions, QCardSection } from 'quasar';
   /*

@@ -4,7 +4,7 @@
   import { QBtn, QBtnGroup, QToggle } from 'quasar';
   import { metricState } from '../modules/state';
   import { getCookieValue } from '../modules/utils';
-  import styles from '../style.module.css';
+  import * as styles from '../style.module.css';
 
   const router = useRouter();
   const route = useRoute();

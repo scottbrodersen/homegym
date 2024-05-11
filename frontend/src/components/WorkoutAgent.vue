@@ -4,7 +4,7 @@
   import { programInstanceStore } from '../modules/state';
   import { QCarousel, QCarouselSlide } from 'quasar';
   import { updateProgramInstance } from './../modules/utils';
-  import styles from '../style.module.css';
+  import * as styles from '../style.module.css';
   import { useRouter } from 'vue-router';
   import * as utils from '../modules/programUtils';
   import CarouselNav from './CarouselNav.vue';

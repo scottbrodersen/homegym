@@ -2,7 +2,7 @@
   import { computed, onBeforeMount, ref, watch } from 'vue';
   import { activityStore, exerciseTypeStore } from '../modules/state.js';
   import { QSelect } from 'quasar';
-  import styles from '../style.module.css';
+  import * as styles from '../style.module.css';
   import {
     authPrompt,
     ErrNotLoggedIn,

@@ -1,6 +1,6 @@
 <script setup>
   import { defineProps, computed } from 'vue';
-  import styles from '../style.module.css';
+  import * as styles from '../style.module.css';
   import BinaryRep from './BinaryRep.vue';
   const props = defineProps({ reps: Array, volumeConstraint: Number });
 

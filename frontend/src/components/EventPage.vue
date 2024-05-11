@@ -1,6 +1,6 @@
 <script async setup>
   import { ref, computed } from 'vue';
-  import styles from '../style.module.css';
+  import * as styles from '../style.module.css';
   import DatePicker from './DatePicker.vue';
   import EventMeta from './EventMeta.vue';
   import ExerciseInstance from './ExerciseInstance.vue';

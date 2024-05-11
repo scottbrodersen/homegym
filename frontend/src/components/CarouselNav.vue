@@ -1,7 +1,7 @@
 <script setup>
   import { inject, onMounted, watch } from 'vue';
   import { QBtn } from 'quasar';
-  import styles from '../style.module.css';
+  import * as styles from '../style.module.css';
 
   const props = defineProps({ items: Array, homeItem: Number });
   // items is an array of css class names

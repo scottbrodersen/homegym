@@ -1,7 +1,7 @@
 <script async setup>
   import { programsStore, programInstanceStore } from '../modules/state';
   import { onBeforeMount, ref, watch } from 'vue';
-  import styles from '../style.module.css';
+  import * as styles from '../style.module.css';
   import {
     authPrompt,
     fetchPrograms,

@@ -1,5 +1,5 @@
 <script setup>
-  import styles from '../style.module.css';
+  import * as styles from '../style.module.css';
   const props = defineProps({ success: Boolean });
   const repClass = props.success ? 'hgRepGood' : 'hgRepFail';
 </script>

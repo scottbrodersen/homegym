@@ -13,7 +13,7 @@
     states,
     toast,
   } from '../modules/utils';
-  import styles from '../style.module.css';
+  import * as styles from '../style.module.css';
   import { computed, ref, onBeforeMount } from 'vue';
 
   const emptyType = () => {
