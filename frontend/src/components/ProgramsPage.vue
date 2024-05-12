@@ -14,7 +14,6 @@
   import ActivityProgram from './ActivityProgram.vue';
   import ProgramSelect from './ProgramSelect.vue';
   import ProgramInstance from './ProgramInstance.vue';
-  import * as programUtils from '../modules/programUtils';
 
   const props = defineProps({
     activityID: String,
@@ -35,14 +34,29 @@
     state.value = value;
   };
 
+  const setActivitySelection = (id) => {
+    activityID.value = id;
+    const url = new URL(document.URL);
+    const newURL = url.origin + url.pathname + '?activity=' + id;
+    history.replaceState(null, '', newURL);
+  };
+
   const setProgramSelection = (obj) => {
     if (obj) {
+      const url = new URL(document.URL);
+      let newURL = url.origin + url.pathname + '?activity=' + activityID.value;
       if (obj.programID) {
         selectedProgramInstance.value = '';
         selectedProgram.value = obj.programID;
+        history.replaceState(null, '', newURL + '&program=' + obj.programID);
       } else {
         selectedProgram.value = '';
         selectedProgramInstance.value = obj.programInstanceID;
+        history.replaceState(
+          null,
+          '',
+          newURL + '&instance=' + obj.programInstanceID
+        );
       }
     }
     setState(states.READ_ONLY);
@@ -101,7 +115,7 @@
         :class="[styles.selActivity]"
         emit-value
         map-options
-        @Update:model-value="(value) => (activityID = value)"
+        @Update:model-value="setActivitySelection"
       />
       <div>
         <q-btn
