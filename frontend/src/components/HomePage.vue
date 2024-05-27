@@ -5,15 +5,28 @@
   import { provide, ref } from 'vue';
   import * as styles from './../style.module.css';
 
+  const props = defineProps({ eventID: String });
   const activityIDs = ref([]);
   const showAddWorkout = ref(true);
-  const focusedEvent = ref('');
+  const focusedEvent = ref(props.eventID ? props.eventID : '');
+  const selectedEvent = ref(props.eventID ? props.eventID : '');
 
   const setFocusedEvent = (eventID) => {
     focusedEvent.value = eventID;
   };
 
+  const setSelectedEvent = (eventID) => {
+    selectedEvent.value = eventID;
+    const url = new URL(document.URL);
+    const newURL = url.origin + url.pathname + '?event=' + eventID;
+    history.replaceState(history.state, '', newURL);
+  };
+
+  // enable child components to get and set the focused event
   provide('focusedEvent', { focusedEvent, setFocusedEvent });
+
+  // enable child components to get and set the selected event
+  provide('selectedEvent', { selectedEvent, setSelectedEvent });
 
   activityStore.getAll().forEach((activity) => {
     activityIDs.value.push(activity.id);
@@ -43,6 +56,6 @@
         id="addevent"
       />
     </div>
-    <EventsGrid />
+    <EventsGrid :eventID="selectedEvent" />
   </div>
 </template>

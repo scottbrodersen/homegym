@@ -15,6 +15,8 @@
   import * as styles from '../style.module.css';
   import { programsStore } from '../modules/state';
   import * as programUtils from '../modules/programUtils';
+  import ProgramMap from './ProgramMap.vue';
+  import ProgramWorkout from './ProgramWorkout.vue';
 
   const props = defineProps({ programID: String });
   const emit = defineEmits(['done']);
@@ -31,6 +33,7 @@
 
   let blocks; //
   let baseline = ''; // use to detect diff
+  const coords = ref([0, 0, 0]);
 
   // Stores the stringified program as a baseline for detecting change
   // Clones the program so it can be edited without immediately changing the store
@@ -172,29 +175,79 @@
         ]"
       />
     </div>
-    <ProgramBlock
-      v-for="(block, index) of program.blocks"
-      :key="index"
-      :block="block"
-      @update="(value) => updateBlocks(value, index)"
-    />
-    <div
-      v-show="state != states.READ_ONLY && program.title"
-      :class="[styles.buttonArray]"
-    >
-      <q-btn
-        :label="doneButtonText"
-        color="accent"
-        text-color="dark"
-        @click="cancel"
+    <div :class="[styles.hgCentered]">
+      <ProgramMap
+        :blocks="program.blocks"
+        @coords="(value) => (coords = value)"
       />
-      <q-btn
-        :label="updateButtonText"
-        color="accent"
-        text-color="dark"
-        @click="saveProgram"
-        :disable="!changed || !valid"
+    </div>
+    <div v-if="state == states.READ_ONLY" :class="[styles.blockPadSm]">
+      <div :class="[styles.pgmBlockTitle]">
+        <div>Block:</div>
+        <Transition>
+          <div :class="[styles.vert]" :key="coords[0]">
+            <div>{{ program.blocks[coords[0]].title }}</div>
+            <div>{{ program.blocks[coords[0]].description }}</div>
+          </div>
+        </Transition>
+      </div>
+      <div :class="[styles.pgmCycleTitle]">
+        <div>Cycle:</div>
+        <Transition>
+          <div :class="[styles.vert]" :key="coords[1]">
+            <div>
+              {{ program.blocks[coords[0]].microCycles[coords[1]].title }}
+            </div>
+            <div>
+              {{ program.blocks[coords[0]].microCycles[coords[1]].description }}
+            </div>
+          </div>
+        </Transition>
+      </div>
+      <Transition>
+        <div :class="[styles.blockPadMed, styles.hgCentered]" :key="coords[2]">
+          <ProgramWorkout
+            :workout="
+              program.blocks[coords[0]].microCycles[coords[1]].workouts[
+                coords[2]
+              ]
+            "
+          />
+        </div>
+      </Transition>
+    </div>
+    <div v-show="state != states.READ_ONLY && program.title">
+      <ProgramBlock
+        v-for="(block, index) of program.blocks"
+        :key="index"
+        :block="block"
+        @update="(value) => updateBlocks(value, index)"
       />
+      <div :class="[styles.buttonArray]">
+        <q-btn
+          :label="doneButtonText"
+          color="accent"
+          text-color="dark"
+          @click="cancel"
+        />
+        <q-btn
+          :label="updateButtonText"
+          color="accent"
+          text-color="dark"
+          @click="saveProgram"
+          :disable="!changed || !valid"
+        />
+      </div>
     </div>
   </div>
 </template>
+<style>
+  .v-enter-active {
+    transition: opacity 0.5s ease;
+  }
+
+  .v-enter-from,
+  .v-leave-to {
+    opacity: 0;
+  }
+</style>

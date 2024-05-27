@@ -4,7 +4,7 @@
     activityStore,
     eventMetricsStore,
   } from '../modules/state.js';
-  import { computed, inject, ref } from 'vue';
+  import { computed, inject, onMounted, ref, watch } from 'vue';
   import { QTable, QTr, QTd, QBtn } from 'quasar';
   import {
     authPrompt,
@@ -15,6 +15,7 @@
   import * as styles from '../style.module.css';
   import EventDetails from './EventDetails.vue';
 
+  const props = defineProps({ eventID: String });
   const table = ref();
   const expanded = ref([]);
 
@@ -34,6 +35,7 @@
   });
 
   const { focusedEvent, setFocusedEvent } = inject('focusedEvent');
+  const { selectedEvent, setSelectedEvent } = inject('selectedEvent');
 
   // row gradient
   const background = (eventID) => {
@@ -189,10 +191,55 @@
   await setPage({ pagination: { page: 1 } });
 
   // custom expand row function to allow only one row to be expanded at a time
-  const expandRow = (props) => {
+  const expandRow = async (rowID) => {
     // close the currently-expanded row or expand the row to expand
     const expandedRowID = expanded.value.pop();
-    expanded.value = expandedRowID === props.row.id ? [] : [props.row.id];
+    expanded.value = expandedRowID === rowID ? [] : [rowID];
+
+    await toRowPage(rowID);
+
+    setSelectedEvent(rowID);
+  };
+
+  onMounted(() => {
+    if (props.eventID) {
+      expandRow(props.eventID);
+    }
+  });
+
+  watch(
+    () => {
+      return props.eventID;
+    },
+    async (newID) => {
+      if (expanded.value.length > 0 && expanded.value[0] != newID) {
+        expandRow(newID);
+      }
+    }
+  );
+
+  watch(
+    () => {
+      return focusedEvent.value;
+    },
+    async (newID) => {
+      await toRowPage(newID);
+    }
+  );
+
+  // turns to the page that contains the event
+  const toRowPage = async (eventID) => {
+    let pageNumber;
+    let events = eventStore.getAll();
+    for (let i = 0; i < events.length; i++) {
+      if (events[i].id == eventID) {
+        pageNumber = Math.floor(i / pagination.value.rowsPerPage) + 1;
+        break;
+      }
+    }
+    if (pageNumber && pageNumber != pagination.value.page) {
+      await setPage({ pagination: { page: pageNumber } });
+    }
   };
 </script>
 
@@ -214,13 +261,13 @@
           <q-tr
             :props="props"
             :id="props.key"
-            :class="props.key == focusedEvent ? styles.evtHighlight : 'blah'"
+            :class="props.key == focusedEvent ? styles.evtHighlight : ''"
           >
             <q-td
               v-for="col in props.cols"
               :key="col.name"
               :props="props"
-              @click="expandRow(props)"
+              @click="expandRow(props.row.id)"
             >
               {{ col.value }}
             </q-td>

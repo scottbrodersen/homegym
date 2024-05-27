@@ -1,6 +1,6 @@
 <script setup>
   import WorkoutStatus from './WorkoutStatus.vue';
-  import { inject, provide, ref } from 'vue';
+  import { inject, provide, ref, watch } from 'vue';
   import { programInstanceStore } from '../modules/state';
   import { QCarousel, QCarouselSlide } from 'quasar';
   import { updateProgramInstance } from './../modules/utils';
@@ -12,6 +12,7 @@
   const router = useRouter();
 
   const { focusedEvent, setFocusedEvent } = inject('focusedEvent');
+  const { selectedEvent, setSelectedEvent } = inject('selectedEvent');
 
   const props = defineProps({
     activityID: String,
@@ -32,6 +33,7 @@
   const slide = ref(props.dayIndex);
 
   provide('current', slide);
+
   setFocusedEvent(activeInstance.events[slide.value]);
 
   const statusColourStyles = [];
@@ -83,6 +85,19 @@
 
     updateProgramInstance(activeInstance);
   };
+
+  watch(
+    () => selectedEvent.value,
+    (newID) => {
+      for (let i = 0; i < Object.entries(activeInstance.events).length; i++) {
+        if (activeInstance.events[i] == newID) {
+          slide.value = i;
+          setFocusedEvent(newID);
+          break;
+        }
+      }
+    }
+  );
 </script>
 <template>
   <div>

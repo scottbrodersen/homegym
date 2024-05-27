@@ -2,15 +2,13 @@
   import { ref, computed } from 'vue';
   import * as styles from '../style.module.css';
   import { QTime, QInput, QPopupProxy, QDate, QBtn } from 'quasar';
+  import * as dateUtils from '../modules/dateUtils';
 
   // stored epoch is in seconds utc
   const props = defineProps({ dateValue: Number, hideTime: Boolean });
   const emit = defineEmits(['update']);
 
-  // javascript epoch is in milliseconds
-  const dateObj = props.dateValue
-    ? new Date(props.dateValue * 1000)
-    : new Date();
+  const dateObj = dateUtils.dateFromSeconds(props.dateValue);
 
   // prefix single-digit date numbers
   const prefixed = (dateNumber) => {
@@ -18,38 +16,23 @@
     return `${prefix}${dateNumber}`;
   };
 
-  // date format is YYYY-MM-DD
-  const date = ref(
-    `${dateObj.getFullYear()}-${prefixed(dateObj.getMonth() + 1)}-${prefixed(
-      dateObj.getDate()
-    )}`
-  );
+  const date = ref(dateUtils.formatDate(dateObj));
 
-  // time format is HH:mm
-  const time = props.hideTime
-    ? ref('')
-    : ref(`${dateObj.getHours()}:${dateObj.getMinutes()}`);
+  const time = props.hideTime ? ref('') : ref(dateUtils.formatTime(dateObj));
 
-  const dateTime = ref(`${date.value} ${time.value}`);
+  const dateTime = ref(dateUtils.formatDateTime(dateObj));
 
   const newDateTime = computed(() => {
     return `${date.value} ${time.value}`;
   });
 
-  // transforms the date string to timestamp UTC in seconds
-  const stringToEpoch = (dateString) => {
-    const date = new Date(dateString);
-    const milliseconds = date.valueOf();
-    return Math.floor(milliseconds / 1000);
-  };
-
   // emit date if it was set to now
   if (!props.dateValue) {
-    emit('update', stringToEpoch(dateTime.value));
+    emit('update', dateUtils.stringToEpoch(dateTime.value));
   }
 
   const updateTime = () => {
-    emit('update', stringToEpoch(newDateTime.value));
+    emit('update', dateUtils.stringToEpoch(newDateTime.value));
     dateTime.value = newDateTime.value;
   };
 </script>
