@@ -1,5 +1,5 @@
 import './patch-fetch.js';
-import { expect, beforeAll, afterAll, afterEach, vi } from 'vitest';
+import { expect, vi } from 'vitest';
 import * as utils from '../src/modules/programUtils';
 import * as data from '../mocks/data';
 
@@ -42,6 +42,42 @@ describe('programUtils', () => {
     const expected = [1, 1, 2];
     const coords = utils.getWorkoutCoords(testProgram, 23);
     expect(coords).toEqual(expected);
+  });
+
+  it('gets the day index -- first day', () => {
+    const expected = 0;
+    const day = utils.getDayIndex(testProgram, [0, 0, 0]);
+    expect(day).toEqual(expected);
+  });
+
+  it('gets the day index -- first block', () => {
+    const expected = data.cycleSpan;
+    const day = utils.getDayIndex(testProgram, [1, 0, 0]);
+    expect(day).toEqual(expected);
+  });
+
+  it('gets the day index -- first day of second block', () => {
+    const expected = data.cycleSpan * data.numCycles;
+    const day = utils.getDayIndex(testProgram, [1, 0, 0]);
+    expect(day).toEqual(expected);
+  });
+
+  it('gets the day index -- third day of second block', () => {
+    const expected = data.cycleSpan * data.numCycles + 2;
+    const day = utils.getDayIndex(testProgram, [1, 0, 2]);
+    expect(day).toEqual(expected);
+  });
+
+  it('gets the day index -- third day of second cycle of second block', () => {
+    const expected = data.cycleSpan * (data.numCycles + 1) + 2;
+    const day = utils.getDayIndex(testProgram, [1, 1, 2]);
+    expect(day).toEqual(expected);
+  });
+
+  it('gets the day index -- first day of first cycle of second block', () => {
+    const expected = data.cycleSpan;
+    const day = utils.getDayIndex(testProgram, [1, 1, 0]);
+    expect(day).toEqual(expected);
   });
 
   it('returns the outstanding workouts', () => {

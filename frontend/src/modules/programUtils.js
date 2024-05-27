@@ -1,6 +1,8 @@
 import { programInstanceStore } from '../modules/state';
+import * as dateUtils from './../modules/dateUtils';
 
 export const workoutStatuses = { FUTURE: 0, MISSED: 1, DONE: 2 };
+
 export const getColorStyle = (status) => {
   if (status == workoutStatuses.FUTURE) {
     return 'futureWorkout';
@@ -40,7 +42,7 @@ export const getStatusIcons = (workoutStatus) => {
   return { name: 'yard', colour: 'yellow' };
 };
 
-// Returns the planned workouts
+// Returns the planned workouts of the active instance
 export const getWorkouts = (activityID) => {
   const activeInstance = programInstanceStore.getActive(activityID);
 
@@ -54,6 +56,74 @@ export const getWorkouts = (activityID) => {
   });
 
   return workouts;
+};
+
+const getInstanceStartDate = (instance) => {
+  let date = dateUtils.dateFromSeconds(instance.startDate);
+
+  // make sure start date is at midnight
+  date.setUTCHours(0);
+  date.setUTCMinutes(0);
+  date.setUTCSeconds(0);
+  date.setUTCMilliseconds(0);
+
+  return date;
+};
+
+// Returns the dates of all planned non-rest day workouts
+export const getNonRestDates = (instance) => {
+  const dates = new Array();
+
+  let date = getInstanceStartDate(instance);
+
+  // set to day before the start date
+  date.setDate(date.getDate() - 1);
+
+  // walk the program
+  instance.blocks.forEach((block) => {
+    block.microCycles.forEach((cycle) => {
+      cycle.workouts.forEach((workout) => {
+        date.setDate(date.getDate() + 1);
+        if (!workout.restDay) {
+          dates.push(dateUtils.formatDate(date));
+        }
+      });
+    });
+  });
+
+  return dates;
+};
+
+export const getInstanceWorkoutDates = (instance) => {
+  let startDate = getInstanceStartDate(instance);
+  const numDays = getProgramLength(instance);
+  const dates = new Array();
+
+  for (let i = 0; i < numDays; i++) {
+    let date = new Date(startDate.getTime());
+    date.setDate(startDate.getDate() + i);
+    dates.push(dateUtils.formatDate(date));
+  }
+
+  return dates;
+};
+export const getDayIndex = (program, coords) => {
+  let day = 0;
+  // get days for previous blocks
+  for (let i = 0; i < coords[0]; i++) {
+    const block = program.blocks[i];
+    for (let j = 0; j < block.microCycles.length; j++) {
+      day += block.microCycles[j].span;
+    }
+  }
+
+  // get days for previous cycles in the coord block
+  for (let i = 0; i < coords[1]; i++) {
+    day += program.blocks[coords[0]].microCycles[i].span;
+  }
+  day += coords[2];
+
+  return day;
 };
 
 export const getWorkoutCoords = (program, programDayIndex) => {
@@ -87,6 +157,17 @@ export const getWorkoutCoords = (program, programDayIndex) => {
   return [blockIndex, microCycleIndex, workoutIndex];
 };
 
+export const getProgramLength = (program) => {
+  let progLength = 0;
+  program.blocks.forEach((block) => {
+    block.microCycles.forEach((ms) => {
+      progLength += ms.span;
+    });
+  });
+
+  return progLength;
+};
+
 export const getProgramInstanceStatus = (instanceID) => {
   let percentComplete = 0;
   let adherence = 0;
@@ -106,23 +187,12 @@ export const getProgramInstanceStatus = (instanceID) => {
   const now = nowDate.valueOf();
 
   // javascript timestamp is in msec
-  const startDate = new Date(instance.startDate * 1000);
-
-  // make sure start date is at midnight
-  startDate.setUTCHours(0);
-  startDate.setUTCMinutes(0);
-  startDate.setUTCSeconds(0);
-  startDate.setUTCMilliseconds(0);
+  const startDate = getInstanceStartDate(instance);
 
   // first day is 0th day
   dayIndex = Math.floor((now - startDate.valueOf()) / 1000 / 60 / 60 / 24);
 
-  let progLength = 0;
-  instance.blocks.forEach((block) => {
-    block.microCycles.forEach((ms) => {
-      progLength += ms.span;
-    });
-  });
+  const progLength = getProgramLength(instance);
 
   let restDaysSoFar = 0;
   let dayCount = 0;

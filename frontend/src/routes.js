@@ -8,9 +8,14 @@ import ProgramsPage from './components/ProgramsPage.vue';
 
 const routes = [
   {
-    path: '/homegym/home/',
+    path: '/homegym/home/:event?',
     components: { default: PageHeader, main: HomePage },
     name: 'home',
+    props: {
+      main: (route) => ({
+        eventID: route.query.event,
+      }),
+    },
   },
   {
     path: '/homegym/activities/',

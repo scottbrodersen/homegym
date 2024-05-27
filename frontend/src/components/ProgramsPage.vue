@@ -38,7 +38,7 @@
     activityID.value = id;
     const url = new URL(document.URL);
     const newURL = url.origin + url.pathname + '?activity=' + id;
-    history.replaceState(null, '', newURL);
+    history.replaceState(history.state, '', newURL);
   };
 
   const setProgramSelection = (obj) => {
@@ -48,12 +48,16 @@
       if (obj.programID) {
         selectedProgramInstance.value = '';
         selectedProgram.value = obj.programID;
-        history.replaceState(null, '', newURL + '&program=' + obj.programID);
+        history.replaceState(
+          history.state,
+          '',
+          newURL + '&program=' + obj.programID
+        );
       } else {
         selectedProgram.value = '';
         selectedProgramInstance.value = obj.programInstanceID;
         history.replaceState(
-          null,
+          history.state,
           '',
           newURL + '&instance=' + obj.programInstanceID
         );
@@ -102,61 +106,64 @@
 </script>
 <template>
   <div>
-    <div :class="[styles.pgmSelect]">
-      <q-select
-        id="activity"
-        label="Activity"
-        stack-label
-        :model-value="activityID"
-        :options="activityStore.getAll()"
-        option-label="name"
-        option-value="id"
-        dark
-        :class="[styles.selActivity]"
-        emit-value
-        map-options
-        @Update:model-value="setActivitySelection"
-      />
-      <div>
-        <q-btn
-          id="new"
-          @click="setState(states.NEW)"
-          icon="add"
-          round
+    <div :class="[styles.hgCentered, styles.pgmSelectWrap]">
+      <div :class="[styles.pgmSelect]">
+        <q-select
+          id="activity"
+          label="Activity"
+          stack-label
+          :model-value="activityID"
+          :options="activityStore.getAll()"
+          option-label="name"
+          option-value="id"
           dark
-          color="primary"
-          :disable="state != states.READ_ONLY || !activityID"
+          :class="[styles.selActivity]"
+          emit-value
+          map-options
+          compact
+          @Update:model-value="setActivitySelection"
         />
+        <div>
+          <q-btn
+            id="new"
+            @click="setState(states.NEW)"
+            icon="add"
+            round
+            dark
+            color="primary"
+            :disable="state != states.READ_ONLY || !activityID"
+          />
+        </div>
       </div>
-    </div>
-    <div
-      :class="[styles.pgmSelect]"
-      v-show="!!activityID"
-      v-if="state == states.READ_ONLY"
-    >
-      <Suspense>
-        <ProgramSelect
-          :activityID="activityID ? activityID : ''"
-          :programID="
-            props.programID
-              ? props.programID
-              : props.instanceID
-              ? props.instanceID
-              : ''
-          "
-          @selected="setProgramSelection"
-        />
-      </Suspense>
-      <div>
-        <q-btn
-          id="edit"
-          @click="setState(states.EDIT)"
-          icon="edit"
-          round
-          dark
-          color="primary"
-          :disable="disableEdit"
-        />
+      <div
+        :class="[styles.pgmSelect]"
+        v-show="!!activityID"
+        v-if="state == states.READ_ONLY"
+      >
+        <Suspense>
+          <ProgramSelect
+            :activityID="activityID ? activityID : ''"
+            :programID="
+              props.programID
+                ? props.programID
+                : props.instanceID
+                ? props.instanceID
+                : ''
+            "
+            @selected="setProgramSelection"
+          />
+        </Suspense>
+        <div>
+          <q-btn
+            id="edit"
+            @click="setState(states.EDIT)"
+            icon="edit"
+            round
+            dark
+            color="primary"
+            :disable="disableEdit"
+          />
+        </div>
       </div>
     </div>
     <div>

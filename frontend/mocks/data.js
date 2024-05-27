@@ -108,6 +108,7 @@ export const fetchedEventExercises = () => {
 export const numBlocks = 3;
 export const numCycles = 2;
 export const cycleSpan = 7;
+
 // 3 blocks of 2 microcycles of span 7
 export const testProgram = () => {
   const blocks = new Array();

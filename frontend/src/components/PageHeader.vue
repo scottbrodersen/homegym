@@ -1,7 +1,16 @@
 <script setup>
   import { reactive, ref, watch } from 'vue';
   import { useRouter, useRoute } from 'vue-router';
-  import { QBtn, QBtnGroup, QToggle } from 'quasar';
+  import {
+    QBtn,
+    QBtnDropdown,
+    QBtnGroup,
+    QList,
+    QItem,
+    QItemLabel,
+    QMenu,
+    QToggle,
+  } from 'quasar';
   import { metricState } from '../modules/state';
   import { getCookieValue } from '../modules/utils';
   import * as styles from '../style.module.css';
@@ -93,24 +102,6 @@
         :to="{ name: 'home' }"
       />
       <q-btn
-        :class="{ active: active.activities }"
-        :unelevated="active.activities"
-        :glossy="!active.activities"
-        :label="labels.activities"
-        square
-        :padding="padding"
-        :to="{ name: 'activities' }"
-      />
-      <q-btn
-        :class="{ active: active.exTypes }"
-        :unelevated="active.exTypes"
-        :glossy="!active.exTypes"
-        :label="labels.exTypes"
-        square
-        :padding="padding"
-        :to="{ name: 'exTypes' }"
-      />
-      <q-btn
         :class="{ active: active.programs }"
         :unelevated="active.programs"
         :glossy="!active.programs"
@@ -119,12 +110,37 @@
         :padding="padding"
         :to="{ name: 'programs' }"
       />
+      <q-btn-dropdown
+        :class="{ active: active.activities }"
+        :unelevated="active.activities"
+        :glossy="!active.activities"
+        :label="labels.activities"
+        square
+        :padding="padding"
+      >
+        <q-list>
+          <q-item dark clickable :to="{ name: 'activities' }">
+            <q-item-label dark>{{ labels.activities }}</q-item-label>
+          </q-item>
+          <q-item clickable :to="{ name: 'exTypes' }">
+            <q-item-label>{{ labels.exTypes }}</q-item-label>
+          </q-item>
+        </q-list>
+      </q-btn-dropdown>
+      <q-btn icon="menu">
+        <q-menu>
+          <q-list :class="hgMenu">
+            <q-item dark>
+              <q-toggle
+                :label="labels.metric"
+                label-left
+                :model-value="metricState.metric"
+                @update:model-value="toggleMetric"
+              />
+            </q-item>
+          </q-list>
+        </q-menu>
+      </q-btn>
     </q-btn-group>
-    <q-toggle
-      :label="labels.metric"
-      label-left
-      :model-value="metricState.metric"
-      @update:model-value="toggleMetric"
-    />
   </header>
 </template>

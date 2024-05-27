@@ -15,6 +15,12 @@
   --hg-xxlg: 220px;
   --hg-xxxlg: 300px;
 
+  --hg-header: 36px;
+  --hg-pgmselect: 142px;
+  --hg-instbase: 37px;
+  --hg-instinfo: 64px;
+  --hg-calendar: 292px;
+
   --hg-yellow: #f9f505;
   --hg-black: #111111;
   --hg-white: #fcfcfc;
@@ -124,6 +130,10 @@ h1 {
   margin-left: var(--hg-med);
 }
 
+:global(.q-menu .q-list) {
+  background-color: var(--hg-black);
+  border: solid 1px var(--hg-mid);
+}
 .horiz {
   display: flex;
   flex-direction: row;
@@ -187,6 +197,7 @@ header {
   width: 100%;
   display: flex;
   flex-wrap: wrap;
+  height: var(--hg-header);
 }
 header a {
   color: var(--hg-white);
@@ -391,16 +402,19 @@ header a:hover {
 }
 
 .pgmBlock {
-  composes: vert;
+  composes: horiz;
   background-color: var(--hg-black);
   color: var(--hg-white);
-  composes: blockPadSm;
-  margin-top: var(--hg-small);
+  align-items: center;
+  min-width: 290px;
 }
-
+.pgmInstance {
+  composes: vert;
+}
 .pgmBlockTitle {
   font-size: 1.25em;
   font-weight: 700;
+  padding-right: var(--hg-small);
 }
 .pgmBlockLabel {
   color: var(--hg-green);
@@ -420,9 +434,11 @@ header a:hover {
   composes: blockBorder;
 }
 .pgmMicrocycle {
-  composes: vert;
-  flex-wrap: wrap;
-  composes: blockPadXSm;
+  composes: horiz;
+}
+.pgmMicrocycleTitle {
+  font-weight: 700;
+  padding-right: var(--hg-small);
 }
 .pgmMcWorkouts {
   composes: blockPadXSm;
@@ -575,6 +591,74 @@ header a:hover {
   height: 14px;
   width: 14px;
 }
+.pgmMap {
+  width: 280px;
+  min-width: 280px;
+  max-width: 100%;
+}
+.pgmMapBlock {
+  border-left: solid 5px var(--hg-blue);
+  margin-bottom: var(--hg-small);
+  padding: var(--hg-small);
+  border-radius: 1.5em;
+}
+.pgmMapBlock + .pgmMapBlock {
+  margin-top: var(--hg-xsmall);
+}
+.pgmMapCycle {
+  composes: horiz;
+  justify-content: space-evenly;
+  border: 1px var(--hg-yellow) solid;
+  border-radius: 1.5em;
+}
+.pgmMapCycle + .pgmMapCycle {
+  margin-top: var(--hg-xxsmall);
+}
+.pgmSelectWrap {
+  padding-bottom: 14px;
+  height: var(--hg-pgmselect);
+}
+.hgCentered {
+  width: 100%;
+  min-width: 100%;
+  composes: vert;
+  align-items: center;
+}
+.pgmSelected {
+}
+.pgmBlockTitle {
+}
+.pgmCycleTitle {
+  composes: horiz;
+  font-size: 1.25em;
+}
+.pgmBlockTitle div,
+.pgmCycleTitle div {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.pgmBlockTitle > div:first-child,
+.pgmBlockTitle > div > div:nth-child(1),
+.pgmCycleTitle > div:first-child,
+.pgmCycleTitle > div > div:nth-child(1) {
+  font-weight: 700;
+  font-size: 1.25em;
+}
+
+.pgmBlockTitle > div:first-child,
+.pgmCycleTitle > div:first-child {
+  width: 4em;
+}
+
+.pgmMapWorkout button {
+  font-size: 0.75em;
+  padding: 0em 0em;
+  z-index: 100;
+}
+.pgmMapSelected {
+  color: var(--hg-green);
+}
 
 :global(#program-dash .q-carousel__slide) {
   padding-left: 45px;
@@ -586,6 +670,40 @@ header a:hover {
 }
 :global(#program-dash .q-carousel__prev-arrow--horizontal) {
   left: 0px;
+}
+
+:global(#inst-wrap) {
+  min-width: 290px;
+  overflow-y: scroll;
+  max-height: calc(
+    100vh - var(--hg-header) - var(--hg-pgmselect) - var(--hg-instbase) -
+      var(--hg-instinfo) - var(--hg-calendar) - 35px
+  );
+  border: solid 1px var(--hg-mid);
+  border-radius: 5px;
+  align-self: center;
+}
+.instInfo,
+.instBase {
+  width: 350px;
+  align-self: center;
+  composes: blockPadSm;
+}
+.instInfo {
+  height: var(--hg-instinfo);
+}
+.instBase {
+  height: var(--hg-instbase);
+}
+
+.instWorkout {
+  composes: horiz;
+  justify-content: space-between;
+  composes: blockPadSm;
+}
+.instWorkoutStatus {
+  font-size: 2em;
+  composes: blockPadSm;
 }
 
 .evtHighlight {
