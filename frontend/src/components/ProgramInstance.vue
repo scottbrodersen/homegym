@@ -175,6 +175,7 @@
         v-if="coords"
         :microcycle="instance.blocks[coords[0]].microCycles[coords[1]]"
       />
+      <div v-else>The program was performed in the past. Select a date.</div>
     </div>
 
     <div id="inst-wrap" v-if="coords">
