@@ -23,10 +23,26 @@
     </div>
     <div>
       <WorkoutAgent
+        v-if="dayIndex"
         :activityID="props.activityID"
         :workoutCoords="workoutCoords"
         :dayIndex="dayIndex"
       />
+      <div v-else>
+        Program is complete
+        <q-btn
+          round
+          color="primary"
+          icon="visibility"
+          :to="{
+            name: 'programs',
+            query: {
+              activity: props.activityID,
+              instance: activeInstance.id,
+            },
+          }"
+        />
+      </div>
     </div>
   </div>
 </template>

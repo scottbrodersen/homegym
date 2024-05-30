@@ -224,10 +224,17 @@ export const getProgramInstanceStatus = (instanceID) => {
     }
   }
 
-  percentComplete = Math.floor((dayIndex / progLength) * 100);
-  adherence = Math.floor((numPerformed / (dayIndex + 1 - restDaysSoFar)) * 100);
-
-  coords = getWorkoutCoords(instance, dayIndex);
+  if (dayIndex > progLength) {
+    percentComplete = 100;
+    adherence = Math.floor((numPerformed / (progLength - restDaysSoFar)) * 100);
+    dayIndex = undefined;
+  } else {
+    percentComplete = Math.floor((dayIndex / progLength) * 100);
+    adherence = Math.floor(
+      (numPerformed / (dayIndex + 1 - restDaysSoFar)) * 100
+    );
+    coords = getWorkoutCoords(instance, dayIndex);
+  }
 
   return [percentComplete, adherence, coords, dayIndex];
 };
