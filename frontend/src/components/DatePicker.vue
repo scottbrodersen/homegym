@@ -4,17 +4,12 @@
   import { QTime, QInput, QPopupProxy, QDate, QBtn } from 'quasar';
   import * as dateUtils from '../modules/dateUtils';
 
-  // stored epoch is in seconds utc
+  // expect dateValue to be seconds since epoch (utc)
   const props = defineProps({ dateValue: Number, hideTime: Boolean });
   const emit = defineEmits(['update']);
 
+  // Sets to today if no props.dateValue
   const dateObj = dateUtils.dateFromSeconds(props.dateValue);
-
-  // prefix single-digit date numbers
-  const prefixed = (dateNumber) => {
-    const prefix = dateNumber < 10 ? '0' : '';
-    return `${prefix}${dateNumber}`;
-  };
 
   const date = ref(dateUtils.formatDate(dateObj));
 

@@ -1,5 +1,6 @@
 import { programInstanceStore } from '../modules/state';
 import * as dateUtils from './../modules/dateUtils';
+import * as utils from './utils';
 
 export const workoutStatuses = { FUTURE: 0, MISSED: 1, DONE: 2 };
 
@@ -61,12 +62,6 @@ export const getWorkouts = (activityID) => {
 const getInstanceStartDate = (instance) => {
   let date = dateUtils.dateFromSeconds(instance.startDate);
 
-  // make sure start date is at midnight
-  date.setUTCHours(0);
-  date.setUTCMinutes(0);
-  date.setUTCSeconds(0);
-  date.setUTCMilliseconds(0);
-
   return date;
 };
 
@@ -107,6 +102,52 @@ export const getInstanceWorkoutDates = (instance) => {
 
   return dates;
 };
+
+const getWorkoutDate = (instance, coords) => {
+  const dayIndex = getDayIndex(instance, coords);
+  const workoutDate = dateUtils.dateFromSeconds(instance.startDate);
+  workoutDate.setDate(workoutDate.getDate() + dayIndex);
+  return workoutDate;
+};
+
+const getEventsForDate = async (activityID, date) => {
+  const eventsForDate = new Array();
+
+  // Find the limits of the date window for the workouts we want to get
+  const midnight = new Date(date);
+  midnight.setHours(0);
+  midnight.setMinutes(0);
+  midnight.setSeconds(0);
+
+  // the end of the day on the event date is midnight of the next day
+  const nextDay = new Date(midnight);
+
+  nextDay.setDate(nextDay.getDate() + 1);
+
+  // Get page of events that occur earlier than nextDay
+  const eventPage = await utils.fetchEventPage(
+    null,
+    Math.floor(nextDay.valueOf() / 1000)
+  );
+
+  for (let i = 0; i < eventPage.length; i++) {
+    if ((eventPage[i].activityID = activityID)) {
+      if (eventPage[i].date > midnight.valueOf() / 1000) {
+        eventsForDate.push(eventPage[i]);
+      } else {
+        // remaining event dates are earlier than midnight
+        break;
+      }
+    }
+  }
+  return eventsForDate;
+};
+
+export const getEventsOnWorkoutDay = async (instance, coords) => {
+  const workoutDate = getWorkoutDate(instance, coords);
+  return await getEventsForDate(instance.activityID, workoutDate);
+};
+
 export const getDayIndex = (program, coords) => {
   let day = 0;
   // get days for previous blocks

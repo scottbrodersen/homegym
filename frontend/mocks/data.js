@@ -1,13 +1,22 @@
 export const testProgramID = 'test-program-id';
 export const testActivityID = 'test-activity-id';
 
+const activityID = (index) => {
+  if (index == 0) {
+    return testActivityID;
+  }
+  return `${testActivityID}${index}`;
+};
+
+export const testDate = 1685614302100;
+
 export const fetchedEvents = (pageSize) => {
-  events = [];
-  for (let i; i < pageSize; i++) {
+  const events = [];
+  for (let i = 0; i < pageSize; i++) {
     events.push({
       id: `eventID${i}`,
-      activityID: `activity${randomIntFromInterval(1, 3)}`,
-      date: Math.floor(Date.now() / 1000) - pageSize * 1000 + i * 100,
+      activityID: activityID(randomIntFromInterval(0, 2)),
+      date: Math.floor(testDate) - i * 24 * 60 * 60 * 60 * 1000 + i * 100,
       mood: randomIntFromInterval(1, 5),
       motivation: randomIntFromInterval(1, 5),
       energy: randomIntFromInterval(1, 5),
@@ -16,6 +25,7 @@ export const fetchedEvents = (pageSize) => {
       exercises: null,
     });
   }
+  return events;
 };
 
 export const randomIntFromInterval = (min, max) => {
