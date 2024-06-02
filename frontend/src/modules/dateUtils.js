@@ -1,4 +1,5 @@
-// Creates a date object from a seconds since epoch value
+// Creates a date object from a seconds since epoch value (i.e. UTC)
+// Note that the date object is in local time
 export const dateFromSeconds = (seconds) => {
   // javascript epoch is in milliseconds
   return seconds ? new Date(seconds * 1000) : new Date();
@@ -6,8 +7,8 @@ export const dateFromSeconds = (seconds) => {
 
 // transforms the date string to timestamp UTC in seconds
 export const stringToEpoch = (dateString) => {
-  const date = new Date(dateString);
-  const milliseconds = date.valueOf();
+  const date = new Date(dateString); // local time zone
+  const milliseconds = date.valueOf(); // UTC
   return Math.floor(milliseconds / 1000);
 };
 

@@ -1,9 +1,13 @@
 <script setup>
   import { computed, inject, onBeforeMount, ref, watch } from 'vue';
   import ProgramBlock2 from './ProgramBlock2.vue';
-  import { programInstanceStore, programsStore } from './../modules/state';
+  import {
+    eventStore,
+    programInstanceStore,
+    programsStore,
+  } from './../modules/state';
   import { updateProgramInstance } from './../modules/utils';
-  import { QBtn, QIcon, QInput } from 'quasar';
+  import { QBtn, QDialog, QIcon, QInput, QOptionGroup } from 'quasar';
   import * as styles from '../style.module.css';
   import {
     authPrompt,
@@ -13,16 +17,20 @@
     toast,
   } from '../modules/utils';
   import * as programUtils from '../modules/programUtils';
+  import * as dateUtils from '../modules/dateUtils';
   import ProgramCalendar from './ProgramCalendar.vue';
   import ProgramMicrocycle2 from './ProgramMicrocycle2.vue';
   import ProgramWorkout2 from './ProgramWorkout2.vue';
   import ProgramWorkoutSegment from './ProgramWorkoutSegment.vue';
+  import * as utils from '../modules/utils';
 
   const props = defineProps({ instanceID: String });
   const emit = defineEmits(['done']);
 
   const instance = ref();
   const coords = ref();
+  const linkEventDialog = ref({ show: false, eventID: '', events: undefined });
+
   let today;
 
   let baseline = ''; // use to detect diff
@@ -131,6 +139,7 @@
         coords[2]
       ].restDay
     ) {
+      // rest day shows no icon
     } else if (instance.value.events[day]) {
       props[0].name = 'check_circle';
       props[0].colour = 'green';
@@ -138,8 +147,42 @@
     } else {
       props[0].name = 'cancel';
       props[0].colour = 'red';
+      props.push({ name: 'link', colour: 'blue' });
     }
     return props;
+  };
+
+  const linkEvent = async (coords) => {
+    if (coords === true) {
+      instance.value.events[linkEventDialog.value.index] =
+        linkEventDialog.value.eventID;
+      await saveInstance();
+    } else if (typeof coords === 'object') {
+      const events = await programUtils.getEventsOnWorkoutDay(
+        instance.value,
+        coords
+      );
+      // set up dialog options
+      if (events && events.length > 0) {
+        linkEventDialog.value.events = [];
+        events.forEach((evt) => {
+          const eventTime = dateUtils.formatTime(
+            dateUtils.dateFromSeconds(evt.date)
+          );
+          linkEventDialog.value.events.push({
+            label: eventTime,
+            value: evt.id,
+          });
+        });
+      } else {
+        linkEventDialog.value.events = undefined;
+      }
+      const workoutIndex = programUtils.getDayIndex(instance.value, coords);
+      linkEventDialog.value.show = true;
+      linkEventDialog.value.eventID =
+        events.length > 0 ? events[0].id : undefined;
+      linkEventDialog.value.index = workoutIndex;
+    }
   };
 </script>
 <template>
@@ -204,7 +247,9 @@
               :key="ix"
             >
               <q-icon
-                v-if="iconProps.name != 'check_circle'"
+                v-if="
+                  iconProps.name != 'check_circle' && iconProps.name != 'link'
+                "
                 :name="iconProps.name"
                 :color="iconProps.colour"
               />
@@ -213,6 +258,14 @@
                 :icon="iconProps.name"
                 :color="iconProps.colour"
                 :to="{ name: 'home', query: { event: iconProps.eventID } }"
+                round
+                dense
+              />
+              <q-btn
+                v-if="iconProps.name == 'link'"
+                :icon="iconProps.name"
+                :color="iconProps.colour"
+                @click="linkEvent([coords[0], coords[1], wix])"
                 round
                 dense
               />
@@ -240,4 +293,37 @@
       />
     </div>
   </div>
+  <q-dialog v-model="linkEventDialog.show" persistent>
+    <q-card style="min-width: 350px" bordered dark>
+      <q-card-section>Link an event with the planned workout:</q-card-section>
+      <q-card-section>
+        <div v-if="linkEventDialog.eventID">
+          <q-option-group
+            v-model="linkEventDialog.eventID"
+            :options="linkEventDialog.events"
+            dark
+          />
+        </div>
+        <div v-else>There is no event on this day to link to.</div>
+      </q-card-section>
+
+      <q-card-actions
+        v-if="linkEventDialog.eventID"
+        align="right"
+        class="text-primary"
+      >
+        <q-btn
+          flat
+          label="No"
+          @Click="linkEventDialog = { show: false, eventID: '' }"
+          v-close-popup
+          dark
+        />
+        <q-btn flat label="OK" @Click="linkEvent(true)" v-close-popup dark />
+      </q-card-actions>
+      <q-card-actions v-else align="right" class="text-primary">
+        <q-btn flat label="OK" v-close-popup dark />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
