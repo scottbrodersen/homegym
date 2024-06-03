@@ -198,7 +198,7 @@
 
     await toRowPage(rowID);
 
-    setSelectedEvent(rowID);
+    setSelectedEvent(expanded.value[0]);
   };
 
   onMounted(() => {
