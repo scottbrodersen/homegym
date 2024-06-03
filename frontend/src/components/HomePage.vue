@@ -18,7 +18,8 @@
   const setSelectedEvent = (eventID) => {
     selectedEvent.value = eventID;
     const url = new URL(document.URL);
-    const newURL = url.origin + url.pathname + '?event=' + eventID;
+    const query = eventID ? '?event=' + eventID : '';
+    const newURL = url.origin + url.pathname + query;
     history.replaceState(history.state, '', newURL);
   };
 
