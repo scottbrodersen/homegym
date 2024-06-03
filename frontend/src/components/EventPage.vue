@@ -224,7 +224,7 @@
         :overall="thisEvent.overall"
         :notes="thisEvent.notes"
         v-show="thisEvent.activityID"
-        @update="meta, (value) => (thisEvent[meta] = value)"
+        @update="(meta, value) => (thisEvent[meta] = value)"
       />
     </div>
 
