@@ -2,7 +2,7 @@
   import { computed, inject, provide, ref, watch } from 'vue';
   import ProgramBlock from './ProgramBlock.vue';
   import {
-    authPrompt,
+    authPromptAsync,
     ErrNotLoggedIn,
     newProgramModal,
     OrderedList,
@@ -122,7 +122,8 @@
       console.log(e.message);
 
       if (e instanceof ErrNotLoggedIn) {
-        authPrompt(saveProgram);
+        await authPromptAsync();
+        saveProgram();
       } else {
         toast('Error', 'negative');
       }

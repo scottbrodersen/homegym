@@ -7,7 +7,7 @@
   import { computed, inject, onMounted, ref, watch } from 'vue';
   import { QTable, QTr, QTd, QBtn } from 'quasar';
   import {
-    authPrompt,
+    authPromptAsync,
     fetchEventPage,
     pageSize,
     ErrNotLoggedIn,
@@ -154,7 +154,8 @@
     } catch (e) {
       if (e instanceof ErrNotLoggedIn) {
         console.log(e.message);
-        authPrompt(setPage, [props]);
+        await authPromptAsync();
+        setPage(props);
       } else {
         console.log(e);
       }

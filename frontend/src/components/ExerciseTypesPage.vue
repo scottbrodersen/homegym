@@ -1,7 +1,7 @@
 <script setup>
   import { exerciseTypeStore } from '../modules/state';
   import {
-    authPrompt,
+    authPromptAsync,
     fetchExerciseTypes,
     addExerciseType,
     updateExerciseType,
@@ -147,7 +147,8 @@
     } catch (error) {
       if (error instanceof ErrNotLoggedIn) {
         console.log(error.message);
-        authPrompt(saveType);
+        await authPromptAsync();
+        saveType();
       } else {
         toast('Error', 'negative');
 
@@ -178,7 +179,8 @@
       } catch (e) {
         if (e instanceof ErrNotLoggedIn) {
           console.log(e.message);
-          authPrompt(setup);
+          await authPromptAsync();
+          setup();
         } else {
           console.log(e.message);
         }

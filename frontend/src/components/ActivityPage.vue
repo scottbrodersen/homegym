@@ -2,7 +2,7 @@
   import { activityStore, exerciseTypeStore } from '../modules/state';
   import { computed, reactive, ref, toRaw } from 'vue';
   import {
-    authPrompt,
+    authPromptAsync,
     updateActivityExercises,
     fetchActivityExercises,
     ErrNotLoggedIn,
@@ -40,7 +40,8 @@
       } catch (e) {
         if (e instanceof ErrNotLoggedIn) {
           console.log(e.message);
-          authPrompt(setCurrentActivity, activity);
+          await authPromptAsync();
+          setCurrentActivity(activity);
         } else {
           console.log(e);
         }
@@ -105,7 +106,8 @@
 
       if (resp.status === 401) {
         console.log('unauthorized request to upsert activity name');
-        authPrompt(updateActivityName, newName);
+        await authPromptAsync();
+        updateActivityName(newName);
       } else if (resp.status === 400) {
         const body400 = await resp.json();
         if (body400.message.includes('not unique')) {
@@ -138,7 +140,8 @@
     } catch (e) {
       if (e instanceof ErrNotLoggedIn) {
         console.log(e.message);
-        authPrompt(saveExerciseIDs);
+        await authPromptAsync();
+        saveExerciseIDs();
       } else {
         console.log(e);
         toast('Error', 'negative');

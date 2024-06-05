@@ -1,7 +1,7 @@
 <script async setup>
   import { onBeforeMount } from 'vue';
   import {
-    authPrompt,
+    authPromptAsync,
     fetchActivities,
     fetchExerciseTypes,
     fetchActiveProgramInstance,
@@ -27,7 +27,9 @@
     } catch (e) {
       if (e instanceof ErrNotLoggedIn) {
         console.log(e.message);
-        authPrompt(init);
+        await authPromptAsync();
+
+        await init();
       } else {
         console.log(e);
       }

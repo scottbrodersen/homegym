@@ -11,7 +11,7 @@
   } from '../modules/state';
   import { QBtn, QSelect } from 'quasar';
   import {
-    authPrompt,
+    authPromptAsync,
     storeEvent,
     ErrNotLoggedIn,
     toast,
@@ -137,46 +137,43 @@
     thisEvent.value.date = newDate;
   };
 
-  const saveThisEvent = () => {
+  const saveThisEvent = async () => {
     // Use the stored date for the URL path in case the date has been edited
     const url = thisEvent.value.id
       ? `/homegym/api/events/${eventStore.getByID(thisEvent.value.id).date}/${
           thisEvent.value.id
         }/`
       : '/homegym/api/events/';
+    try {
+      const responseEvent = await storeEvent(url, thisEvent.value);
 
-    storeEvent(url, thisEvent.value)
-      .then((responseEvent) => {
-        thisEvent.value.id = responseEvent.id;
+      thisEvent.value.id = responseEvent.id;
 
-        if (eventStore.getByID(responseEvent.id)) {
-          eventStore.update(thisEvent.value);
-        } else {
-          eventStore.add(thisEvent.value);
-        }
-        // return saveExerciseInstances();
-      })
-      .then(() => {
-        setBaseline();
-        toast('Saved', 'positive');
-        // update the program instance if props.instanceID
-        if (updateProgram) {
-          programInstance.events[props.dayIndex] = thisEvent.value.id;
-          updateProgramInstance(programInstance);
-        }
-      })
-      .then(() => {
+      if (eventStore.getByID(responseEvent.id)) {
+        eventStore.update(thisEvent.value);
+      } else {
+        eventStore.add(thisEvent.value);
+      }
+
+      setBaseline();
+      toast('Saved', 'positive');
+      // update the program instance if props.instanceID
+      if (updateProgram) {
+        programInstance.events[props.dayIndex] = thisEvent.value.id;
+        await updateProgramInstance(programInstance);
+
         updateProgram = false;
-      })
-      .catch((e) => {
-        if (e instanceof ErrNotLoggedIn) {
-          console.log(e.message);
-          authPrompt(saveThisEvent);
-        } else {
-          console.log(e);
-          toast('Error', 'negative');
-        }
-      });
+      }
+    } catch (e) {
+      if (e instanceof ErrNotLoggedIn) {
+        console.log(e.message);
+        await authPromptAsync();
+        saveThisEvent();
+      } else {
+        console.log(e);
+        toast('Error', 'negative');
+      }
+    }
   };
 
   const changed = computed(() => {
