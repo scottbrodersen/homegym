@@ -48,7 +48,7 @@
       ? programsStore.get(activityID, instance.value.programID).title
       : '';
 
-    today = programUtils.getProgramInstanceStatus(instanceID)[3];
+    today = programUtils.getTodayIndex(instance.value);
   };
 
   // Re-initialize when a different instance is selected

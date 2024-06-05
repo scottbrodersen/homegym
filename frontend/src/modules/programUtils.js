@@ -59,17 +59,11 @@ export const getWorkouts = (activityID) => {
   return workouts;
 };
 
-const getInstanceStartDate = (instance) => {
-  let date = dateUtils.dateFromSeconds(instance.startDate);
-
-  return date;
-};
-
 // Returns the dates of all planned non-rest day workouts
 export const getNonRestDates = (instance) => {
   const dates = new Array();
 
-  let date = getInstanceStartDate(instance);
+  let date = dateUtils.dateFromSeconds(instance.startDate);
 
   // set to day before the start date
   date.setDate(date.getDate() - 1);
@@ -90,7 +84,7 @@ export const getNonRestDates = (instance) => {
 };
 
 export const getInstanceWorkoutDates = (instance) => {
-  let startDate = getInstanceStartDate(instance);
+  let startDate = dateUtils.dateFromSeconds(instance.startDate);
   const numDays = getProgramLength(instance);
   const dates = new Array();
 
@@ -150,7 +144,7 @@ export const getEventsOnWorkoutDay = async (instance, coords) => {
 
 export const getDayIndex = (program, coords) => {
   let day = 0;
-  // get days for previous blocks
+  // add days for previous  blocks
   for (let i = 0; i < coords[0]; i++) {
     const block = program.blocks[i];
     for (let j = 0; j < block.microCycles.length; j++) {
@@ -158,13 +152,24 @@ export const getDayIndex = (program, coords) => {
     }
   }
 
-  // get days for previous cycles in the coord block
+  // get days for previous cycles in the current block
   for (let i = 0; i < coords[1]; i++) {
     day += program.blocks[coords[0]].microCycles[i].span;
   }
+
+  // add previous days in current microcycle
   day += coords[2];
 
   return day;
+};
+
+export const getTodayIndex = (instance) => {
+  const now = new Date().valueOf();
+
+  const startDate = dateUtils.dateFromSeconds(instance.startDate);
+
+  // first day is 0th day
+  return Math.floor((now - startDate.valueOf()) / 1000 / 60 / 60 / 24);
 };
 
 export const getWorkoutCoords = (program, programDayIndex) => {
@@ -213,26 +218,9 @@ export const getProgramInstanceStatus = (instanceID) => {
   let percentComplete = 0;
   let adherence = 0;
   let coords = [];
-  let dayIndex = 0;
 
   const instance = programInstanceStore.get(instanceID);
-
-  const nowDate = new Date();
-
-  // set to midnight
-  nowDate.setUTCHours(0);
-  nowDate.setUTCMinutes(0);
-  nowDate.setUTCSeconds(0);
-  nowDate.setUTCMilliseconds(0);
-
-  const now = nowDate.valueOf();
-
-  // javascript timestamp is in msec
-  const startDate = getInstanceStartDate(instance);
-
-  // first day is 0th day
-  dayIndex = Math.floor((now - startDate.valueOf()) / 1000 / 60 / 60 / 24);
-
+  const dayIndex = getTodayIndex(instance);
   const progLength = getProgramLength(instance);
 
   let restDaysSoFar = 0;
