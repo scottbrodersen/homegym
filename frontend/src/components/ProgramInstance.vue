@@ -10,7 +10,7 @@
   import { QBtn, QDialog, QIcon, QInput, QOptionGroup } from 'quasar';
   import * as styles from '../style.module.css';
   import {
-    authPrompt,
+    authPromptAsync,
     deepToRaw,
     ErrNotLoggedIn,
     states,
@@ -85,7 +85,8 @@
       console.log(e.message);
 
       if (e instanceof ErrNotLoggedIn) {
-        authPrompt(saveInstance);
+        await authPromptAsync();
+        saveInstance();
       } else {
         toast('Error', 'negative');
       }

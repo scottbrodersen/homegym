@@ -4,7 +4,7 @@
   import { QSelect } from 'quasar';
   import * as styles from '../style.module.css';
   import {
-    authPrompt,
+    authPromptAsync,
     ErrNotLoggedIn,
     fetchActivityExercises,
   } from '../modules/utils';
@@ -47,7 +47,8 @@
       } catch (e) {
         if (e instanceof ErrNotLoggedIn) {
           console.log(e.message);
-          authPrompt(getActivityExercises, activityID);
+          await authPromptAsync();
+          getActivityExercises(activityID);
         } else {
           console.log(e);
         }

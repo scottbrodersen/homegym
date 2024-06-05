@@ -1,6 +1,10 @@
 <script setup>
   import { useDialogPluginComponent, QForm, QInput } from 'quasar';
-  import { ErrNotLoggedIn, ErrNotUnique } from '../modules/utils.js';
+  import {
+    authPromptAsync,
+    ErrNotLoggedIn,
+    ErrNotUnique,
+  } from '../modules/utils.js';
   import { ref, computed } from 'vue';
   import { activityStore } from '../modules/state.js';
   import * as styles from '../style.module.css';
@@ -50,14 +54,15 @@
           }
         }
         activity.id = body.id;
-        // prevent unncessary fetch
+        // prevent unnecessary fetch
         activity.exercises = [];
         activityStore.add(activity);
       })
       .catch((e) => {
         if (e instanceof ErrNotLoggedIn) {
           console.log(e.message);
-          authPrompt(addActivity, [newname]);
+          const promise = authPromptAsync();
+          promise.then(() => addActivity(newname));
         } else if (e instanceof ErrNotUnique) {
           console.log(e.message);
         }

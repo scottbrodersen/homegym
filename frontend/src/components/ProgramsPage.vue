@@ -1,7 +1,7 @@
 <script setup>
   import { activityStore } from '../modules/state';
   import {
-    authPrompt,
+    authPromptAsync,
     ErrNotLoggedIn,
     newProgramInstanceModal,
     states,
@@ -90,7 +90,8 @@
       console.log(e.message);
 
       if (e instanceof ErrNotLoggedIn) {
-        authPrompt(saveProgramInstance);
+        await authPromptAsync();
+        saveProgramInstance();
       } else {
         toast('Error', 'negative');
       }

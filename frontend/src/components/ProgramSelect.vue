@@ -3,7 +3,7 @@
   import { onBeforeMount, ref, watch } from 'vue';
   import * as styles from '../style.module.css';
   import {
-    authPrompt,
+    authPromptAsync,
     fetchPrograms,
     fetchProgramInstances,
     ErrNotLoggedIn,
@@ -35,7 +35,8 @@
       } catch (e) {
         if (e instanceof ErrNotLoggedIn) {
           console.log(e.message);
-          authPrompt(getPrograms, activityID);
+          await authPromptAsync();
+          getPrograms(activityID);
         } else {
           console.log(e.message);
         }

@@ -284,25 +284,23 @@ const fetchActivityExercises = async (activityID) => {
   //   });
 };
 
-const authPrompt = (after, args) => {
-  if (!loginModalState.isOpen) {
-    loginModalState.opened();
-    Dialog.create({
-      component: LoginModal,
-    })
-      .onOk(() => {})
-      .onCancel(() => {})
-      .onDismiss(() => {
-        loginModalState.closed();
-        if (after) {
-          if (Array.isArray(args)) {
-            after(...args);
-          } else {
-            after(args);
-          }
-        }
-      });
-  }
+const authPromptAsync = () => {
+  return new Promise((resolve, reject) => {
+    if (!loginModalState.isOpen) {
+      loginModalState.opened();
+      Dialog.create({
+        component: LoginModal,
+      })
+        .onOk(() => {})
+        .onCancel(() => {})
+        .onDismiss(() => {
+          loginModalState.closed();
+          resolve();
+        });
+    } else {
+      reject('login prompt already open');
+    }
+  });
 };
 
 const newActivityPrompt = () => {
@@ -765,7 +763,7 @@ const deepToRaw = (sourceObj) => {
 };
 
 export {
-  authPrompt,
+  authPromptAsync,
   fetchActivities,
   fetchPrograms,
   fetchProgramInstances,
