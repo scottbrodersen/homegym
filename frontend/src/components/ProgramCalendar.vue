@@ -44,8 +44,8 @@
       :mask="dateUtils.dateMask"
       event-color="primary"
       dark
+      flat
       minimal
-      bordered
       @update:model-value="(value) => setDate(value)"
     />
   </div>

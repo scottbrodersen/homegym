@@ -127,7 +127,7 @@
           </q-item>
         </q-list>
       </q-btn-dropdown>
-      <q-btn icon="menu">
+      <q-btn icon="menu" :class="[styles.hgHamburger]">
         <q-menu>
           <q-list :class="hgMenu">
             <q-item dark>
