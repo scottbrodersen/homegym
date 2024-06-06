@@ -137,6 +137,7 @@
         </div>
       </div>
       <div
+        id="pgm-select"
         :class="[styles.pgmSelect]"
         v-show="!!activityID"
         v-if="state == states.READ_ONLY"
@@ -165,18 +166,18 @@
             :disable="disableEdit"
           />
         </div>
+        <div>
+          <q-btn
+            id="start"
+            v-show="selectedProgram"
+            @click="startProgram"
+            label="Start"
+            square
+            flat
+            dark
+          />
+        </div>
       </div>
-    </div>
-    <div>
-      <q-btn
-        id="start"
-        v-show="selectedProgram"
-        @click="startProgram"
-        icon="play_arrow"
-        round
-        dark
-        color="primary"
-      />
     </div>
     <div>
       <ActivityProgram

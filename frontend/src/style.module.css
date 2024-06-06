@@ -500,7 +500,10 @@ header :global(.q-btn-group) {
 .buttonArray .q-btn--round {
   width: 40px;
 }
-
+:global(#pgm-select) {
+  position: relative;
+  right: -30px;
+}
 .pgmSelect {
   composes: horiz;
   justify-content: space-between;
