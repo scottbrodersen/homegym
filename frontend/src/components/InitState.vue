@@ -1,5 +1,4 @@
 <script async setup>
-  import { onBeforeMount } from 'vue';
   import {
     authPromptAsync,
     fetchActivities,

@@ -36,8 +36,8 @@ export const eventStore = reactive({
   },
 
   getPage(pageNumber = 0) {
-    const start = pageNumber * pageSize;
-    const end = start + pageSize;
+    const start = pageNumber * pageSize();
+    const end = start + pageSize();
     return this.events.slice(start, end);
   },
   getAll() {

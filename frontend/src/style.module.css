@@ -20,6 +20,7 @@
   --hg-instbase: 37px;
   --hg-instinfo: 64px;
   --hg-calendar: 292px;
+  --hg-pgmdash: 220px;
 
   --hg-yellow: #f9f505;
   --hg-black: #111111;
@@ -67,6 +68,7 @@ body {
   display: block;
   place-items: center;
   min-height: 100vh;
+  min-width: 350px;
   width: 100%;
   color: var(--hg-white);
   background-color: var(--hg-black);
@@ -224,6 +226,12 @@ header a:hover {
 .eventsTable th {
   padding: 0px;
   text-align: center;
+  border: none;
+}
+
+.eventsTable tbody td {
+  border: none;
+  height: 42px;
 }
 
 .eventsTable td:last-child,
@@ -253,6 +261,12 @@ header a:hover {
 .eventsTable td.expanded > div:last-child {
   line-height: 3em;
   border-top: 1px solid var(--hg-mid);
+}
+
+:global(.q-table__bottom),
+:global(.q-table__container) {
+  border: none;
+  box-shadow: none;
 }
 
 .metaDetails {
@@ -513,10 +527,18 @@ header a:hover {
 }
 .pgmDash {
   margin-bottom: var(--hg-med);
+  height: var(--hg-pgmdash);
 }
 
 .pgmDash h1 {
   color: var(--hg-yellow);
+}
+
+.pgmDash h1 span {
+  padding-left: var(--hg-xsmall);
+}
+.pgmDash h1 span:hover {
+  cursor: pointer;
 }
 
 .pgmStatus {
@@ -530,6 +552,9 @@ header a:hover {
 }
 .carouselWrap {
   composes: blockPadSm;
+}
+.carouselSlideContent {
+  composes: horiz;
 }
 .carouselNav {
   composes: horiz;
@@ -558,10 +583,9 @@ header a:hover {
   background: transparent;
 }
 .carouselNavButtonArray {
+  composes: vert;
   composes: buttonArray;
-  padding-left: var(--hg-xlg);
-  padding-right: var(--hg-xlg);
-  padding-top: var(--hg-med);
+  padding: var(--hg-small);
 }
 
 .carouselNavButtonArray button {
@@ -708,7 +732,6 @@ header a:hover {
 
 .evtHighlight {
   background-color: rgb(60, 59, 59);
-  outline: var(--hg-white) solid 1px;
 }
 
 @media (prefers-color-scheme: light) {

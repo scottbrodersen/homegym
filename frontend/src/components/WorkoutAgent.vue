@@ -68,16 +68,6 @@
     }
   };
 
-  const goToProgram = () => {
-    router.push({
-      name: 'programs',
-      query: {
-        activity: props.activityID,
-        instance: activeInstance.id,
-      },
-    });
-  };
-
   const skipWorkout = (outstandingIndex) => {
     activeInstance.events[
       props.dayIndex - (slides.value.length - 1 - outstandingIndex)
@@ -119,49 +109,57 @@
         "
       >
         <q-carousel-slide v-for="(w, index) of slides" :name="index">
-          <WorkoutStatus
-            :class="[styles.workoutStatus]"
-            :eventID="activeInstance.events[index]"
-            :todayIndex="dayIndex"
-            :workoutIndex="index"
-            :workout="w"
-          />
+          <div :class="[styles.carouselSlideContent]">
+            <WorkoutStatus
+              :class="[styles.workoutStatus]"
+              :eventID="activeInstance.events[index]"
+              :todayIndex="dayIndex"
+              :workoutIndex="index"
+              :workout="w"
+            />
+            <div
+              :class="[styles.carouselNavButtonArray]"
+              v-show="
+                slide == props.dayIndex &&
+                activeInstance.events[slide] == undefined &&
+                !slides[slide].restDay
+              "
+            >
+              <q-btn
+                round
+                icon="play_circle_filled"
+                color="primary"
+                @Click="
+                  () => {
+                    startWorkout(slide);
+                  }
+                "
+                :disable="
+                  slide != props.dayIndex ||
+                  activeInstance.events[slide] != undefined ||
+                  slides[slide].restDay
+                "
+              />
+              <q-btn
+                round
+                color="primary"
+                icon="do_not_disturb"
+                :disable="
+                  slide >= props.dayIndex ||
+                  activeInstance.events[slide] != undefined ||
+                  slides[slide].restDay
+                "
+                @Click="
+                  () => {
+                    skipWorkout(slide);
+                  }
+                "
+              />
+            </div>
+          </div>
         </q-carousel-slide>
       </q-carousel>
       <CarouselNav :items="statusColourStyles" :homeItem="props.dayIndex" />
-    </div>
-    <div :class="[styles.carouselNavButtonArray]">
-      <q-btn
-        round
-        icon="play_circle_filled"
-        color="primary"
-        @Click="
-          () => {
-            startWorkout(slide);
-          }
-        "
-        :disable="
-          slide != props.dayIndex ||
-          activeInstance.events[slide] != undefined ||
-          slides[slide].restDay
-        "
-      />
-      <q-btn
-        round
-        color="primary"
-        icon="do_not_disturb"
-        :disable="
-          slide >= props.dayIndex ||
-          activeInstance.events[slide] != undefined ||
-          slides[slide].restDay
-        "
-        @Click="
-          () => {
-            skipWorkout(slide);
-          }
-        "
-      />
-      <q-btn round color="primary" icon="visibility" @Click="goToProgram" />
     </div>
   </div>
 </template>

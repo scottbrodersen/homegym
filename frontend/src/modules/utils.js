@@ -17,7 +17,15 @@ import ConfirmModal from './../components/ConfirmModal.vue';
 import ProgramInstanceModal from './../components/ProgramInstanceModal.vue';
 import { toRaw, isRef, isReactive, isProxy, unref } from 'vue';
 
-const pageSize = 5;
+//const pageSize = 8;
+const pageSize = () => {
+  try {
+    const availableHeight = window.innerHeight - 220 - 36;
+    return Math.floor((availableHeight - 48 - 50 - 40 - 30) / 42);
+  } catch (e) {
+    return 8;
+  }
+};
 const fetchPageSize = 20;
 
 const intensityTypes = [
@@ -124,7 +132,7 @@ const fetchPrograms = async (activityID) => {
   while (!done) {
     const programPage = await fetchProgramPage(lastProgram, activityID);
     programsStore.addBulk(programPage);
-    if (programPage.length < pageSize) {
+    if (programPage.length < pageSize()) {
       done = true;
     } else {
       lastProgram = programPage[programPage.length].id;
@@ -163,7 +171,7 @@ const fetchProgramInstances = async (programID, activityID) => {
       activityID
     );
     programInstanceStore.addBulk(instancePage);
-    if (instancePage.length < pageSize) {
+    if (instancePage.length < pageSize()) {
       done = true;
     } else {
       lastInstance = instancePage[instancePage.length].id;

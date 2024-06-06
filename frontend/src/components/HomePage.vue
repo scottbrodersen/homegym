@@ -39,7 +39,7 @@
 </script>
 
 <template>
-  <div>
+  <div :class="[styles.vert]">
     <div v-for="id in activityIDs" :key="id">
       <ProgramDash
         id="program-dash"
@@ -47,16 +47,17 @@
         :class="[styles.pgmDash]"
       />
     </div>
-    <div v-if="showAddWorkout" :class="[styles.blockPadSm]">
+
+    <EventsGrid :eventID="selectedEvent" />
+    <div :class="[styles.blockPadSm]">
       <q-btn
-        round
         size="0.65em"
-        color="primary"
-        icon="add"
+        label="Add Event"
         :to="{ name: 'event' }"
         id="addevent"
+        dark
+        unelevated
       />
     </div>
-    <EventsGrid :eventID="selectedEvent" />
   </div>
 </template>
