@@ -26,12 +26,12 @@
   const pagination = ref({
     sortBy: 'date',
     page: 0,
-    rowsPerPage: pageSize,
+    rowsPerPage: pageSize(),
     rowsNumber: 0,
   });
 
   const pagesNumber = computed(() => {
-    return eventStore.events.length / pageSize;
+    return eventStore.events.length / pageSize();
   });
 
   const { focusedEvent, setFocusedEvent } = inject('focusedEvent');
@@ -138,7 +138,7 @@
       // fetch a page if we are showing the last page
       if (
         eventStore.events.length === 0 ||
-        props.pagination.page >= eventStore.events.length / pageSize
+        props.pagination.page >= eventStore.events.length / pageSize()
       ) {
         const lastEvent = eventStore.getLast();
         const lastEventID = lastEvent ? lastEvent.id : 0;
