@@ -16,8 +16,8 @@
   --hg-xxxlg: 300px;
 
   --hg-header: 36px;
-  --hg-pgmselect: 142px;
-  --hg-instbase: 37px;
+  --hg-pgmselect: 128px;
+  --hg-instbase: 29px;
   --hg-instinfo: 64px;
   --hg-calendar: 292px;
   --hg-pgmdash: 220px;
@@ -197,8 +197,6 @@ h1 {
 
 header {
   width: 100%;
-  display: flex;
-  flex-wrap: wrap;
   height: var(--hg-header);
 }
 header a {
@@ -208,6 +206,13 @@ header a:hover {
   color: var(--hg-white);
 }
 
+header :global(.q-btn-group) {
+  width: 100%;
+}
+
+.hgHamburger {
+  margin-left: auto;
+}
 .selActivity {
   min-width: var(--hg-xxlg);
   width: auto;
@@ -639,7 +644,6 @@ header a:hover {
   margin-top: var(--hg-xxsmall);
 }
 .pgmSelectWrap {
-  padding-bottom: 14px;
   height: var(--hg-pgmselect);
 }
 .hgCentered {
