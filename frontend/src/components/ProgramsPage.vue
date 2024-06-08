@@ -107,7 +107,10 @@
 </script>
 <template>
   <div>
-    <div :class="[styles.hgCentered, styles.pgmSelectWrap]">
+    <div
+      id="pgm-select-wrap"
+      :class="[styles.hgCentered, styles.pgmSelectWrap]"
+    >
       <div :class="[styles.pgmSelect]">
         <q-select
           id="activity"
@@ -166,18 +169,18 @@
             :disable="disableEdit"
           />
         </div>
-        <div>
-          <q-btn
-            id="start"
-            v-show="selectedProgram"
-            @click="startProgram"
-            label="Start"
-            square
-            flat
-            dark
-          />
-        </div>
       </div>
+    </div>
+    <div>
+      <q-btn
+        id="start"
+        v-show="selectedProgram"
+        @click="startProgram"
+        label="Start"
+        square
+        flat
+        dark
+      />
     </div>
     <div>
       <ActivityProgram

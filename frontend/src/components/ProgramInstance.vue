@@ -1,11 +1,7 @@
 <script setup>
   import { computed, inject, onBeforeMount, ref, watch } from 'vue';
   import ProgramBlock2 from './ProgramBlock2.vue';
-  import {
-    eventStore,
-    programInstanceStore,
-    programsStore,
-  } from './../modules/state';
+  import { programInstanceStore, programsStore } from './../modules/state';
   import { updateProgramInstance } from './../modules/utils';
   import { QBtn, QDialog, QIcon, QInput, QOptionGroup } from 'quasar';
   import * as styles from '../style.module.css';
@@ -190,6 +186,7 @@
   <div v-if="instance" :class="[styles.pgmInstance]">
     <ProgramCalendar
       :instance="instance"
+      :coords="coords"
       @dayIndex="setCoords"
       :class="[styles.centered]"
     />
@@ -228,9 +225,18 @@
           coords[1]
         ].workouts"
         :key="wix"
-        :class="[styles.instWorkout]"
+        :class="
+          coords[2] == wix
+            ? [styles.instWorkout, styles.evtHighlight]
+            : [styles.instWorkout]
+        "
+        @click="
+          () => {
+            coords[2] = wix;
+          }
+        "
       >
-        <div :class="coords[2] == wix ? [styles.evtHighlight] : ''">
+        <div>
           <ProgramWorkout2
             :id="`workout${coords[0]}-${coords[1]}-${wix}`"
             :workout="workout"

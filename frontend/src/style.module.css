@@ -29,6 +29,7 @@
   --hg-blue: #1976d2;
   --hg-green: #6df31f77;
   --hg-red: #db2a2a77;
+  --hg-highlight: rgb(34, 34, 34);
 
   --hg-bold-weight: 600;
 
@@ -74,6 +75,10 @@ body {
   background-color: var(--hg-black);
 }
 
+main {
+  position: relative;
+  top: var(--hg-header);
+}
 h1 {
   font-size: 1.25em;
   line-height: 1.5em;
@@ -198,6 +203,9 @@ h1 {
 header {
   width: 100%;
   height: var(--hg-header);
+  position: fixed;
+  background-color: var(--hg-black);
+  z-index: 1000;
 }
 header a {
   color: var(--hg-white);
@@ -429,6 +437,8 @@ header :global(.q-btn-group) {
 }
 .pgmInstance {
   composes: vert;
+  position: sticky;
+  top: var(--hg-header);
 }
 .pgmBlockTitle {
   font-size: 1.25em;
@@ -500,10 +510,7 @@ header :global(.q-btn-group) {
 .buttonArray .q-btn--round {
   width: 40px;
 }
-:global(#pgm-select) {
-  position: relative;
-  right: -30px;
-}
+
 .pgmSelect {
   composes: horiz;
   justify-content: space-between;
@@ -544,6 +551,7 @@ header :global(.q-btn-group) {
 
 .pgmDash h1 span {
   padding-left: var(--hg-xsmall);
+  text-decoration: underline;
 }
 .pgmDash h1 span:hover {
   cursor: pointer;
@@ -623,6 +631,10 @@ header :global(.q-btn-group) {
   height: 14px;
   width: 14px;
 }
+.pgmWrap {
+  position: sticky;
+  top: var(--hg-header);
+}
 .pgmMap {
   width: 280px;
   min-width: 280px;
@@ -656,8 +668,10 @@ header :global(.q-btn-group) {
   align-items: center;
 }
 .pgmSelected {
+  background-color: var(--hg-highlight);
 }
 .pgmBlockTitle {
+  composes: horiz;
 }
 .pgmCycleTitle {
   composes: horiz;
@@ -702,18 +716,25 @@ header :global(.q-btn-group) {
 :global(#program-dash .q-carousel__prev-arrow--horizontal) {
   left: 0px;
 }
+:global(#wo-wrap) {
+  overflow-y: auto;
+  border: solid 1px var(--hg-mid);
+  border-radius: 5px;
+  align-self: center;
+}
 
 :global(#inst-wrap) {
   min-width: 290px;
   overflow-y: scroll;
   max-height: calc(
-    100vh - var(--hg-header) - var(--hg-pgmselect) - var(--hg-instbase) -
-      var(--hg-instinfo) - var(--hg-calendar) - 35px
+    100vh - var(--hg-header) - var(--hg-instbase) - var(--hg-instinfo) -
+      var(--hg-calendar)
   );
   border: solid 1px var(--hg-mid);
   border-radius: 5px;
   align-self: center;
 }
+
 .instInfo,
 .instBase {
   width: 350px;
@@ -738,7 +759,7 @@ header :global(.q-btn-group) {
 }
 
 .evtHighlight {
-  background-color: rgb(60, 59, 59);
+  background-color: var(--hg-highlight);
 }
 
 @media (prefers-color-scheme: light) {
