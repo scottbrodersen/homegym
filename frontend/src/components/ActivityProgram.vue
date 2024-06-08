@@ -1,5 +1,5 @@
 <script setup>
-  import { computed, inject, provide, ref, watch } from 'vue';
+  import { computed, inject, onMounted, ref, watch } from 'vue';
   import ProgramBlock from './ProgramBlock.vue';
   import {
     authPromptAsync,
@@ -161,9 +161,39 @@
   const doneButtonText = computed(() => {
     return changed.value ? 'Cancel' : 'Done';
   });
+
+  watch(
+    () => coords.value,
+    (newCoords) => {
+      scrollToWorkout(newCoords);
+    }
+  );
+
+  const scrollToWorkout = (coords) => {
+    const wo = document.getElementById(
+      `workout${coords[0]}-${coords[1]}-${coords[2]}`
+    );
+    if (wo) {
+      wo.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+        inline: 'center',
+      });
+    }
+  };
+
+  onMounted(() => {
+    document.getElementById('wo-wrap').style['max-height'] = `${
+      window.innerHeight -
+      document.getElementsByTagName('header')[0].offsetHeight -
+      document.getElementById('program-map').offsetHeight -
+      document.getElementById('pgm-context').offsetHeight -
+      20
+    }px`;
+  });
 </script>
 <template>
-  <div>
+  <div :class="[styles.pgmWrap]">
     <div v-show="state != states.READ_ONLY">
       <q-input
         v-model="program.title"
@@ -176,46 +206,50 @@
         ]"
       />
     </div>
-    <div :class="[styles.hgCentered]">
+    <div id="program-map" :class="[styles.hgCentered]">
       <ProgramMap
         :blocks="program.blocks"
         @coords="(value) => (coords = value)"
       />
     </div>
     <div v-if="state == states.READ_ONLY" :class="[styles.blockPadSm]">
-      <div :class="[styles.pgmBlockTitle]">
-        <div>Block:</div>
-        <Transition>
-          <div :class="[styles.vert]" :key="coords[0]">
-            <div>{{ program.blocks[coords[0]].title }}</div>
-            <div>{{ program.blocks[coords[0]].description }}</div>
-          </div>
-        </Transition>
-      </div>
-      <div :class="[styles.pgmCycleTitle]">
-        <div>Cycle:</div>
-        <Transition>
-          <div :class="[styles.vert]" :key="coords[1]">
-            <div>
-              {{ program.blocks[coords[0]].microCycles[coords[1]].title }}
+      <div id="pgm-context">
+        <div :class="[styles.pgmBlockTitle]">
+          <div>Block:</div>
+          <Transition>
+            <div :class="[styles.vert]" :key="coords[0]">
+              <div>{{ program.blocks[coords[0]].title }}</div>
+              <div>{{ program.blocks[coords[0]].description }}</div>
             </div>
-            <div>
-              {{ program.blocks[coords[0]].microCycles[coords[1]].description }}
-            </div>
-          </div>
-        </Transition>
-      </div>
-      <Transition>
-        <div :class="[styles.blockPadMed, styles.hgCentered]" :key="coords[2]">
-          <ProgramWorkout
-            :workout="
-              program.blocks[coords[0]].microCycles[coords[1]].workouts[
-                coords[2]
-              ]
-            "
-          />
+          </Transition>
         </div>
-      </Transition>
+        <div :class="[styles.pgmCycleTitle]">
+          <div>Cycle:</div>
+          <Transition>
+            <div :class="[styles.vert]" :key="coords[1]">
+              <div>
+                {{ program.blocks[coords[0]].microCycles[coords[1]].title }}
+              </div>
+              <div>
+                {{
+                  program.blocks[coords[0]].microCycles[coords[1]].description
+                }}
+              </div>
+            </div>
+          </Transition>
+        </div>
+      </div>
+      <div id="wo-wrap">
+        <ProgramWorkout
+          v-for="(workout, wix) of program.blocks[coords[0]].microCycles[
+            coords[1]
+          ].workouts"
+          :key="wix"
+          :id="`workout${coords[0]}-${coords[1]}-${wix}`"
+          :workout="workout"
+          :class="wix == coords[2] ? [styles.pgmSelected] : ''"
+        />
+      </div>
     </div>
     <div v-show="state != states.READ_ONLY && program.title">
       <ProgramBlock

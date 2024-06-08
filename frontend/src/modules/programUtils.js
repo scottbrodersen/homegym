@@ -97,7 +97,7 @@ export const getInstanceWorkoutDates = (instance) => {
   return dates;
 };
 
-const getWorkoutDate = (instance, coords) => {
+export const getWorkoutDate = (instance, coords) => {
   const dayIndex = getDayIndex(instance, coords);
   const workoutDate = dateUtils.dateFromSeconds(instance.startDate);
   workoutDate.setDate(workoutDate.getDate() + dayIndex);
