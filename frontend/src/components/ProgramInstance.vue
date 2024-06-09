@@ -1,5 +1,5 @@
 <script setup>
-  import { computed, inject, onBeforeMount, ref, watch } from 'vue';
+  import { computed, inject, onBeforeMount, onMounted, ref, watch } from 'vue';
   import ProgramBlock2 from './ProgramBlock2.vue';
   import { programInstanceStore, programsStore } from './../modules/state';
   import { updateProgramInstance } from './../modules/utils';
@@ -108,45 +108,45 @@
   const setCoords = (dayIndex) => {
     if (dayIndex != -1) {
       coords.value = programUtils.getWorkoutCoords(instance.value, dayIndex);
-      scrollToWorkout(coords.value);
     }
   };
 
-  const scrollToWorkout = (coords) => {
-    const wo = document.getElementById(
-      `workout${coords[0]}-${coords[1]}-${coords[2]}`
-    );
-    if (wo) {
-      wo.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-        inline: 'center',
-      });
+  watch(
+    () => coords.value,
+    (newCoords) => {
+      const evtEl = document.getElementById(
+        `workout${newCoords[0]}-${newCoords[1]}-${newCoords[2]}`
+      );
+      if (evtEl) {
+        evtEl.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+          inline: 'center',
+        });
+      }
     }
-  };
+  );
 
-  const statusIcon = (coords) => {
-    const props = [{ name: '', colour: '' }];
+  const isFuture = (coords) => {
     const day = programUtils.getDayIndex(instance.value, coords);
-    if (day > today) {
-      props[0].name = 'schedule';
-      props[0].colour = 'blue';
-    } else if (
+    return day > today ? true : false;
+  };
+
+  const hasEvent = (coords) => {
+    const day = programUtils.getDayIndex(instance.value, coords);
+
+    return instance.value.events[day] ? true : false;
+  };
+
+  const isRestDay = (coords) => {
+    if (
       instance.value.blocks[coords[0]].microCycles[coords[1]].workouts[
         coords[2]
       ].restDay
     ) {
-      // rest day shows no icon
-    } else if (instance.value.events[day]) {
-      props[0].name = 'check_circle';
-      props[0].colour = 'green';
-      props[0].eventID = instance.value.events[day];
-    } else {
-      props[0].name = 'cancel';
-      props[0].colour = 'red';
-      props.push({ name: 'link', colour: 'blue' });
+      return true;
     }
-    return props;
+    return false;
   };
 
   const linkEvent = async (coords) => {
@@ -207,11 +207,7 @@
       />
     </div>
     <div :class="[styles.instInfo]">
-      <ProgramBlock2
-        v-if="coords"
-        :block="instance.blocks[coords[0]]"
-        @update="(value) => updateBlocks(value, bix)"
-      />
+      <ProgramBlock2 v-if="coords" :block="instance.blocks[coords[0]]" />
       <ProgramMicrocycle2
         v-if="coords"
         :microcycle="instance.blocks[coords[0]].microCycles[coords[1]]"
@@ -249,33 +245,70 @@
         </div>
         <div>
           <div :class="[styles.instWorkoutStatus, styles.horiz]">
-            <div
-              v-for="(iconProps, ix) of statusIcon([coords[0], coords[1], wix])"
-              :key="ix"
-            >
+            <div>
               <q-icon
-                v-if="
-                  iconProps.name != 'check_circle' && iconProps.name != 'link'
-                "
-                :name="iconProps.name"
-                :color="iconProps.colour"
+                v-if="isFuture([coords[0], coords[1], wix])"
+                name="schedule"
+                color="blue"
               />
               <q-btn
-                v-if="iconProps.name == 'check_circle'"
-                :icon="iconProps.name"
-                :color="iconProps.colour"
-                :to="{ name: 'home', query: { event: iconProps.eventID } }"
+                v-else-if="hasEvent([coords[0], coords[1], wix])"
+                icon="check_circle"
+                color="green"
+                :to="{
+                  name: 'home',
+                  query: {
+                    event: programUtils.getDayIndex(instance, [
+                      coords[0],
+                      coords[1],
+                      wix,
+                    ]),
+                  },
+                }"
                 round
                 dense
               />
-              <q-btn
-                v-if="iconProps.name == 'link'"
-                :icon="iconProps.name"
-                :color="iconProps.colour"
-                @click="linkEvent([coords[0], coords[1], wix])"
-                round
-                dense
+              <q-icon
+                v-else-if="!isRestDay([coords[0], coords[1], wix])"
+                name="cancel"
+                color="red"
               />
+            </div>
+            <div :class="[styles.evtMenu]">
+              <q-btn
+                v-show="coords[2] == wix"
+                icon="menu"
+                :class="[styles.hgHamburger]"
+              >
+                <q-menu>
+                  <q-list :class="[styles.hgMenu]">
+                    <q-item
+                      v-if="
+                        !isRestDay([coords[0], coords[1], wix]) &&
+                        hasEvent([coords[0], coords[1], wix])
+                      "
+                      clickable
+                      v-close-popup
+                      dark
+                    >
+                      <q-item-section>Unlink</q-item-section>
+                    </q-item>
+                    <q-item
+                      v-if="
+                        !isRestDay([coords[0], coords[1], wix]) &&
+                        !isFuture([coords[0], coords[1], wix]) &&
+                        !hasEvent([coords[0], coords[1], wix])
+                      "
+                      clickable
+                      v-close-popup
+                      dark
+                      @click="linkEvent([coords[0], coords[1], wix])"
+                    >
+                      <q-item-section>Link</q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-menu>
+              </q-btn>
             </div>
           </div>
         </div>
@@ -300,6 +333,7 @@
       />
     </div>
   </div>
+
   <q-dialog v-model="linkEventDialog.show" persistent>
     <q-card style="min-width: 350px" bordered dark>
       <q-card-section>Link an event with the planned workout:</q-card-section>
