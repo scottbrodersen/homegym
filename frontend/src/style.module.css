@@ -762,6 +762,10 @@ header :global(.q-btn-group) {
   background-color: var(--hg-highlight);
 }
 
+.evtMenu {
+  min-width: 60px;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: var(--hg-white);
