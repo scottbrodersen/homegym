@@ -1,6 +1,8 @@
 import { programInstanceStore } from '../modules/state';
 import * as dateUtils from './../modules/dateUtils';
 import * as utils from './utils';
+import { Dialog } from 'quasar';
+import WorkoutModal from '../components/WorkoutModal.vue';
 
 export const workoutStatuses = { FUTURE: 0, MISSED: 1, DONE: 2 };
 
@@ -291,48 +293,93 @@ export const programValidator = (program) => {
   }
 
   if (
-    requiredFieldValidator(program.title) !== true &&
-    maxFieldValidator(program.title) !== true
+    !(
+      requiredFieldValidator(program.title) === true &&
+      maxFieldValidator(program.title) === true
+    )
   ) {
     return false;
   }
-  program.blocks.forEach((block) => {
+  for (let i = 0; i < program.blocks.length; i++) {
     if (
-      requiredFieldValidator(block.title) !== true &&
-      maxFieldValidator(block.title) !== true
+      !(
+        requiredFieldValidator(program.blocks[i].title) === true &&
+        maxFieldValidator(program.blocks[i].title) === true
+      )
     ) {
       return false;
     }
-    block.microCycles.forEach((cycle) => {
+    for (let j = 0; j < program.blocks[i].length; j++) {
       if (
-        requiredFieldValidator(cycle.title) !== true &&
-        maxFieldValidator(cycle.title) !== true
+        !(
+          requiredFieldValidator(program.blocks[i].microCycles[j].title) ===
+            true &&
+          maxFieldValidator(program.blocks[i].microCycles[j].title) === true
+        )
       ) {
         return false;
       }
       cycle.workouts.forEach((workout) => {
-        if (
-          requiredFieldValidator(workout.title) !== true &&
-          maxFieldValidator(workout.title) !== true
-        ) {
+        if (!workoutValidator(workout)) {
           return false;
         }
-        if (!workout.segments) {
-          workout['segments'] = [];
-        }
-        workout.segments.forEach((segment) => {
-          if (requiredFieldValidator(segment.exerciseTypeID) !== true) {
-            return false;
-          }
-          if (
-            requiredFieldValidator(segment.prescription) !== true &&
-            maxFieldValidator(segment.prescription !== true)
-          ) {
-            return false;
-          }
-        });
       });
-    });
-  });
+    }
+  }
   return true;
+};
+
+export const workoutValidator = (workout) => {
+  if (
+    !(
+      requiredFieldValidator(workout.title) === true &&
+      maxFieldValidator(workout.title) === true
+    )
+  ) {
+    return false;
+  }
+
+  // If it's a rest day, we're done
+  if (workout.restDay) {
+    return true;
+  }
+
+  // No segments is ok but make it an empty array
+  if (!workout.segments) {
+    workout['segments'] = [];
+  }
+
+  for (let i = 0; i < workout.segments.length; i++) {
+    if (requiredFieldValidator(workout.segments[i].exerciseTypeID) !== true) {
+      return false;
+    }
+    if (
+      !(
+        requiredFieldValidator(workout.segments[i].prescription) === true &&
+        maxFieldValidator(workout.segments[i].prescription === true)
+      )
+    ) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+export const newWorkoutModal = (instance, coords) => {
+  return new Promise((resolve, reject) => {
+    Dialog.create({
+      component: WorkoutModal,
+      componentProps: { instance: instance, coords: coords },
+    })
+      .onOk((workout) => {
+        instance.value.blocks[coords[0]].microCycles[coords[1]].workouts[
+          coords[2]
+        ] = workout;
+      })
+      .onCancel(() => {})
+      .onDismiss(() => {
+        resolve();
+      });
+  });
 };

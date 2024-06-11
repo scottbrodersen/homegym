@@ -2,7 +2,6 @@
   import { inject, watch } from 'vue';
   import * as styles from '../style.module.css';
   import { OrderedList, states } from '../modules/utils.js';
-  import ListActions from './ListActions.vue';
   import { QCheckbox, QInput } from 'quasar';
   import * as programUtils from '../modules/programUtils';
 
@@ -26,14 +25,6 @@
       segments = new OrderedList(props.workout.segments);
     }
   );
-
-  const update = (action) => {
-    emit('update', action);
-  };
-
-  const updateSegments = (action, index) => {
-    segments.update(action, index);
-  };
 </script>
 <template>
   <div v-if="state == states.READ_ONLY">
@@ -51,7 +42,6 @@
   </div>
 
   <div v-else>
-    <ListActions @update="update" />
     <q-input
       v-model="props.workout.title"
       label="Workout Title"

@@ -220,6 +220,7 @@ header :global(.q-btn-group) {
 
 .hgHamburger {
   margin-left: auto;
+  align-self: flex-start;
 }
 .selActivity {
   min-width: var(--hg-xxlg);

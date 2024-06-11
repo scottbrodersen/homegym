@@ -22,37 +22,40 @@
   };
 </script>
 <template>
-  <div v-if="state == states.READ_ONLY">
-    <div :class="[styles.pgmSegment]">
-      <span :class="[styles.exName]">
-        {{
-          props.segment.exerciseTypeID
-            ? exerciseTypeStore.get(props.segment.exerciseTypeID).name
-            : '~~no exercise selected~~'
-        }}:
-      </span>
-      {{ props.segment.prescription }}
+  <div>
+    <div v-if="state == states.READ_ONLY">
+      <div :class="[styles.pgmSegment]">
+        <span :class="[styles.exName]">
+          {{
+            props.segment.exerciseTypeID
+              ? exerciseTypeStore.get(props.segment.exerciseTypeID).name
+              : '~~no exercise selected~~'
+          }}:
+        </span>
+        {{ props.segment.prescription }}
+      </div>
     </div>
-  </div>
-  <div v-else>
-    <ListActions @update="update" />
-    <Suspense>
-      <ExerciseSelect
-        :activityID="activityID"
-        :exerciseID="props.segment.exerciseTypeID"
-        @selected-i-d="(id) => setExercise(id)"
-      />
-    </Suspense>
-
-    <q-input
-      v-model="props.segment.prescription"
-      label="Prescription"
-      stack-label
-      dark
-      :rules="[
-        programUtils.requiredFieldValidator,
-        programUtils.maxFieldValidator,
-      ]"
-    />
+    <div v-else :class="[styles.horiz]">
+      <div>
+        <Suspense>
+          <ExerciseSelect
+            :activityID="activityID"
+            :exerciseID="props.segment.exerciseTypeID"
+            @selected-i-d="(id) => setExercise(id)"
+          />
+        </Suspense>
+        <q-input
+          v-model="props.segment.prescription"
+          label="Prescription"
+          stack-label
+          dark
+          :rules="[
+            programUtils.requiredFieldValidator,
+            programUtils.maxFieldValidator,
+          ]"
+        />
+      </div>
+      <ListActions @update="update" />
+    </div>
   </div>
 </template>
