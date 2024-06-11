@@ -3,7 +3,17 @@
   import ProgramBlock2 from './ProgramBlock2.vue';
   import { programInstanceStore, programsStore } from './../modules/state';
   import { updateProgramInstance } from './../modules/utils';
-  import { QBtn, QDialog, QIcon, QInput, QOptionGroup } from 'quasar';
+  import {
+    QBtn,
+    QDialog,
+    QIcon,
+    QInput,
+    QItem,
+    QItemSection,
+    QMenu,
+    QList,
+    QOptionGroup,
+  } from 'quasar';
   import * as styles from '../style.module.css';
   import {
     authPromptAsync,
@@ -181,6 +191,24 @@
       linkEventDialog.value.index = workoutIndex;
     }
   };
+
+  const editWorkout = async (coords) => {
+    programUtils.newWorkoutModal(instance, coords).then(async () => {
+      try {
+        await utils.updateProgramInstance(instance.value);
+        toast('Saved', 'positive');
+      } catch (e) {
+        if (e instanceof ErrNotLoggedIn) {
+          console.log(e.message);
+          await authPromptAsync();
+          editWorkout(coords);
+        } else {
+          console.log(e);
+          toast('Error', 'negative');
+        }
+      }
+    });
+  };
 </script>
 <template>
   <div v-if="instance" :class="[styles.pgmInstance]">
@@ -282,6 +310,14 @@
               >
                 <q-menu>
                   <q-list :class="[styles.hgMenu]">
+                    <q-item
+                      clickable
+                      v-close-popup
+                      dark
+                      @click="editWorkout([coords[0], coords[1], wix])"
+                    >
+                      Edit
+                    </q-item>
                     <q-item
                       v-if="
                         !isRestDay([coords[0], coords[1], wix]) &&

@@ -14,55 +14,37 @@
   };
 </script>
 <template>
-  <div>
-    <q-expansion-item
-      v-model="expanded"
-      :class="[styles.listActions]"
-      hide-expand-icon
-    >
-      <template v-slot:header>
-        <div :class="[styles.listActionsHeader]">
-          <q-icon name="menu" size="1.65em" />
-        </div>
-      </template>
-      <div :class="styles.listActionsList">
-        <div>
-          <q-btn
-            round
-            icon="add"
-            color="primary"
-            size="0.65em"
-            @Click="update(OrderedList.ADD)"
-          />
-        </div>
-        <div>
-          <q-btn
-            round
-            icon="move_up"
-            color="primary"
-            size="0.65em"
-            @Click="update(OrderedList.MOVEBACK)"
-          />
-        </div>
-        <div>
-          <q-btn
-            round
-            icon="move_down"
-            color="primary"
-            size="0.65em"
-            @Click="update(OrderedList.MOVEFWD)"
-          />
-        </div>
-        <div>
-          <q-btn
-            round
-            icon="delete"
-            color="primary"
-            size="0.65em"
-            @Click="update(OrderedList.DELETE)"
-          />
-        </div>
-      </div>
-    </q-expansion-item>
-  </div>
+  <q-btn icon="menu" :class="[styles.hgHamburger]">
+    <q-menu>
+      <q-list :class="[styles.hgMenu]">
+        <q-item clickable v-close-popup dark @click="update(OrderedList.ADD)">
+          <q-icon name="add" size="1.65em" color="primary" />
+        </q-item>
+        <q-item
+          clickable
+          v-close-popup
+          dark
+          @click="update(OrderedList.MOVEBACK)"
+        >
+          <q-icon name="move_up" size="1.65em" color="primary" />
+        </q-item>
+        <q-item
+          clickable
+          v-close-popup
+          dark
+          @click="update(OrderedList.MOVEFWD)"
+        >
+          <q-icon name="move_down" size="1.65em" color="primary" />
+        </q-item>
+        <q-item
+          clickable
+          v-close-popup
+          dark
+          @click="update(OrderedList.DELETE)"
+        >
+          <q-icon name="delete" size="1.65em" color="primary" />
+        </q-item>
+      </q-list>
+    </q-menu>
+  </q-btn>
 </template>
