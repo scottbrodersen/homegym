@@ -145,7 +145,7 @@
                 color="primary"
                 icon="do_not_disturb"
                 :disable="
-                  slide >= props.dayIndex ||
+                  slide > props.dayIndex ||
                   activeInstance.events[slide] != undefined ||
                   slides[slide].restDay
                 "
