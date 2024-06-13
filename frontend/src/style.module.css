@@ -567,6 +567,11 @@ header :global(.q-btn-group) {
   composes: blockPadXSm;
   height: 100px;
 }
+.workoutStatusWrap {
+  composes: horiz;
+  justify-content: space-evenly;
+  align-items: center;
+}
 .carouselWrap {
   composes: blockPadSm;
 }
@@ -603,6 +608,7 @@ header :global(.q-btn-group) {
   composes: vert;
   composes: buttonArray;
   padding: var(--hg-small);
+  margin-left: auto;
 }
 
 .carouselNavButtonArray button {
@@ -631,6 +637,10 @@ header :global(.q-btn-group) {
   margin-top: -16px;
   height: 14px;
   width: 14px;
+}
+.workoutStatusIcon {
+  padding-left: var(--hg-xlg);
+  font-size: 3em;
 }
 .pgmWrap {
   position: sticky;

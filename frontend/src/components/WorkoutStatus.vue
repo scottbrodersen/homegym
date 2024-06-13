@@ -1,5 +1,5 @@
 <script setup>
-  import { computed, ref } from 'vue';
+  import { ref } from 'vue';
   import ProgramWorkoutSegment from './ProgramWorkoutSegment.vue';
   import * as styles from '../style.module.css';
   import * as utils from '../modules/programUtils';
@@ -42,27 +42,33 @@
 </script>
 <template>
   <div>
-    <div :class="[styles.horiz]">
-      <div>{{ when }}</div>
+    <div :class="[styles.workoutStatusWrap]">
       <div>
-        <q-icon :name="icon.name" :color="icon.colour" right size="25px" />
+        <div>
+          <div :class="[styles.hgBold]">{{ when }}</div>
+          <div>
+            <span :class="[styles.hgBold]"
+              >{{
+                props.workout.title
+                  ? props.workout.title
+                  : '~~ needs a title ~~'
+              }}:</span
+            >
+            {{ props.workout.description }}
+          </div>
+          <div v-if="props.workout.restDay">REST DAY</div>
+        </div>
+        <div v-if="!props.workout.restDay && props.workout.segments">
+          <ProgramWorkoutSegment
+            v-for="(segment, ix) of props.workout.segments"
+            :key="ix"
+            :segment="segment"
+          />
+        </div>
       </div>
-    </div>
-    <div>
-      <span :class="[styles.hgBold]"
-        >{{
-          props.workout.title ? props.workout.title : '~~ needs a title ~~'
-        }}:</span
-      >
-      {{ props.workout.description }}
-      <div v-if="props.workout.restDay">REST DAY</div>
-    </div>
-    <div v-if="props.workout.segments">
-      <ProgramWorkoutSegment
-        v-for="(segment, ix) of props.workout.segments"
-        :key="ix"
-        :segment="segment"
-      />
+      <div :class="[styles.workoutStatusIcon]">
+        <q-icon :name="icon.name" :color="icon.colour" right />
+      </div>
     </div>
   </div>
 </template>
