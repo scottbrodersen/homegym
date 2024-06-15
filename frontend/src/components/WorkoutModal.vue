@@ -12,13 +12,9 @@
   const emit = defineEmits([...useDialogPluginComponent.emits]);
 
   const props = defineProps({ instance: Object, coords: Array });
-
-  const instCopy = utils.deepToRaw(props.instance);
-
   const workout = ref(
-    instCopy.blocks[props.coords[0]].microCycles[props.coords[1]].workouts[
-      props.coords[2]
-    ]
+    props.instance.blocks[props.coords[0]].microCycles[props.coords[1]]
+      .workouts[props.coords[2]]
   );
 
   const workoutIsValid = ref(true);
@@ -26,7 +22,7 @@
   const segments = new utils.OrderedList(workout.value.segments);
 
   provide('state', utils.states.EDIT);
-  provide('activity', instCopy.activityID);
+  provide('activity', props.instance.activityID);
 
   const onOKClick = () => {
     onDialogOK(workout.value);

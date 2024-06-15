@@ -1,5 +1,13 @@
 <script setup>
-  import { useDialogPluginComponent, QForm, QInput } from 'quasar';
+  import {
+    useDialogPluginComponent,
+    QForm,
+    QInput,
+    QCard,
+    QDialog,
+    QCardActions,
+    QBtn,
+  } from 'quasar';
   import {
     authPromptAsync,
     ErrNotLoggedIn,
@@ -121,4 +129,3 @@
     </q-card>
   </q-dialog>
 </template>
-<style scoped></style>

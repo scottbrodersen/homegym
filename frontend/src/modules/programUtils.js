@@ -373,13 +373,11 @@ export const newWorkoutModal = (instance, coords) => {
       componentProps: { instance: instance, coords: coords },
     })
       .onOk((workout) => {
-        instance.value.blocks[coords[0]].microCycles[coords[1]].workouts[
-          coords[2]
-        ] = workout;
+        resolve(workout);
       })
-      .onCancel(() => {})
-      .onDismiss(() => {
+      .onCancel(() => {
         resolve();
-      });
+      })
+      .onDismiss(() => {});
   });
 };
