@@ -27,12 +27,12 @@
 
   const state = ref(states.READ_ONLY);
 
-  provide('activity', activityID);
-  provide('state', state);
-
   const setState = (value) => {
     state.value = value;
   };
+
+  provide('activity', activityID);
+  provide('state', { state, setState });
 
   const setActivitySelection = (id) => {
     activityID.value = id;
@@ -63,16 +63,8 @@
         );
       }
     }
-    setState(states.READ_ONLY);
+    // setState(states.READ_ONLY);
   };
-
-  const disableEdit = computed(() => {
-    return (
-      state != states.READ_ONLY &&
-      !selectedProgram.value &&
-      !selectedProgramInstance.value
-    );
-  });
 
   const startProgram = () => {
     newProgramInstanceModal(
@@ -95,9 +87,8 @@
       } else {
         toast('Error', 'negative');
       }
-    }
-    if (state.value == states.NEW) {
-      state.value = states.EDIT;
+    } finally {
+      setState(states.READ_ONLY);
     }
   };
 
@@ -139,12 +130,7 @@
           />
         </div>
       </div>
-      <div
-        id="pgm-select"
-        :class="[styles.pgmSelect]"
-        v-show="!!activityID"
-        v-if="state == states.READ_ONLY"
-      >
+      <div id="pgm-select" :class="[styles.pgmSelect]" v-show="activityID">
         <Suspense>
           <ProgramSelect
             :activityID="activityID ? activityID : ''"
@@ -166,7 +152,6 @@
             round
             dark
             color="primary"
-            :disable="disableEdit"
           />
         </div>
       </div>
@@ -189,7 +174,7 @@
         @done="setProgramSelection"
       />
       <ProgramInstance
-        v-if="selectedProgramInstance"
+        v-if="selectedProgramInstance && state != states.NEW"
         :instanceID="selectedProgramInstance"
         @done="setProgramSelection"
       />

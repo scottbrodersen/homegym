@@ -21,7 +21,7 @@
   const props = defineProps({ programID: String });
   const emit = defineEmits(['done']);
 
-  const state = inject('state');
+  const { state } = inject('state');
   const activityID = inject('activity').value;
 
   const program = ref({});

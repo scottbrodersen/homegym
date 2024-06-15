@@ -7,8 +7,6 @@ import server from '../mocks/server.js';
 vi.mock('../src/modules/state');
 vi.mock('../src/modules/utils');
 
-// const numOutstanding = 3;
-
 const testProgram = data.testProgram();
 
 describe('programUtils', () => {
@@ -87,27 +85,6 @@ describe('programUtils', () => {
     const day = utils.getDayIndex(testProgram, [1, 1, 0]);
     expect(day).toEqual(expected);
   });
-
-  // it('returns the outstanding workouts', () => {
-  //   const startDate =
-  //     Date.now() - (data.numCompleted + numOutstanding) * 24 * 60 * 60 * 1000;
-  //   const dayIndex = data.numCompleted + numOutstanding - 1; // 14 + 3 -1 = 16
-  //   const testProgramInstance = data.testProgramInstance(startDate);
-
-  //   const expectedOutstanding = [
-  //     testProgramInstance.blocks[1].microCycles[0].workouts[0],
-  //     testProgramInstance.blocks[1].microCycles[0].workouts[1],
-  //     testProgramInstance.blocks[1].microCycles[0].workouts[2],
-  //   ];
-
-  //   const outstanding = utils.getOutstandingWorkouts(
-  //     data.testActivityID,
-  //     [1, 0, 2],
-  //     16
-  //   );
-
-  //   expect(outstanding).toEqual(expectedOutstanding);
-  // });
 
   it('gets the workouts for a date', async () => {
     const testProgramInstance = data.testProgramInstance(data.testDate);

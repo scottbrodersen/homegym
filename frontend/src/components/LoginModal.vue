@@ -1,5 +1,13 @@
 <script setup>
-  import { useDialogPluginComponent } from 'quasar';
+  import {
+    useDialogPluginComponent,
+    QDialog,
+    QCard,
+    QInput,
+    QIcon,
+    QCardActions,
+    QBtn,
+  } from 'quasar';
   import { login } from './../modules/utils.js';
   import { ref } from 'vue';
   let password = ref('');
@@ -68,4 +76,3 @@
     </q-card>
   </q-dialog>
 </template>
-<style scoped></style>

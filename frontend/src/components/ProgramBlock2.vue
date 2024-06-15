@@ -6,7 +6,7 @@
   import ListActions from './ListActions.vue';
   import * as programUtils from '../modules/programUtils';
 
-  const state = inject('state');
+  const { state } = inject('state');
   const props = defineProps({ block: Object });
   const emit = defineEmits(['update']);
 
@@ -41,11 +41,11 @@
 </script>
 <template>
   <div>
-    <div v-if="state == states.READ_ONLY" :class="[styles.pgmBlock]">
+    <div v-show="state == states.READ_ONLY" :class="[styles.pgmBlock]">
       <div :class="[styles.pgmBlockTitle]">{{ props.block.title }}</div>
       <div>{{ props.block.description }}</div>
     </div>
-    <div v-else>
+    <div v-show="state == states.EDIT">
       <div :class="[styles.horiz]">
         <div :class="[styles.pgmEditbles]">
           <q-input

@@ -7,7 +7,7 @@
   import { QCheckbox, QInput } from 'quasar';
   import * as programUtils from '../modules/programUtils';
 
-  const state = inject('state');
+  const { state } = inject('state');
   const props = defineProps({ workout: Object });
   const emit = defineEmits(['update']);
 

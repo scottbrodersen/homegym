@@ -16,8 +16,8 @@ import ProgramModal from './../components/ProgramModal.vue';
 import ConfirmModal from './../components/ConfirmModal.vue';
 import ProgramInstanceModal from './../components/ProgramInstanceModal.vue';
 import { toRaw, isRef, isReactive, isProxy, unref } from 'vue';
+import EditValueModal from '../components/EditValueModal.vue';
 
-//const pageSize = 8;
 const pageSize = () => {
   try {
     const availableHeight = window.innerHeight - 220 - 36;
@@ -308,6 +308,25 @@ const authPromptAsync = () => {
     } else {
       reject('login prompt already open');
     }
+  });
+};
+
+const openEditValueModal = (fieldLabel, fieldValue) => {
+  return new Promise((resolve, reject) => {
+    Dialog.create({
+      component: EditValueModal,
+      componentProps: {
+        fieldLabel: fieldLabel,
+        fieldValue: fieldValue,
+      },
+    })
+      .onOk((newValue) => {
+        resolve(newValue);
+      })
+      .onCancel(() => {})
+      .onDismiss(() => {
+        resolve();
+      });
   });
 };
 
@@ -790,6 +809,7 @@ export {
   ErrNotUnique,
   updateActivityExercises,
   ErrNotLoggedIn,
+  openEditValueModal,
   newActivityPrompt,
   newProgramModal,
   newProgramInstanceModal,

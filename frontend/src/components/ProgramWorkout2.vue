@@ -5,7 +5,7 @@
   import { QCheckbox, QInput } from 'quasar';
   import * as programUtils from '../modules/programUtils';
 
-  const state = inject('state');
+  const { state } = inject('state');
   const props = defineProps({ workout: Object });
   const emit = defineEmits(['update']);
 
@@ -27,44 +27,45 @@
   );
 </script>
 <template>
-  <div v-if="state == states.READ_ONLY">
-    <div :class="styles.pgmWorkout">
-      <div>
-        <span :class="[styles.hgBold]"
-          >{{
-            props.workout.title ? props.workout.title : '~~ needs a title ~~'
-          }}:
-        </span>
-        {{ props.workout.description }}
+  <div>
+    <div v-show="state == states.READ_ONLY">
+      <div :class="styles.pgmWorkout">
+        <div>
+          <span :class="[styles.hgBold]"
+            >{{
+              props.workout.title ? props.workout.title : '~~ needs a title ~~'
+            }}:
+          </span>
+          {{ props.workout.description }}
+        </div>
+        <div v-show="props.workout.restDay">REST DAY</div>
       </div>
-      <div v-show="props.workout.restDay">REST DAY</div>
     </div>
-  </div>
-
-  <div v-else>
-    <q-input
-      v-model="props.workout.title"
-      label="Workout Title"
-      stack-label
-      dark
-      :rules="[
-        programUtils.requiredFieldValidator,
-        programUtils.maxFieldValidator,
-      ]"
-    />
-    <q-checkbox
-      v-model="props.workout.restDay"
-      label="Rest Day"
-      :toggle-indeterminate="false"
-      indeterminate-value="never"
-      dark
-    />
-    <q-input
-      v-model="props.workout.description"
-      label="Description"
-      stack-label
-      dark
-      :rules="[programUtils.maxFieldValidator]"
-    />
+    <div v-show="state == states.EDIT">
+      <q-input
+        v-model="props.workout.title"
+        label="Workout Title"
+        stack-label
+        dark
+        :rules="[
+          programUtils.requiredFieldValidator,
+          programUtils.maxFieldValidator,
+        ]"
+      />
+      <q-checkbox
+        v-model="props.workout.restDay"
+        label="Rest Day"
+        :toggle-indeterminate="false"
+        indeterminate-value="never"
+        dark
+      />
+      <q-input
+        v-model="props.workout.description"
+        label="Description"
+        stack-label
+        dark
+        :rules="[programUtils.maxFieldValidator]"
+      />
+    </div>
   </div>
 </template>

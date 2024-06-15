@@ -7,7 +7,7 @@
   import ListActions from './ListActions.vue';
   import * as programUtils from '../modules/programUtils';
 
-  const state = inject('state');
+  const { state } = inject('state');
   const props = defineProps({ block: Object });
   const emit = defineEmits(['update']);
 

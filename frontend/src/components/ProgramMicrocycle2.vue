@@ -2,13 +2,13 @@
   import { inject, watch } from 'vue';
   import * as styles from '../style.module.css';
   import { OrderedList, states } from '../modules/utils.js';
-  import { QExpansionItem, QInput } from 'quasar';
+  import { QInput } from 'quasar';
   import ListActions from './ListActions.vue';
   import * as programUtils from '../modules/programUtils';
 
-  const state = inject('state');
   const props = defineProps({ microcycle: Object });
   const emit = defineEmits(['update']);
+  const { state } = inject('state');
 
   let workouts = new OrderedList(props.microcycle.workouts);
 
@@ -40,7 +40,7 @@
 </script>
 <template>
   <div>
-    <div v-if="state == states.READ_ONLY" :class="[styles.pgmMicrocycle]">
+    <div v-show="state == states.READ_ONLY" :class="[styles.pgmMicrocycle]">
       <div :class="[styles.pgmMicrocycleTitle]">
         {{
           props.microcycle.title ? props.microcycle.title : '~~needs a title~~'
@@ -50,7 +50,7 @@
         {{ props.microcycle.description }}
       </div>
     </div>
-    <div v-else>
+    <div v-show="state == states.EDIT">
       <ListActions @update="update" />
       <q-input
         v-model="props.microcycle.title"

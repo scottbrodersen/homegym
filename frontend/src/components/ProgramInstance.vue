@@ -7,7 +7,6 @@
     QBtn,
     QDialog,
     QIcon,
-    QInput,
     QItem,
     QItemSection,
     QMenu,
@@ -44,7 +43,7 @@
   const valid = ref(true);
   const programTitle = ref();
 
-  const state = inject('state');
+  const { state, setState } = inject('state');
   const activityID = inject('activity').value;
   const init = (instanceID) => {
     instance.value = deepToRaw(programInstanceStore.get(instanceID));
@@ -96,9 +95,8 @@
       } else {
         toast('Error', 'negative');
       }
-    }
-    if (state.value == states.NEW) {
-      state.value = states.EDIT;
+    } finally {
+      setState(states.READ_ONLY);
     }
   };
 
@@ -191,23 +189,49 @@
       linkEventDialog.value.index = workoutIndex;
     }
   };
+  watch(
+    () => state.value,
+    (newState) => {
+      console.log('state change: ' + newState);
+      if (newState == utils.states.EDIT) {
+        utils
+          .openEditValueModal('Instance Title', instance.value.title)
+          .then(async (newValue) => {
+            if (newValue) {
+              console.log(newValue);
+              instance.value.title = newValue;
+              await saveInstance();
+            }
+            setState(utils.states.READ_ONLY);
+          });
+      }
+    }
+  );
 
   const editWorkout = async (coords) => {
-    programUtils.newWorkoutModal(instance, coords).then(async () => {
-      try {
-        await utils.updateProgramInstance(instance.value);
-        toast('Saved', 'positive');
-      } catch (e) {
-        if (e instanceof ErrNotLoggedIn) {
-          console.log(e.message);
-          await authPromptAsync();
-          editWorkout(coords);
-        } else {
-          console.log(e);
-          toast('Error', 'negative');
+    programUtils
+      .newWorkoutModal(instance.value, coords)
+      .then(async (workout) => {
+        console.log('workout value: ' + workout);
+        if (workout) {
+          instance.value.blocks[coords[0]].microCycles[coords[1]].workouts[
+            coords[2]
+          ] = workout;
+          try {
+            await utils.updateProgramInstance(instance.value);
+            toast('Saved', 'positive');
+          } catch (e) {
+            if (e instanceof ErrNotLoggedIn) {
+              console.log(e.message);
+              await authPromptAsync();
+              editWorkout(coords);
+            } else {
+              console.log(e);
+              toast('Error', 'negative');
+            }
+          }
         }
-      }
-    });
+      });
   };
 </script>
 <template>
@@ -221,18 +245,6 @@
     <div :class="[styles.instBase]">
       Base Program:
       {{ programTitle }}
-    </div>
-    <div v-show="state != states.READ_ONLY">
-      <q-input
-        v-model="instance.title"
-        label="Name"
-        stack-label
-        dark
-        :rules="[
-          programUtils.requiredFieldValidator,
-          programUtils.maxFieldValidator,
-        ]"
-      />
     </div>
     <div :class="[styles.instInfo]">
       <ProgramBlock2 v-if="coords" :block="instance.blocks[coords[0]]" />
@@ -350,7 +362,7 @@
         </div>
       </div>
     </div>
-    <div
+    <!-- <div
       v-show="state != states.READ_ONLY && instance.id"
       :class="[styles.buttonArray]"
     >
@@ -367,7 +379,7 @@
         @click="saveInstance"
         :disable="!changed || !valid"
       />
-    </div>
+    </div> -->
   </div>
 
   <q-dialog v-model="linkEventDialog.show" persistent>

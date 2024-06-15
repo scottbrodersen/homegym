@@ -1,5 +1,12 @@
 <script setup>
-  import { useDialogPluginComponent, QOptionGroup } from 'quasar';
+  import {
+    useDialogPluginComponent,
+    QOptionGroup,
+    QDialog,
+    QCard,
+    QCardActions,
+    QBtn,
+  } from 'quasar';
   import { ref, toValue } from 'vue';
   import { exerciseTypeStore } from '../modules/state';
   import * as styles from '../style.module.css';

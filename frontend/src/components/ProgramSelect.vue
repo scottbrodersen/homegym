@@ -68,6 +68,7 @@
       emit('selected', idObj);
     }
   );
+
   onBeforeMount(async () => {
     if (props.activityID) {
       await getPrograms(props.activityID);

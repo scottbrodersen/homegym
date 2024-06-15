@@ -639,7 +639,6 @@ header :global(.q-btn-group) {
   width: 14px;
 }
 .workoutStatusIcon {
-  padding-left: var(--hg-xlg);
   font-size: 3em;
 }
 .pgmWrap {
