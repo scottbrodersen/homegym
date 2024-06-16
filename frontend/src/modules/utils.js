@@ -311,13 +311,12 @@ const authPromptAsync = () => {
   });
 };
 
-const openEditValueModal = (fieldLabel, fieldValue) => {
+const openEditValueModal = (valueObjects) => {
   return new Promise((resolve, reject) => {
     Dialog.create({
       component: EditValueModal,
       componentProps: {
-        fieldLabel: fieldLabel,
-        fieldValue: fieldValue,
+        values: valueObjects,
       },
     })
       .onOk((newValue) => {

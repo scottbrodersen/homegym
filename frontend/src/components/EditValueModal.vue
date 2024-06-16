@@ -10,23 +10,28 @@
   import { ref } from 'vue';
   import * as styles from '../style.module.css';
 
-  const props = defineProps({ fieldValue: String, fieldLabel: String });
-
   defineEmits([...useDialogPluginComponent.emits]);
-
   const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
     useDialogPluginComponent();
 
-  const newValue = ref(props.fieldValue);
+  // an array of {label, value} objects
+  const props = defineProps({ values: Array });
+
+  const newValues = ref(new Array());
+  props.values.forEach((valueObj) => {
+    newValues.value.push(valueObj.value);
+  });
 
   const onOKClick = () => {
-    onDialogOK(newValue.value);
+    onDialogOK(newValues.value);
   };
 </script>
 <template>
   <q-dialog ref="dialogRef" @hide="onDialogHide">
     <q-card dark class="q-dialog-plugin" :class="[styles.bgBlack]">
-      <q-input v-model="newValue" label="props.fieldLabel" dark />
+      <div v-for="(valueObj, ix) in props.values">
+        <q-input v-model="newValues[ix]" :label="props.values[ix].label" dark />
+      </div>
       <q-card-actions align="right">
         <q-btn
           color="accent"

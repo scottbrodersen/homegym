@@ -1,46 +1,27 @@
 <script setup>
   import { inject, watch } from 'vue';
   import * as styles from '../style.module.css';
-  import { OrderedList, states } from '../modules/utils.js';
-  import { QInput } from 'quasar';
-  import ListActions from './ListActions.vue';
-  import * as programUtils from '../modules/programUtils';
+  import { openEditValueModal } from '../modules/utils.js';
 
   const props = defineProps({ microcycle: Object });
   const emit = defineEmits(['update']);
-  const { state } = inject('state');
 
-  let workouts = new OrderedList(props.microcycle.workouts);
-
-  if (!props.microcycle.workouts) {
-    props.microcycle.workouts = [{}];
-  }
-
-  watch(
-    () => {
-      return props.microcycle.workouts;
-    },
-    () => {
-      if (!props.microcycle.workouts) {
-        props.microcycle.workouts = [{}];
+  const editMicroCycle = () => {
+    const values = [
+      { label: 'Title', value: props.microcycle.title },
+      { label: 'Description', value: props.microcycle.description },
+    ];
+    openEditValueModal(values).then((edited) => {
+      if (edited) {
+        const editedBlock = { title: edited[0], description: edited[1] };
+        emit('update', editedBlock);
       }
-      workouts = new OrderedList(props.microcycle.workouts);
-    }
-  );
-
-  // emits the action on the workouts ordered list
-  const update = (action) => {
-    emit('update', action);
-  };
-
-  // called when ProgramWorkout component emits an update
-  const updateWorkouts = (action, index) => {
-    workouts.update(action, index);
+    });
   };
 </script>
 <template>
   <div>
-    <div v-show="state == states.READ_ONLY" :class="[styles.pgmMicrocycle]">
+    <div :class="[styles.pgmMicrocycle]">
       <div :class="[styles.pgmMicrocycleTitle]">
         {{
           props.microcycle.title ? props.microcycle.title : '~~needs a title~~'
@@ -49,37 +30,9 @@
       <div>
         {{ props.microcycle.description }}
       </div>
-    </div>
-    <div v-show="state == states.EDIT">
-      <ListActions @update="update" />
-      <q-input
-        v-model="props.microcycle.title"
-        label="Microcycle Title"
-        stack-label
-        dark
-        :rules="[
-          programUtils.requiredFieldValidator,
-          programUtils.maxFieldValidator,
-        ]"
-      />
-      <q-input
-        v-model="props.microcycle.span"
-        label="Days"
-        stack-label
-        dark
-        :rules="[
-          programUtils.requiredFieldValidator,
-          programUtils.maxFieldValidator,
-        ]"
-      />
-      <q-input
-        v-model="props.microcycle.description"
-        label="Description"
-        stack-label
-        dark
-        :rules="[programUtils.maxFieldValidator]"
-      />
-      <div :class="[styles.pgmChild]"></div>
+      <div>
+        <q-btn icon="edit" color="primary" round dark @click="editMicroCycle" />
+      </div>
     </div>
   </div>
 </template>
