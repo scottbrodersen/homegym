@@ -1,5 +1,5 @@
 <script setup>
-  import { computed, inject, onBeforeMount, onMounted, ref, watch } from 'vue';
+  import { computed, inject, onBeforeMount, ref, watch } from 'vue';
   import ProgramBlock2 from './ProgramBlock2.vue';
   import { programInstanceStore, programsStore } from './../modules/state';
   import { updateProgramInstance } from './../modules/utils';
@@ -100,18 +100,23 @@
     }
   };
 
-  const cancel = () => {
-    emit('done', instance.value.id);
-    changed.value = false;
+  const updateMicroCycle = async (
+    microCycleProps,
+    blockIndex,
+    microCycleIndex
+  ) => {
+    instance.value.blocks[blockIndex].microCycles[microCycleIndex].title =
+      microCycleProps.title;
+    instance.value.blocks[blockIndex].microCycles[microCycleIndex].description =
+      microCycleProps.description;
+    await saveInstance();
   };
 
-  const updateBlocks = (action, index) => {
-    blocks.update(action, index);
+  const updateBlock = async (blockProps, index) => {
+    instance.value.blocks[index].title = blockProps.title;
+    instance.value.blocks[index].description = blockProps.description;
+    await saveInstance();
   };
-
-  const doneButtonText = computed(() => {
-    return changed.value ? 'Cancel' : 'Done';
-  });
 
   const setCoords = (dayIndex) => {
     if (dayIndex != -1) {
@@ -195,11 +200,16 @@
       console.log('state change: ' + newState);
       if (newState == utils.states.EDIT) {
         utils
-          .openEditValueModal('Instance Title', instance.value.title)
+          .openEditValueModal([
+            {
+              label: 'Instance Title',
+              value: instance.value.title,
+            },
+          ])
           .then(async (newValue) => {
             if (newValue) {
               console.log(newValue);
-              instance.value.title = newValue;
+              instance.value.title = newValue[0];
               await saveInstance();
             }
             setState(utils.states.READ_ONLY);
@@ -247,10 +257,15 @@
       {{ programTitle }}
     </div>
     <div :class="[styles.instInfo]">
-      <ProgramBlock2 v-if="coords" :block="instance.blocks[coords[0]]" />
+      <ProgramBlock2
+        v-if="coords"
+        :block="instance.blocks[coords[0]]"
+        @update="(updated) => updateBlock(updated, coords[0])"
+      />
       <ProgramMicrocycle2
         v-if="coords"
         :microcycle="instance.blocks[coords[0]].microCycles[coords[1]]"
+        @update="(updated) => updateMicroCycle(updated, coords[0], coords[1])"
       />
       <div v-else>The program was performed in the past. Select a date.</div>
     </div>
@@ -362,24 +377,6 @@
         </div>
       </div>
     </div>
-    <!-- <div
-      v-show="state != states.READ_ONLY && instance.id"
-      :class="[styles.buttonArray]"
-    >
-      <q-btn
-        :label="doneButtonText"
-        color="accent"
-        text-color="dark"
-        @click="cancel"
-      />
-      <q-btn
-        label="Save"
-        color="accent"
-        text-color="dark"
-        @click="saveInstance"
-        :disable="!changed || !valid"
-      />
-    </div> -->
   </div>
 
   <q-dialog v-model="linkEventDialog.show" persistent>

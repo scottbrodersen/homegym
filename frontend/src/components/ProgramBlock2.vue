@@ -1,77 +1,31 @@
 <script setup>
-  import { inject, watch } from 'vue';
-  import { QExpansionItem, QInput } from 'quasar';
+  import { inject } from 'vue';
+  import { QBtn } from 'quasar';
   import * as styles from '../style.module.css';
-  import { OrderedList, states } from '../modules/utils.js';
-  import ListActions from './ListActions.vue';
-  import * as programUtils from '../modules/programUtils';
+  import { openEditValueModal } from '../modules/utils';
 
-  const { state } = inject('state');
   const props = defineProps({ block: Object });
   const emit = defineEmits(['update']);
-
-  if (!props.block.microCycles) {
-    props.block.microCycles = [{}];
-  }
-
-  let cycles = new OrderedList(props.block.microCycles);
-
-  watch(
-    () => {
-      return props.block.microCycles;
-    },
-    () => {
-      cycles = new OrderedList(props.block.microCycles);
-
-      if (!props.block.microCycles) {
-        props.block.microCycles = [{}];
+  const editBlock = () => {
+    const values = [
+      { label: 'Title', value: props.block.title },
+      { label: 'Description', value: props.block.description },
+    ];
+    openEditValueModal(values).then((edited) => {
+      if (edited) {
+        const editedBlock = { title: edited[0], description: edited[1] };
+        emit('update', editedBlock);
       }
-    }
-  );
-
-  // emit the action from the ListActions buttons
-  const update = (action) => {
-    emit('update', action);
-  };
-
-  // perform the action emitted from a microcycle component
-  const updateCycles = (action, index) => {
-    cycles.update(action, index);
+    });
   };
 </script>
 <template>
   <div>
-    <div v-show="state == states.READ_ONLY" :class="[styles.pgmBlock]">
+    <div :class="[styles.pgmBlock]">
       <div :class="[styles.pgmBlockTitle]">{{ props.block.title }}</div>
       <div>{{ props.block.description }}</div>
-    </div>
-    <div v-show="state == states.EDIT">
-      <div :class="[styles.horiz]">
-        <div :class="[styles.pgmEditbles]">
-          <q-input
-            v-model="props.block.title"
-            label-slot
-            stack-label
-            dark
-            :rules="[
-              programUtils.requiredFieldValidator,
-              programUtils.maxFieldValidator,
-            ]"
-          >
-            <template v-slot:label>
-              <div :class="[styles.pgmBlockLabel]">Block Title</div>
-            </template></q-input
-          >
-          <q-input
-            v-model="props.block.description"
-            label="Description"
-            stack-label
-            dark
-            @focus="(event) => console.log(event)"
-            :rules="[programUtils.maxFieldValidator]"
-          />
-        </div>
-        <ListActions @update="update" />
+      <div>
+        <q-btn icon="edit" color="primary" round dark @click="editBlock" />
       </div>
     </div>
   </div>

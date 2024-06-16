@@ -18,7 +18,7 @@
   --hg-header: 36px;
   --hg-pgmselect: 128px;
   --hg-instbase: 29px;
-  --hg-instinfo: 64px;
+  --hg-instinfo: 74px;
   --hg-calendar: 292px;
   --hg-pgmdash: 220px;
 
@@ -753,6 +753,18 @@ header :global(.q-btn-group) {
 }
 .instInfo {
   height: var(--hg-instinfo);
+}
+.instInfo :global(.q-btn) {
+  font-size: 0.65em;
+}
+
+.instInfo .pgmBlock {
+  margin-bottom: 4px;
+}
+.pgmBlock div:last-child,
+.pgmMicrocycle div:last-child {
+  margin-left: auto;
+  margin-right: 36px;
 }
 .instBase {
   height: var(--hg-instbase);
