@@ -21,7 +21,7 @@
 </script>
 <template>
   <div>
-    <div :class="[styles.pgmMicrocycle]">
+    <div :class="[styles.pgmMicrocycle, styles.horiz]">
       <div :class="[styles.pgmMicrocycleTitle]">
         {{
           props.microcycle.title ? props.microcycle.title : '~~needs a title~~'

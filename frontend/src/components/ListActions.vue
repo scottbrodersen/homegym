@@ -1,16 +1,13 @@
 <script setup>
   import { ref } from 'vue';
-  import { QBtn, QExpansionItem } from 'quasar';
+  import { QBtn } from 'quasar';
   import * as styles from '../style.module.css';
   import { OrderedList } from '../modules/utils';
 
   const emit = defineEmits(['update']);
 
-  const expanded = ref(false);
-
   const update = (value) => {
     emit('update', value);
-    expanded.value = false;
   };
 </script>
 <template>

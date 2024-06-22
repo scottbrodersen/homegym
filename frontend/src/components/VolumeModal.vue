@@ -1,6 +1,13 @@
 <script setup>
   import { ref, toRaw } from 'vue';
-  import { useDialogPluginComponent } from 'quasar';
+  import {
+    useDialogPluginComponent,
+    QDialog,
+    QCard,
+    QCardActions,
+    QBtn,
+    QInput,
+  } from 'quasar';
   import * as styles from '../style.module.css';
   import VolumeReps from './VolumeReps.vue';
   import { exerciseTypeStore, unitsState } from '../modules/state';

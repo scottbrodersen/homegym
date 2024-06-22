@@ -57,7 +57,7 @@
   </div>
 
   <div v-else>
-    <ListActions @update="update" />
+    <!-- <ListActions @update="update" /> -->
     <q-input
       v-model="props.workout.title"
       label="Workout Title"

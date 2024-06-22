@@ -43,8 +43,9 @@
   const valid = ref(true);
   const programTitle = ref();
 
+  const { editTitle, toggleEditTitle } = inject('editTitle');
   const { state, setState } = inject('state');
-  const activityID = inject('activity').value;
+  const activityID = inject('activity');
   const init = (instanceID) => {
     instance.value = deepToRaw(programInstanceStore.get(instanceID));
     baseline = JSON.stringify(instance.value);
@@ -79,7 +80,9 @@
   );
 
   onBeforeMount(() => {
-    init(props.instanceID);
+    if (props.instanceID) {
+      init(props.instanceID);
+    }
   });
 
   const saveInstance = async () => {
@@ -194,11 +197,13 @@
       linkEventDialog.value.index = workoutIndex;
     }
   };
+
+  // Open modal to edit the instance title
   watch(
-    () => state.value,
-    (newState) => {
-      console.log('state change: ' + newState);
-      if (newState == utils.states.EDIT) {
+    () => editTitle.value,
+    (newValue) => {
+      console.log('editTitle change: ' + newValue);
+      if (newValue === true) {
         utils
           .openEditValueModal([
             {
@@ -212,7 +217,7 @@
               instance.value.title = newValue[0];
               await saveInstance();
             }
-            setState(utils.states.READ_ONLY);
+            toggleEditTitle();
           });
       }
     }

@@ -82,9 +82,11 @@ func (w Workout) validate() error {
 		return fmt.Errorf("missing title")
 	}
 
-	for _, s := range w.Segments {
-		if err := s.validate(); err != nil {
-			return fmt.Errorf("invalid segment: %w", err)
+	if !w.RestDay {
+		for _, s := range w.Segments {
+			if err := s.validate(); err != nil {
+				return fmt.Errorf("invalid segment: %w", err)
+			}
 		}
 	}
 
