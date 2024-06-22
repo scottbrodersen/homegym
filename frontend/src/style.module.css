@@ -6,6 +6,8 @@
   --mood4: #bccd3e90;
   --mood5: #50db2a90;
 
+  --hg-maxwidth: 540px;
+  --hg-minwidth: 350px;
   --hg-xxsmall: 2px;
   --hg-xsmall: 4px;
   --hg-small: 8px;
@@ -69,7 +71,7 @@ body {
   display: block;
   place-items: center;
   min-height: 100vh;
-  min-width: 350px;
+  min-width: var(--hg-minwidth);
   width: 100%;
   color: var(--hg-white);
   background-color: var(--hg-black);
@@ -96,7 +98,6 @@ h1 {
 }
 
 #event {
-  /* position: absolute; */
   left: 0px;
   top: var(--hg-lg);
 }
@@ -219,7 +220,7 @@ header :global(.q-btn-group) {
 }
 
 .hgHamburger {
-  margin-left: auto;
+  /* margin-left: auto; */
   align-self: flex-start;
 }
 .selActivity {
@@ -397,7 +398,7 @@ header :global(.q-btn-group) {
 }
 
 #wrapper {
-  max-width: 540px;
+  max-width: var(--hg-maxwidth);
 }
 
 .metaRating {
@@ -430,21 +431,12 @@ header :global(.q-btn-group) {
 }
 
 .pgmBlock {
-  composes: horiz;
-  background-color: var(--hg-black);
-  color: var(--hg-white);
-  align-items: center;
-  min-width: 290px;
+  /* min-width: 290px; */
 }
 .pgmInstance {
   composes: vert;
   position: sticky;
   top: var(--hg-header);
-}
-.pgmBlockTitle {
-  font-size: 1.25em;
-  font-weight: 700;
-  padding-right: var(--hg-small);
 }
 .pgmBlockLabel {
   color: var(--hg-green);
@@ -464,10 +456,21 @@ header :global(.q-btn-group) {
   composes: blockBorder;
 }
 .pgmMicrocycle {
-  composes: horiz;
+}
+.pgmMicrocycleEdit :global(label) {
+  min-width: 148px;
+  width: 44vw;
+  max-width: calc(0.6 * var(--hg-maxwidth));
+}
+.pgmMicrocycleEdit {
+  border: 1px var(--hg-yellow) solid;
+  border-radius: 13px;
+  padding: var(--hg-small);
+  min-width: 190px;
+  width: 80vw;
+  max-width: calc(0.8 * var(--hg-maxwidth));
 }
 .pgmMicrocycleTitle {
-  font-weight: 700;
   padding-right: var(--hg-small);
 }
 .pgmMcWorkouts {
@@ -642,6 +645,7 @@ header :global(.q-btn-group) {
   font-size: 3em;
 }
 .pgmWrap {
+  composes: vert;
   position: sticky;
   top: var(--hg-header);
 }
@@ -680,32 +684,41 @@ header :global(.q-btn-group) {
 .pgmSelected {
   background-color: var(--hg-highlight);
 }
-.pgmBlockTitle {
-  composes: horiz;
+
+.pgmTitle {
+  position: sticky;
+  top: 0px;
+  background-color: var(--hg-black);
+  z-index: 100;
 }
+.pgmBlockTitle,
 .pgmCycleTitle {
   composes: horiz;
-  font-size: 1.25em;
+  align-items: baseline;
+  font-weight: 700;
+  padding-right: var(--hg-small);
 }
+
 .pgmBlockTitle div,
 .pgmCycleTitle div {
-  font-size: 14px;
   font-weight: 500;
 }
-
-.pgmBlockTitle > div:first-child,
-.pgmBlockTitle > div > div:nth-child(1),
-.pgmCycleTitle > div:first-child,
-.pgmCycleTitle > div > div:nth-child(1) {
-  font-weight: 700;
-  font-size: 1.25em;
-}
-
 .pgmBlockTitle > div:first-child,
 .pgmCycleTitle > div:first-child {
   width: 4em;
+  font-size: 1.25em;
 }
 
+.programMap {
+  composes: horiz;
+  align-items: center;
+  composes: centered;
+}
+
+.programEdit {
+  position: relative;
+  left: 30px;
+}
 .pgmMapWorkout button {
   font-size: 0.75em;
   padding: 0em 0em;
@@ -713,6 +726,12 @@ header :global(.q-btn-group) {
 }
 .pgmMapSelected {
   color: var(--hg-green);
+}
+
+.pgmActions {
+  position: sticky;
+  bottom: 0;
+  background: var(--hg-black);
 }
 
 :global(#program-dash .q-carousel__slide) {
@@ -761,11 +780,7 @@ header :global(.q-btn-group) {
 .instInfo .pgmBlock {
   margin-bottom: 4px;
 }
-.pgmBlock div:last-child,
-.pgmMicrocycle div:last-child {
-  margin-left: auto;
-  margin-right: 36px;
-}
+
 .instBase {
   height: var(--hg-instbase);
 }

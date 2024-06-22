@@ -21,7 +21,7 @@
 </script>
 <template>
   <div>
-    <div :class="[styles.pgmBlock]">
+    <div :class="[styles.pgmBlock, styles.horiz]">
       <div :class="[styles.pgmBlockTitle]">{{ props.block.title }}</div>
       <div>{{ props.block.description }}</div>
       <div>

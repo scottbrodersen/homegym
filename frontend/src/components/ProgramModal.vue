@@ -1,92 +1,110 @@
 <script setup>
-  import { useDialogPluginComponent, QCard, QDialog, QInput } from 'quasar';
-  import { activityStore } from '../modules/state.js';
-  import { computed, ref } from 'vue';
+  import { provide, ref } from 'vue';
   import * as styles from '../style.module.css';
+  import {
+    useDialogPluginComponent,
+    QDialog,
+    QCard,
+    QCardActions,
+    QBtn,
+    QExpansionItem,
+  } from 'quasar';
+  import ProgramBlock from './ProgramBlock.vue';
+  import ProgramMicrocycle from './ProgramMicrocycle.vue';
+  import ProgramWorkout from './ProgramWorkout.vue';
+  import * as utils from '../modules/utils';
+  import ListActions from './ListActions.vue';
 
-  const props = defineProps({ activityID: String });
   defineEmits([...useDialogPluginComponent.emits]);
-
-  const activity = activityStore.get(props.activityID);
-  const programTitle = ref('');
-  const numBlocks = ref(1);
-  const numCycles = ref(1);
-  const cycleSpan = ref(7);
-
   const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
     useDialogPluginComponent();
 
-  const nameIsInValid = computed(() => {
-    if (programTitle.value.length < 3 && programTitle.length < 256) {
-      return true;
-    }
-    return false;
-  });
-
-  const formIsValid = computed(() => {
-    if (!nameIsInValid && numBlocks > 0 && numCycles > 0 && cycleSpan > 0) {
-      return true;
-    }
-    return false;
-  });
-
   const onOKClick = () => {
-    onDialogOK({
-      title: programTitle.value,
-      activityID: activity.id,
-      numBlocks: numBlocks.value,
-      numCycles: numCycles.value,
-      cycleSpan: cycleSpan.value,
-    });
+    onDialogOK(program.value);
+  };
+
+  const props = defineProps({ program: Object });
+
+  const program = ref(utils.deepToRaw(props.program));
+  const blocks = new utils.OrderedList(program.value.blocks);
+  const cycles = new Array();
+  let workouts;
+
+  program.value.blocks.forEach((block) => {
+    cycles.push(new utils.OrderedList(block.microCycles));
+  });
+
+  provide('state', utils.states.EDIT);
+  provide('activity', props.program.activityID);
+
+  const initWorkouts = (blockIndex, microCycleIndex) => {
+    // called on expansion item show
+    // creates ordered list
+    workouts = new utils.OrderedList(
+      program.value.blocks[blockIndex].microCycles[microCycleIndex].workouts
+    );
+  };
+  const updateWorkouts = () => {
+    // called on expansion item before hide
+    //updates the program and zeroes the ordered list
   };
 </script>
 <template>
-  <q-dialog ref="dialogRef" @hide="onDialogHide">
-    <q-card
-      class="q-dialog-plugin"
-      dark
-      :class="[styles.blockPadSm, styles.blockBorder]"
-    >
-      <div>New Program for {{ activity.name }}</div>
-      <div :v-show="activity">
-        <q-input v-model="programTitle" label="Program Name" stack-label dark />
-        <q-input
-          v-model="numBlocks"
-          mask="#"
-          label="Number of blocks"
-          stack-label
-          dark
-          :rules="[(val) => (val > 0 && val < 10) || 'Must be between 1 and 9']"
-        />
-        <q-input
-          v-model="numCycles"
-          mask="#"
-          label="Number of microcycles"
-          stack-label
-          dark
-          :rules="[(val) => (val > 0 && val < 10) || 'Must be between 1 and 9']"
-        />
-        <q-input
-          v-model="cycleSpan"
-          mask="#"
-          label="Days in microcycles"
-          stack-label
-          dark
-          :rules="[
-            (val) => (val > 0 && val < 15) || 'Must be between 1 and 14',
-          ]"
-        />
+  <q-dialog persistent full-width ref="dialogRef" @hide="onDialogHide">
+    <q-card dark class="q-dialog-plugin">
+      <div :class="[styles.blockPadSm]">
+        <h1 :class="[styles.pgmTitle]">Editing {{ program.title }}</h1>
+        <div v-for="(block, bix) of program.blocks" :key="bix">
+          <div :class="[styles.horiz]">
+            <ProgramBlock :block="block" />
+            <div>
+              <ListActions @update="(action) => blocks.update(action, bix)" />
+            </div>
+          </div>
+          <div
+            v-for="(cycle, cix) of block.microCycles"
+            :key="cix"
+            :class="[styles.horiz]"
+          >
+            <div :class="[styles.pgmMicrocycleEdit]">
+              <ProgramMicrocycle :microcycle="cycle" />
+              <q-expansion-item
+                switch-toggle-side
+                group="workouts"
+                label="workouts"
+                @before-show="(evt) => initWorkouts(bix, cix)"
+              >
+                <div
+                  v-for="(workout, wix) of cycle.workouts"
+                  :class="[styles.horiz]"
+                >
+                  <ProgramWorkout :workout="workout" />
+                  <ListActions
+                    @update="(action) => workouts.update(action, wix)"
+                  />
+                </div>
+              </q-expansion-item>
+            </div>
+            <ListActions
+              @update="(action) => cycles[bix].update(action, cix)"
+            />
+          </div>
+        </div>
+        <q-card-actions :class="[styles.pgmActions]" dark align="between">
+          <q-btn
+            color="accent"
+            text-color="dark"
+            label="Cancel"
+            @click="onDialogCancel"
+          />
+          <q-btn
+            color="accent"
+            text-color="dark"
+            label="Done"
+            @click="onOKClick"
+          />
+        </q-card-actions>
       </div>
-      <q-card-actions align="right">
-        <q-btn color="primary" icon="close" round @click="onDialogCancel" />
-        <q-btn
-          color="primary"
-          icon="done"
-          round
-          @click="onOKClick"
-          :disabled="formIsValid"
-        />
-      </q-card-actions>
     </q-card>
   </q-dialog>
 </template>

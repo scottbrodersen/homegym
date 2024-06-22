@@ -12,7 +12,7 @@
   const emit = defineEmits(['update']);
 
   const { state } = inject('state', states.READ_ONLY);
-  const activityID = inject('activity', null);
+  const activityID = inject('activity');
 
   const update = (action) => {
     emit('update', action);
@@ -35,7 +35,7 @@
         {{ props.segment.prescription }}
       </div>
     </div>
-    <!-- <div v-show="state != states.READ_ONLY" :class="[styles.horiz]">
+    <div v-show="state != states.READ_ONLY" :class="[styles.horiz]">
       <div>
         <Suspense>
           <ExerciseSelect
@@ -56,6 +56,6 @@
         />
       </div>
       <ListActions @update="update" />
-    </div> -->
+    </div>
   </div>
 </template>

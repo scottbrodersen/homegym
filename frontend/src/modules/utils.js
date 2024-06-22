@@ -12,11 +12,12 @@ import NewActivityModal from './../components/NewActivityModal.vue';
 import VolumeModal from './../components/VolumeModal.vue';
 import CompositionModal from './../components/CompositionModal.vue';
 import VariationModal from './../components/VariationModal.vue';
-import ProgramModal from './../components/ProgramModal.vue';
+import NewProgramModal from '../components/NewProgramModal.vue';
 import ConfirmModal from './../components/ConfirmModal.vue';
 import ProgramInstanceModal from './../components/ProgramInstanceModal.vue';
 import { toRaw, isRef, isReactive, isProxy, unref } from 'vue';
 import EditValueModal from '../components/EditValueModal.vue';
+import ProgramModal from '../components/ProgramModal.vue';
 
 const pageSize = () => {
   try {
@@ -363,7 +364,7 @@ const openVolumeModal = (
 
 const newProgramModal = (activityID, callback) => {
   Dialog.create({
-    component: ProgramModal,
+    component: NewProgramModal,
     componentProps: { activityID: activityID },
   })
     .onOk((programProps) => {
@@ -385,6 +386,24 @@ const newProgramInstanceModal = (activityID, programID, callback) => {
     })
     .onCancel(() => {})
     .onDismiss(() => {});
+};
+
+const editProgramModal = (program) => {
+  return new Promise((resolve, reject) => {
+    Dialog.create({
+      component: ProgramModal,
+      componentProps: {
+        program: program,
+      },
+    })
+      .onOk((newValue) => {
+        resolve(newValue);
+      })
+      .onCancel(() => {})
+      .onDismiss(() => {
+        resolve();
+      });
+  });
 };
 
 const openCompositionModal = (exerciseTypeID, composition, callback) => {
@@ -750,6 +769,7 @@ class OrderedList {
     }
   }
 }
+
 // https://stackoverflow.com/a/21125098/2307622
 const getCookieValue = (name) => {
   const regex = new RegExp(`(^| )${name}=([^;]+)`);
@@ -812,6 +832,7 @@ export {
   newActivityPrompt,
   newProgramModal,
   newProgramInstanceModal,
+  editProgramModal,
   updateProgramInstance,
   storeEvent,
   openVolumeModal,

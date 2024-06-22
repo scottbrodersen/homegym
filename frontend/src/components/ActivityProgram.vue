@@ -1,28 +1,22 @@
 <script setup>
-  import { computed, inject, onMounted, ref, watch } from 'vue';
+  import { inject, onMounted, ref, watch } from 'vue';
   import ProgramBlock from './ProgramBlock.vue';
-  import {
-    authPromptAsync,
-    ErrNotLoggedIn,
-    newProgramModal,
-    OrderedList,
-    states,
-    toast,
-    updateProgram,
-    deepToRaw,
-  } from '../modules/utils';
+  import * as utils from '../modules/utils';
   import { QBtn, QInput } from 'quasar';
   import * as styles from '../style.module.css';
   import { programsStore } from '../modules/state';
   import * as programUtils from '../modules/programUtils';
   import ProgramMap from './ProgramMap.vue';
   import ProgramWorkout from './ProgramWorkout.vue';
+  import ProgramMicrocycle from './ProgramMicrocycle.vue';
+  import ListActions from './ListActions.vue';
 
   const props = defineProps({ programID: String });
   const emit = defineEmits(['done']);
 
+  const { editTitle, toggleEditTitle } = inject('editTitle');
   const { state } = inject('state');
-  const activityID = inject('activity').value;
+  const activityID = inject('activity');
 
   const program = ref({});
   const changed = ref(false);
@@ -30,6 +24,8 @@
 
   const defaultBlockTitle = 'Block';
   const defaultMicroCycleTitle = 'MicroCycle';
+
+  let workoutOrderedList;
 
   let blocks; //
   let baseline = ''; // use to detect diff
@@ -42,13 +38,15 @@
       baseline = '';
       program.value = {};
     } else {
-      program.value = deepToRaw(programsStore.get(activityID, props.programID));
+      program.value = utils.deepToRaw(
+        programsStore.get(activityID, props.programID)
+      );
       if (!program.value.blocks) {
         program.value.blocks = [{}];
       }
       baseline = JSON.stringify(program.value);
       changed.value = false;
-      blocks = new OrderedList(program.value.blocks);
+      //blocks = new utils.OrderedList(program.value.blocks);
     }
   };
 
@@ -65,7 +63,7 @@
   // callback for new program modal
   const initProgram = (programProps) => {
     if (!programProps) {
-      state.value = states.READ_ONLY;
+      state.value = utils.states.READ_ONLY;
       return;
     }
     program.value = {
@@ -98,48 +96,65 @@
     }
   };
 
+  // open the new program modal when state changes to NEW
   watch(
     () => {
       return state.value;
     },
     (newState) => {
-      if (newState == states.NEW) {
-        newProgramModal(activityID, initProgram);
+      if (newState == utils.states.NEW) {
+        utils.newProgramModal(activityID, initProgram);
+      }
+    }
+  );
+
+  // Open modal to edit the instance title
+  watch(
+    () => editTitle.value,
+    (newValue) => {
+      console.log('editTitle change: ' + newValue);
+      if (newValue === true) {
+        utils
+          .openEditValueModal([
+            {
+              label: 'Program Title',
+              value: program.value.title,
+            },
+          ])
+          .then(async (newValue) => {
+            if (newValue) {
+              console.log(newValue);
+              program.value.title = newValue[0];
+              await saveProgram(program.value);
+            }
+            toggleEditTitle();
+          });
       }
     }
   );
 
   init();
 
-  const saveProgram = async () => {
+  const saveProgram = async (p) => {
     try {
-      const id = await updateProgram(program.value);
-
+      const id = await utils.updateProgram(p);
+      program.value = p;
       baseline = JSON.stringify(program.value);
 
-      toast('Saved', 'positive');
+      utils.toast('Saved', 'positive');
     } catch (e) {
       console.log(e.message);
 
-      if (e instanceof ErrNotLoggedIn) {
-        await authPromptAsync();
-        saveProgram();
+      if (e instanceof utils.ErrNotLoggedIn) {
+        await utils.authPromptAsync();
+        saveProgram(p);
       } else {
-        toast('Error', 'negative');
+        utils.toast('Error', 'negative');
       }
     }
-    if (state.value == states.NEW) {
-      state.value = states.EDIT;
+    if (state.value == utils.states.NEW) {
+      state.value = utils.states.READ_ONLY;
     }
-  };
-
-  const cancel = () => {
-    emit('done', program.value.id);
-    changed.value = false;
-  };
-
-  const updateBlocks = (action, index) => {
-    blocks.update(action, index);
   };
 
   // watch for changes and validate
@@ -153,14 +168,6 @@
     },
     { deep: true }
   );
-
-  const updateButtonText = computed(() => {
-    return !!program.value.id ? 'Update' : 'Add';
-  });
-
-  const doneButtonText = computed(() => {
-    return changed.value ? 'Cancel' : 'Done';
-  });
 
   watch(
     () => coords.value,
@@ -183,6 +190,7 @@
   };
 
   onMounted(() => {
+    // set height of workouts div
     document.getElementById('wo-wrap').style['max-height'] = `${
       window.innerHeight -
       document.getElementsByTagName('header')[0].offsetHeight -
@@ -191,87 +199,77 @@
       20
     }px`;
   });
+
+  const editBlocks = () => {
+    utils.editProgramModal(program.value).then(async (updatedProgram) => {
+      if (updatedProgram) {
+        await saveProgram(updatedProgram);
+      }
+    });
+  };
+  const updateWorkouts = (action, workoutIndex) => {
+    workoutOrderedList.update(action, workoutIndex);
+  };
 </script>
 <template>
   <div :class="[styles.pgmWrap]">
-    <div v-show="state != states.READ_ONLY">
-      <q-input
-        v-model="program.title"
-        label="Program Name"
-        stack-label
-        dark
-        :rules="[
-          programUtils.requiredFieldValidator,
-          programUtils.maxFieldValidator,
-        ]"
-      />
-    </div>
-    <div id="program-map" :class="[styles.hgCentered]">
+    <div id="program-map" :class="[styles.programMap]">
       <ProgramMap
         :blocks="program.blocks"
         @coords="(value) => (coords = value)"
+        :class="[styles.centered]"
       />
+      <div :class="[styles.pgmEdit]">
+        <q-btn
+          icon="edit_note"
+          round
+          dark
+          @click="editBlocks"
+          color="primary"
+        />
+      </div>
     </div>
-    <div v-if="state == states.READ_ONLY" :class="[styles.blockPadSm]">
+    <div :class="[styles.blockPadSm]">
       <div id="pgm-context">
         <div :class="[styles.pgmBlockTitle]">
           <div>Block:</div>
+
           <Transition>
-            <div :class="[styles.vert]" :key="coords[0]">
-              <div>{{ program.blocks[coords[0]].title }}</div>
-              <div>{{ program.blocks[coords[0]].description }}</div>
-            </div>
+            <ProgramBlock :block="program.blocks[coords[0]]" />
           </Transition>
         </div>
         <div :class="[styles.pgmCycleTitle]">
           <div>Cycle:</div>
           <Transition>
-            <div :class="[styles.vert]" :key="coords[1]">
-              <div>
-                {{ program.blocks[coords[0]].microCycles[coords[1]].title }}
-              </div>
-              <div>
-                {{
-                  program.blocks[coords[0]].microCycles[coords[1]].description
-                }}
-              </div>
-            </div>
+            <ProgramMicrocycle
+              :microcycle="program.blocks[coords[0]].microCycles[coords[1]]"
+              @update="(value) => updateCycles(value, ix)"
+            />
           </Transition>
         </div>
       </div>
       <div id="wo-wrap">
-        <ProgramWorkout
+        <div
           v-for="(workout, wix) of program.blocks[coords[0]].microCycles[
             coords[1]
           ].workouts"
           :key="wix"
-          :id="`workout${coords[0]}-${coords[1]}-${wix}`"
-          :workout="workout"
-          :class="wix == coords[2] ? [styles.pgmSelected] : ''"
-        />
-      </div>
-    </div>
-    <div v-show="state != states.READ_ONLY && program.title">
-      <ProgramBlock
-        v-for="(block, index) of program.blocks"
-        :key="index"
-        :block="block"
-        @update="(value) => updateBlocks(value, index)"
-      />
-      <div :class="[styles.buttonArray]">
-        <q-btn
-          :label="doneButtonText"
-          color="accent"
-          text-color="dark"
-          @click="cancel"
-        />
-        <q-btn
-          :label="updateButtonText"
-          color="accent"
-          text-color="dark"
-          @click="saveProgram"
-          :disable="!changed || !valid"
-        />
+          :class="
+            wix == coords[2]
+              ? [styles.horiz, styles.pgmSelected]
+              : [styles.horiz]
+          "
+        >
+          <ProgramWorkout
+            :id="`workout${coords[0]}-${coords[1]}-${wix}`"
+            :workout="workout"
+            @click="
+              () => {
+                coords[2] = wix;
+              }
+            "
+          />
+        </div>
       </div>
     </div>
   </div>

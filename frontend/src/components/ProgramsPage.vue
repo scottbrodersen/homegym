@@ -9,7 +9,7 @@
     updateProgramInstance,
   } from '../modules/utils';
   import * as styles from '../style.module.css';
-  import { computed, onBeforeMount, provide, ref, Suspense } from 'vue';
+  import { onBeforeMount, provide, ref, Suspense } from 'vue';
   import { QSelect, QBtn } from 'quasar';
   import ActivityProgram from './ActivityProgram.vue';
   import ProgramSelect from './ProgramSelect.vue';
@@ -31,7 +31,13 @@
     state.value = value;
   };
 
-  provide('activity', activityID);
+  const editTitle = ref(false);
+  const toggleEditTitle = () => {
+    editTitle.value = !editTitle.value;
+  };
+
+  provide('editTitle', { editTitle, toggleEditTitle });
+  provide('activity', activityID.value);
   provide('state', { state, setState });
 
   const setActivitySelection = (id) => {
@@ -147,11 +153,14 @@
         <div>
           <q-btn
             id="edit"
-            @click="setState(states.EDIT)"
+            @click="toggleEditTitle()"
             icon="edit"
             round
             dark
             color="primary"
+            :disabled="
+              (!selectedProgram && !selectedProgramInstance) || editTitle
+            "
           />
         </div>
       </div>
