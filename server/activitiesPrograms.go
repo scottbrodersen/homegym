@@ -360,3 +360,15 @@ func getActiveProgramInstance(username, activityID string, w http.ResponseWriter
 	standardHeaders(&h)
 	w.Write(body)
 }
+
+func deactivateProgramInstance(username, activityID string, w http.ResponseWriter) {
+	err := programs.ProgramManager.DeactivateProgramInstance(username, activityID)
+	if err != nil {
+		http.Error(w, internalServerError, http.StatusInternalServerError)
+		return
+	}
+
+	h := w.Header()
+	standardHeaders(&h)
+	w.WriteHeader(http.StatusOK)
+}

@@ -46,6 +46,7 @@ type Dstore interface {
 	GetProgramInstancePage(userID, programID, instanceID string, pageSize int) ([][]byte, error)
 	SetActiveProgramInstance(userID, activityID, programID, instanceID string) error
 	GetActiveProgramInstance(userID, activityID string) ([]byte, error)
+	DeactivateProgramInstance(userID, activityID string) error
 
 	Destroy()
 	GetKeys(usage string) (map[string][]byte, map[string][]byte, error)

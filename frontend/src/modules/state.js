@@ -94,8 +94,10 @@ export const programsStore = reactive({
     }
   },
   addBulk(programs) {
-    for (const program of programs) {
-      this.add(program);
+    if (programs) {
+      for (const program of programs) {
+        this.add(program);
+      }
     }
   },
   getByActivity(activityID) {
@@ -124,6 +126,7 @@ export const programInstanceStore = reactive({
   programInstances: new Map(),
   // key is the activityID, value is an object with fields programID, instanceID
   activeInstances: new Map(),
+
   add(instance) {
     if (this.programInstances.get(instance.programID)) {
       this.programInstances.get(instance.programID).set(instance.id, instance);
@@ -134,11 +137,13 @@ export const programInstanceStore = reactive({
       );
     }
   },
+
   addBulk(instances) {
     for (const program of instances) {
       this.add(program);
     }
   },
+
   getByProgram(programID) {
     if (this.programInstances.has(programID)) {
       const instances = [];
@@ -153,6 +158,7 @@ export const programInstanceStore = reactive({
     console.warn('Instances of program not yet added');
     return undefined;
   },
+
   get(instanceID, programID) {
     if (programID) {
       if (this.programInstances.has(programID)) {
@@ -173,9 +179,10 @@ export const programInstanceStore = reactive({
 
     return undefined;
   },
+
   // An instance value of null indicates no active instance
   setActive(activityID, instance) {
-    if (instance) {
+    if (instance && Object.keys(instance).length > 0) {
       this.activeInstances.set(activityID, {
         programID: instance.programID,
         instanceID: instance.id,
@@ -186,6 +193,7 @@ export const programInstanceStore = reactive({
       this.activeInstances.set(activityID, null);
     }
   },
+
   getActive(activityID) {
     let programID;
     let instanceID;
@@ -198,6 +206,10 @@ export const programInstanceStore = reactive({
       }
       return null;
     }
+  },
+
+  removeActive(activityID) {
+    this.activeInstances.set(activityID, null);
   },
 });
 

@@ -82,13 +82,13 @@ func (w Workout) validate() error {
 		return fmt.Errorf("missing title")
 	}
 
-	if !w.RestDay {
-		for _, s := range w.Segments {
-			if err := s.validate(); err != nil {
-				return fmt.Errorf("invalid segment: %w", err)
-			}
-		}
-	}
+	// if !w.RestDay {
+	// 	for _, s := range w.Segments {
+	// 		if err := s.validate(); err != nil {
+	// 			return fmt.Errorf("invalid segment: %w", err)
+	// 		}
+	// 	}
+	// }
 
 	return nil
 }
@@ -181,6 +181,7 @@ type ProgramAdmin interface {
 	GetProgramInstancesPage(userID, programID, previousProgramInstanceID string, pageSize int) ([]ProgramInstance, error)
 	SetActiveProgramInstance(userID, activityID, programID, instanceID string) error
 	GetActiveProgramInstance(userID, activityID string) (*ProgramInstance, error)
+	DeactivateProgramInstance(userID, activityID string) error
 }
 
 type ProgramUtil struct{}
@@ -349,6 +350,13 @@ func (pu ProgramUtil) UpdateProgramInstance(userID string, instance ProgramInsta
 	}
 
 	return &instance, nil
+}
+
+func (pu ProgramUtil) DeactivateProgramInstance(userID, activityID string) error {
+	if err := dal.DB.DeactivateProgramInstance(userID, activityID); err != nil {
+		return fmt.Errorf("failed to deactivate program instance: %w", err)
+	}
+	return nil
 }
 
 func sanitizeEvents(events map[int]string) error {

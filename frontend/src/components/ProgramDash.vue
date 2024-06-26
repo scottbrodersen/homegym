@@ -1,16 +1,22 @@
 <script setup>
+  import { provide, ref } from 'vue';
   import { programInstanceStore } from '../modules/state';
   import * as styles from '../style.module.css';
   import WorkoutAgent from './WorkoutAgent.vue';
   import { getProgramInstanceStatus } from '../modules/programUtils';
   import { useRouter } from 'vue-router';
-
+  import * as utils from '../modules/utils';
   const router = useRouter();
 
   const props = defineProps({ activityID: String });
   const activeInstance = props.activityID
     ? programInstanceStore.getActive(props.activityID)
     : null;
+  const activity = ref(activeInstance ? props.activityID : null);
+  provide('activity', activity);
+
+  const state = ref(utils.states.READ_ONLY);
+  provide('state', { state });
 
   // get program stats
   const [percentComplete, adherence, workoutCoords, dayIndex] = activeInstance
@@ -42,25 +48,24 @@
     </div>
     <div>
       <WorkoutAgent
-        v-if="dayIndex"
+        v-if="percentComplete < 100"
         :activityID="props.activityID"
         :workoutCoords="workoutCoords"
         :dayIndex="dayIndex"
       />
       <div v-else>
-        Program is complete
-        <q-btn
-          round
-          color="primary"
-          icon="visibility"
-          :to="{
-            name: 'programs',
-            query: {
-              activity: props.activityID,
-              instance: activeInstance.id,
-            },
-          }"
-        />
+        <div>Program is complete</div>
+        <div>
+          <q-btn
+            label="Remove from dashboard"
+            @click="
+              () => {
+                utils.deactivateProgramInstance(props.activityID);
+              }
+            "
+            dark
+          />
+        </div>
       </div>
     </div>
   </div>

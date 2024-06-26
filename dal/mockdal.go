@@ -295,3 +295,11 @@ func (d *MockDal) GetActiveProgramInstance(userID, activityID string) ([]byte, e
 	}
 	return args.Get(0).([]byte), nil
 }
+
+func (d *MockDal) DeactivateProgramInstance(userID, activityID string) error {
+	args := d.Called(userID, activityID)
+	if args.Error(1) != nil {
+		return args.Error(0)
+	}
+	return nil
+}

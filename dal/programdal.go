@@ -175,3 +175,13 @@ func (c *DBClient) GetActiveProgramInstance(userID, activityID string) ([]byte, 
 	return instancePage[0], nil
 
 }
+
+func (c *DBClient) DeactivateProgramInstance(userID, activityID string) error {
+	keyPrefix := []string{userKey, userID, activityKey, activityID, activeProgramKey}
+	keys := [][]byte{key(keyPrefix)}
+	err := deleteKeys(c, keys)
+	if err != nil {
+		return fmt.Errorf("failed to delete active program: %w", err)
+	}
+	return nil
+}

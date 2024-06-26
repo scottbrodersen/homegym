@@ -72,7 +72,7 @@ func (et ExerciseType) validateInstance(ei *ExerciseInstance) error {
 
 	for i, segment := range ei.Segments {
 		// Validate intensity values
-		if segment.Intensity <= 0 {
+		if segment.Intensity <= 0 && et.IntensityType != "bodyweight" {
 			return fmt.Errorf("intensity must be greater than zero")
 		}
 
