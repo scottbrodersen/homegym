@@ -43,7 +43,7 @@
     />
   </div>
   <div v-else :class="[styles.horiz]">
-    <div :class="[styles.intensity, styles.sibSpxSmall]">
+    <div :class="[styles.sibSpxSmall]">
       {{ formatProps.prefix }}
       {{ formatProps.format(props.intensity) }}
     </div>

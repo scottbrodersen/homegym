@@ -33,20 +33,16 @@
   program.value.blocks.forEach((block) => {
     cycles.push(new utils.OrderedList(block.microCycles));
   });
+  const state = ref(utils.states.EDIT);
 
-  provide('state', utils.states.EDIT);
+  provide('state', { state });
   provide('activity', props.program.activityID);
 
   const initWorkouts = (blockIndex, microCycleIndex) => {
     // called on expansion item show
-    // creates ordered list
     workouts = new utils.OrderedList(
       program.value.blocks[blockIndex].microCycles[microCycleIndex].workouts
     );
-  };
-  const updateWorkouts = () => {
-    // called on expansion item before hide
-    //updates the program and zeroes the ordered list
   };
 </script>
 <template>

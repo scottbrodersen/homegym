@@ -16,7 +16,7 @@
     </div>
     <div v-else>
       <div :class="[styles.horiz]">
-        <div :class="[styles.pgmEditbles]">
+        <div>
           <q-input
             v-model="props.block.title"
             label-slot

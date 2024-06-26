@@ -222,7 +222,7 @@ export const getProgramInstanceStatus = (instanceID) => {
   let coords = [];
 
   const instance = programInstanceStore.get(instanceID);
-  const dayIndex = getTodayIndex(instance);
+  let dayIndex = getTodayIndex(instance);
   const progLength = getProgramLength(instance);
 
   let restDaysSoFar = 0;

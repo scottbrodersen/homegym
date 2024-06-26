@@ -1,22 +1,22 @@
 <script setup>
-  import { inject, onMounted, ref, watch } from 'vue';
+  import { inject, onMounted, provide, ref, watch } from 'vue';
   import ProgramBlock from './ProgramBlock.vue';
   import * as utils from '../modules/utils';
-  import { QBtn, QInput } from 'quasar';
+  import { QBtn } from 'quasar';
   import * as styles from '../style.module.css';
   import { programsStore } from '../modules/state';
   import * as programUtils from '../modules/programUtils';
   import ProgramMap from './ProgramMap.vue';
   import ProgramWorkout from './ProgramWorkout.vue';
   import ProgramMicrocycle from './ProgramMicrocycle.vue';
-  import ListActions from './ListActions.vue';
 
-  const props = defineProps({ programID: String });
+  const props = defineProps({ activityID: String, programID: String });
   const emit = defineEmits(['done']);
 
-  const { editTitle, toggleEditTitle } = inject('editTitle');
+  const { editProgramTitle, toggleProgramTitle } = inject('editProgramTitle');
+  const { newProgram, toggleNewProgram } = inject('newProgram');
   const { state } = inject('state');
-  const activityID = inject('activity');
+  provide('activity', props.activityID);
 
   const program = ref({});
   const changed = ref(false);
@@ -25,9 +25,6 @@
   const defaultBlockTitle = 'Block';
   const defaultMicroCycleTitle = 'MicroCycle';
 
-  let workoutOrderedList;
-
-  let blocks; //
   let baseline = ''; // use to detect diff
   const coords = ref([0, 0, 0]);
 
@@ -39,14 +36,13 @@
       program.value = {};
     } else {
       program.value = utils.deepToRaw(
-        programsStore.get(activityID, props.programID)
+        programsStore.get(props.activityID, props.programID)
       );
       if (!program.value.blocks) {
         program.value.blocks = [{}];
       }
       baseline = JSON.stringify(program.value);
       changed.value = false;
-      //blocks = new utils.OrderedList(program.value.blocks);
     }
   };
 
@@ -60,16 +56,15 @@
     }
   );
 
-  // callback for new program modal
-  const initProgram = (programProps) => {
+  // create new program
+  const initProgram = async (programProps) => {
     if (!programProps) {
-      state.value = utils.states.READ_ONLY;
       return;
     }
     program.value = {
       id: null,
       title: programProps.title,
-      activityID: activityID,
+      activityID: props.activityID,
       blocks: new Array(),
     };
 
@@ -94,25 +89,28 @@
         }
       }
     }
+    await saveProgram(program.value);
   };
 
-  // open the new program modal when state changes to NEW
+  // open the new program modal when newProgram is true
   watch(
-    () => {
-      return state.value;
-    },
-    (newState) => {
-      if (newState == utils.states.NEW) {
-        utils.newProgramModal(activityID, initProgram);
+    () => newProgram.value,
+    (newProgramValue) => {
+      if (newProgramValue) {
+        utils.newProgramModal(props.activityID).then(async (programProps) => {
+          if (programProps) {
+            await initProgram(programProps);
+          }
+          toggleNewProgram();
+        });
       }
     }
   );
 
   // Open modal to edit the instance title
   watch(
-    () => editTitle.value,
+    () => editProgramTitle.value,
     (newValue) => {
-      console.log('editTitle change: ' + newValue);
       if (newValue === true) {
         utils
           .openEditValueModal([
@@ -127,7 +125,7 @@
               program.value.title = newValue[0];
               await saveProgram(program.value);
             }
-            toggleEditTitle();
+            toggleProgramTitle();
           });
       }
     }
@@ -191,13 +189,16 @@
 
   onMounted(() => {
     // set height of workouts div
-    document.getElementById('wo-wrap').style['max-height'] = `${
-      window.innerHeight -
-      document.getElementsByTagName('header')[0].offsetHeight -
-      document.getElementById('program-map').offsetHeight -
-      document.getElementById('pgm-context').offsetHeight -
-      20
-    }px`;
+    const el = document.getElementById('wo-wrap');
+    if (el) {
+      document.getElementById('wo-wrap').style['max-height'] = `${
+        window.innerHeight -
+        document.getElementsByTagName('header')[0].offsetHeight -
+        document.getElementById('program-map').offsetHeight -
+        document.getElementById('pgm-context').offsetHeight -
+        20
+      }px`;
+    }
   });
 
   const editBlocks = () => {
@@ -207,68 +208,66 @@
       }
     });
   };
-  const updateWorkouts = (action, workoutIndex) => {
-    workoutOrderedList.update(action, workoutIndex);
-  };
 </script>
 <template>
-  <div :class="[styles.pgmWrap]">
-    <div id="program-map" :class="[styles.programMap]">
-      <ProgramMap
-        :blocks="program.blocks"
-        @coords="(value) => (coords = value)"
-        :class="[styles.centered]"
-      />
-      <div :class="[styles.pgmEdit]">
-        <q-btn
-          icon="edit_note"
-          round
-          dark
-          @click="editBlocks"
-          color="primary"
+  <div>
+    <div v-if="props.programID" :class="[styles.pgmWrap]">
+      <div id="program-map" :class="[styles.programMap]">
+        <ProgramMap
+          :blocks="program.blocks"
+          @coords="(value) => (coords = value)"
+          :class="[styles.centered]"
         />
-      </div>
-    </div>
-    <div :class="[styles.blockPadSm]">
-      <div id="pgm-context">
-        <div :class="[styles.pgmBlockTitle]">
-          <div>Block:</div>
-
-          <Transition>
-            <ProgramBlock :block="program.blocks[coords[0]]" />
-          </Transition>
-        </div>
-        <div :class="[styles.pgmCycleTitle]">
-          <div>Cycle:</div>
-          <Transition>
-            <ProgramMicrocycle
-              :microcycle="program.blocks[coords[0]].microCycles[coords[1]]"
-              @update="(value) => updateCycles(value, ix)"
-            />
-          </Transition>
-        </div>
-      </div>
-      <div id="wo-wrap">
-        <div
-          v-for="(workout, wix) of program.blocks[coords[0]].microCycles[
-            coords[1]
-          ].workouts"
-          :key="wix"
-          :class="
-            wix == coords[2]
-              ? [styles.horiz, styles.pgmSelected]
-              : [styles.horiz]
-          "
-        >
-          <ProgramWorkout
-            :id="`workout${coords[0]}-${coords[1]}-${wix}`"
-            :workout="workout"
-            @click="
-              () => {
-                coords[2] = wix;
-              }
-            "
+        <div>
+          <q-btn
+            icon="edit_note"
+            round
+            dark
+            @click="editBlocks"
+            color="primary"
           />
+        </div>
+      </div>
+      <div :class="[styles.blockPadSm]">
+        <div id="pgm-context">
+          <div :class="[styles.pgmBlockTitle]">
+            <div>Block:</div>
+            <Transition>
+              <ProgramBlock :block="program.blocks[coords[0]]" />
+            </Transition>
+          </div>
+          <div :class="[styles.pgmCycleTitle]">
+            <div>Cycle:</div>
+            <Transition>
+              <ProgramMicrocycle
+                :microcycle="program.blocks[coords[0]].microCycles[coords[1]]"
+                @update="(value) => updateCycles(value, ix)"
+              />
+            </Transition>
+          </div>
+        </div>
+        <div id="wo-wrap">
+          <div
+            v-for="(workout, wix) of program.blocks[coords[0]].microCycles[
+              coords[1]
+            ].workouts"
+            :key="wix"
+            :class="
+              wix == coords[2]
+                ? [styles.horiz, styles.pgmSelected]
+                : [styles.horiz]
+            "
+          >
+            <ProgramWorkout
+              :id="`workout${coords[0]}-${coords[1]}-${wix}`"
+              :workout="workout"
+              @click="
+                () => {
+                  coords[2] = wix;
+                }
+              "
+            />
+          </div>
         </div>
       </div>
     </div>

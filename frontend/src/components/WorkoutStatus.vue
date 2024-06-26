@@ -2,7 +2,7 @@
   import { ref } from 'vue';
   import ProgramWorkoutSegment from './ProgramWorkoutSegment.vue';
   import * as styles from '../style.module.css';
-  import * as utils from '../modules/programUtils';
+  import * as programUtils from '../modules/programUtils';
   import { QIcon } from 'quasar';
 
   const props = defineProps({
@@ -28,7 +28,7 @@
   }
 
   const status = ref(
-    utils.getWorkoutStatus(
+    programUtils.getWorkoutStatus(
       props.eventID,
       props.workoutIndex,
       props.todayIndex,
@@ -36,9 +36,9 @@
     )
   );
 
-  const icon = ref(utils.getStatusIcons(status.value));
+  const icon = ref(programUtils.getStatusIcons(status.value));
 
-  colourStyle.value = utils.getColorStyle(status);
+  colourStyle.value = programUtils.getColorStyle(status);
 </script>
 <template>
   <div>

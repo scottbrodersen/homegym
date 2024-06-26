@@ -5,6 +5,12 @@ export const dateFromSeconds = (seconds) => {
   return seconds ? new Date(seconds * 1000) : new Date();
 };
 
+export const setEpochToMidnight = (seconds) => {
+  const date = dateFromSeconds(seconds);
+  date.setHours(0, 0, 0);
+  return Math.floor(date.valueOf() / 1000);
+};
+
 // transforms the date string to timestamp UTC in seconds
 export const stringToEpoch = (dateString) => {
   const date = new Date(dateString); // local time zone

@@ -49,11 +49,7 @@
 </script>
 <template>
   <q-dialog ref="dialogRef" @hide="onDialogHide">
-    <q-card
-      dark
-      class="q-dialog-plugin"
-      :class="[styles.bgBlack, styles.compositeDialog]"
-    >
+    <q-card dark class="q-dialog-plugin" :class="[styles.bgBlack]">
       <q-list :class="[styles.listStd]" dense>
         <q-item v-for="eType in exerciseList" :key="eType.id">
           <div :class="[styles.horiz, styles.listStd]">

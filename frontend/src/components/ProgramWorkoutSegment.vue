@@ -11,7 +11,7 @@
   const props = defineProps({ segment: Object });
   const emit = defineEmits(['update']);
 
-  const { state } = inject('state', states.READ_ONLY);
+  const { state } = inject('state');
   const activityID = inject('activity');
 
   const update = (action) => {
@@ -23,7 +23,7 @@
 </script>
 <template>
   <div>
-    <div v-show="state == states.READ_ONLY">
+    <div v-if="state == states.READ_ONLY">
       <div :class="[styles.pgmSegment]">
         <span :class="[styles.exName]">
           {{
@@ -35,7 +35,7 @@
         {{ props.segment.prescription }}
       </div>
     </div>
-    <div v-show="state != states.READ_ONLY" :class="[styles.horiz]">
+    <div v-if="state == states.EDIT" :class="[styles.horiz]">
       <div>
         <Suspense>
           <ExerciseSelect
@@ -46,6 +46,7 @@
         </Suspense>
         <q-input
           v-model="props.segment.prescription"
+          :class="[styles.pgmSegmentPn]"
           label="Prescription"
           stack-label
           dark
@@ -53,6 +54,7 @@
             programUtils.requiredFieldValidator,
             programUtils.maxFieldValidator,
           ]"
+          type="textarea"
         />
       </div>
       <ListActions @update="update" />

@@ -10,6 +10,7 @@
   import { computed, ref } from 'vue';
   import * as styles from '../style.module.css';
   import DatePicker from './DatePicker.vue';
+  import * as dateUtils from '../modules/dateUtils.js';
 
   const props = defineProps({ activityID: String, programID: String });
   defineEmits([...useDialogPluginComponent.emits]);
@@ -22,7 +23,7 @@
     useDialogPluginComponent();
 
   const updateDateValue = (newDate) => {
-    startDate.value = newDate;
+    startDate.value = dateUtils.setEpochToMidnight(newDate);
   };
 
   const titleIsValid = (title) => {

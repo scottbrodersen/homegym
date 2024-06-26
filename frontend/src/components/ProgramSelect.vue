@@ -16,21 +16,27 @@
 
   // populates program list for selected activity
   const populatePrograms = (activityID) => {
-    programsStore.getByActivity(activityID).forEach((program) => {
-      listItems.value.push(program);
-      const instances = programInstanceStore.getByProgram(program.id);
-      if (instances) {
-        listItems.value.push(...instances);
-      }
-    });
+    const programs = programsStore.getByActivity(activityID);
+    if (programs) {
+      programs.forEach((program) => {
+        listItems.value.push(program);
+        const instances = programInstanceStore.getByProgram(program.id);
+        if (instances) {
+          listItems.value.push(...instances);
+        }
+      });
+    }
   };
 
   const getPrograms = async (activityID) => {
     if (activityID && programsStore.getByActivity(activityID) === undefined) {
       try {
         await fetchPrograms(activityID);
-        for (const pgm of programsStore.getByActivity(activityID)) {
-          await fetchProgramInstances(pgm.id, activityID);
+        const pgms = programsStore.getByActivity(activityID);
+        if (pgms) {
+          for (const pgm of pgms) {
+            await fetchProgramInstances(pgm.id, activityID);
+          }
         }
       } catch (e) {
         if (e instanceof ErrNotLoggedIn) {
@@ -102,7 +108,7 @@
         <div v-if="scope.opt.programID" :class="[styles.pgmInstItem]">
           {{ scope.opt.title }}
         </div>
-        <div v-else :class="[styles.pgmItem]">{{ scope.opt.title }}</div>
+        <div v-else>{{ scope.opt.title }}</div>
       </q-item>
     </template>
     <template v-slot:selected>

@@ -129,7 +129,7 @@
       </q-btn-dropdown>
       <q-btn icon="menu" :class="[styles.hgHamburger]">
         <q-menu>
-          <q-list :class="[styles.hgMenu]">
+          <q-list>
             <q-item dark>
               <q-toggle
                 :label="labels.metric"

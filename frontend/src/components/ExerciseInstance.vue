@@ -165,12 +165,7 @@
       </div>
       <div
         v-if="exerciseTypeStore.get(instance.typeID).volumeType == 'count'"
-        :class="[
-          styles.sibSpMed,
-          styles.horiz,
-          styles.alignCenter,
-          styles.hg100wide,
-        ]"
+        :class="[styles.sibSpMed, styles.horiz, styles.hg100wide]"
       >
         <div :class="[styles.volume, isCountReps ? styles.repCountSet : '']">
           <VolumeReps

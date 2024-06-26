@@ -245,7 +245,10 @@
       @click="setExerciseInstance(null, null)"
     />
   </div>
-  <div :class="[styles.buttonArray]" v-show="thisEvent.activityID">
+  <div
+    :class="[styles.buttonArray, styles.stickyBottom]"
+    v-show="thisEvent.activityID"
+  >
     <q-btn label="Cancel" color="accent" text-color="dark" @click="cancel" />
     <q-btn
       :label="updateButtonText"

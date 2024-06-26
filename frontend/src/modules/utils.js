@@ -50,6 +50,16 @@ const intensityProps = (intensityType) => {
       prefix: 'HR Zone',
       value: (formatted) => Number(formatted).toFixed(0),
     };
+  } else if (intensityType == 'rpe') {
+    return {
+      mask: '##',
+      validate: (value) => {
+        return /^[1-9]$/.test(value) || /^10$/.test(value);
+      },
+      format: (value) => value.toFixed(1),
+      prefix: 'RPE (1-10)',
+      value: (formatted) => Number(formatted).toFixed(0),
+    };
   } else if (intensityType == 'pace') {
     return {
       mask: '##:##',
@@ -133,12 +143,12 @@ const fetchPrograms = async (activityID) => {
   while (!done) {
     const programPage = await fetchProgramPage(lastProgram, activityID);
     if (programPage) {
-    programsStore.addBulk(programPage);
+      programsStore.addBulk(programPage);
 
       if (programPage && programPage.length < pageSize()) {
-      done = true;
-    } else {
-      lastProgram = programPage[programPage.length].id;
+        done = true;
+      } else {
+        lastProgram = programPage[programPage.length].id;
       }
     } else {
       done = true;
@@ -275,27 +285,6 @@ const fetchActivityExercises = async (activityID) => {
 
   const activity = activityStore.get(activityID);
   activity.exercises = exercises;
-  //activityStore.add(activity);
-  //return exercises;
-  // fetch(`/homegym/api/activities/${activityID}/exercises/`, {
-  //   method: 'GET',
-  //   mode: 'same-origin',
-  // })
-  //   .then((resp) => {
-  //     if (resp.status == 401) {
-  //       throw new ErrNotLoggedIn('unauthorized fetch of activity exercises');
-  //     }
-  //     return resp.json();
-  //   })
-  //   .then((exercises) => {
-  //     const activity = activityStore.get(activityID);
-  //     activity.exercises = exercises;
-  //     activityStore.add(activity);
-  //     return exercises;
-  //   })
-  //   .catch((e) => {
-  //     throw e;
-  //   });
 };
 
 const authPromptAsync = () => {
@@ -368,17 +357,19 @@ const openVolumeModal = (
 };
 
 const newProgramModal = (activityID, callback) => {
-  Dialog.create({
-    component: NewProgramModal,
-    componentProps: { activityID: activityID },
-  })
-    .onOk((programProps) => {
-      callback(programProps);
+  return new Promise((resolve, reject) => {
+    Dialog.create({
+      component: NewProgramModal,
+      componentProps: { activityID: activityID },
     })
-    .onCancel(() => {
-      callback(null);
-    })
-    .onDismiss(() => {});
+      .onOk((programProps) => {
+        resolve(programProps);
+      })
+      .onCancel(() => {})
+      .onDismiss(() => {
+        resolve();
+      });
+  });
 };
 
 const newProgramInstanceModal = (activityID, programID, callback) => {
@@ -662,7 +653,7 @@ const deactivateProgramInstance = async (activityID) => {
   }
 
   programInstanceStore.removeActive(activityID);
-  };
+};
 
 // event param has no id if it is new
 const storeEvent = async (url, event) => {
