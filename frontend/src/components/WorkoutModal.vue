@@ -21,7 +21,9 @@
 
   const segments = new utils.OrderedList(workout.value.segments);
 
-  provide('state', utils.states.EDIT);
+  const state = ref(utils.states.EDIT);
+
+  provide('state', { state });
   provide('activity', props.instance.activityID);
 
   const onOKClick = () => {

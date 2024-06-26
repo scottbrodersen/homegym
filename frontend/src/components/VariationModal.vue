@@ -32,11 +32,7 @@
 </script>
 <template>
   <q-dialog ref="dialogRef" @hide="onDialogHide">
-    <q-card
-      dark
-      class="q-dialog-plugin"
-      :class="[styles.bgBlack, styles.compositeDialog]"
-    >
+    <q-card dark class="q-dialog-plugin" :class="[styles.bgBlack]">
       <q-option-group
         :class="[styles.listStd]"
         v-model="selectedID"

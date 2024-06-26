@@ -1,5 +1,5 @@
 <script setup>
-  import { computed, inject, onBeforeMount, ref, watch } from 'vue';
+  import { inject, provide, ref, watch } from 'vue';
   import ProgramBlock2 from './ProgramBlock2.vue';
   import { programInstanceStore, programsStore } from './../modules/state';
   import { updateProgramInstance } from './../modules/utils';
@@ -29,7 +29,7 @@
   import ProgramWorkoutSegment from './ProgramWorkoutSegment.vue';
   import * as utils from '../modules/utils';
 
-  const props = defineProps({ instanceID: String });
+  const props = defineProps({ activityID: String, instanceID: String });
   const emit = defineEmits(['done']);
 
   const instance = ref();
@@ -43,27 +43,36 @@
   const valid = ref(true);
   const programTitle = ref();
 
-  const { editTitle, toggleEditTitle } = inject('editTitle');
+  const { editInstanceTitle, toggleInstanceTitle } =
+    inject('editInstanceTitle');
   const { state, setState } = inject('state');
-  const activityID = inject('activity');
-  const init = (instanceID) => {
-    instance.value = deepToRaw(programInstanceStore.get(instanceID));
-    baseline = JSON.stringify(instance.value);
 
-    programTitle.value = instance.value.programID
-      ? programsStore.get(activityID, instance.value.programID).title
-      : '';
+  provide('activity', props.activityID);
 
-    today = programUtils.getTodayIndex(instance.value);
+  const init = () => {
+    if (!props.instanceID) {
+      baseline = '';
+      instance.value = {};
+    } else {
+      instance.value = deepToRaw(programInstanceStore.get(props.instanceID));
+      baseline = JSON.stringify(instance.value);
+
+      programTitle.value = instance.value.programID
+        ? programsStore.get(props.activityID, instance.value.programID).title
+        : '';
+
+      today = programUtils.getTodayIndex(instance.value);
+    }
   };
 
   // Re-initialize when a different instance is selected
   watch(
     () => props.instanceID,
     (newID) => {
-      init(newID);
+      init();
     }
   );
+  init();
 
   // watch for changes and validate
   watch(
@@ -78,12 +87,6 @@
     },
     { deep: true }
   );
-
-  onBeforeMount(() => {
-    if (props.instanceID) {
-      init(props.instanceID);
-    }
-  });
 
   const saveInstance = async () => {
     try {
@@ -200,9 +203,8 @@
 
   // Open modal to edit the instance title
   watch(
-    () => editTitle.value,
+    () => editInstanceTitle.value,
     (newValue) => {
-      console.log('editTitle change: ' + newValue);
       if (newValue === true) {
         utils
           .openEditValueModal([
@@ -217,7 +219,7 @@
               instance.value.title = newValue[0];
               await saveInstance();
             }
-            toggleEditTitle();
+            toggleInstanceTitle();
           });
       }
     }
@@ -341,7 +343,7 @@
                 :class="[styles.hgHamburger]"
               >
                 <q-menu>
-                  <q-list :class="[styles.hgMenu]">
+                  <q-list>
                     <q-item
                       clickable
                       v-close-popup

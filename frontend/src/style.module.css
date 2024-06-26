@@ -220,8 +220,12 @@ header :global(.q-btn-group) {
 }
 
 .hgHamburger {
-  /* margin-left: auto; */
   align-self: flex-start;
+  padding: 4px;
+}
+
+header .hgHamburger {
+  margin-left: auto;
 }
 .selActivity {
   min-width: var(--hg-xxlg);
@@ -433,10 +437,6 @@ header :global(.q-btn-group) {
   margin: var(--hg-small) 0px var(--hg-small) 0px;
   composes: hgBold;
 }
-
-.pgmBlock {
-  /* min-width: 290px; */
-}
 .pgmInstance {
   composes: vert;
   position: sticky;
@@ -449,23 +449,22 @@ header :global(.q-btn-group) {
   width: 100%;
 }
 .pgmChild {
-  padding: var(--hg-small) 0px 0px var(--hg-med);
+  /* padding: var(--hg-small) 0px 0px var(--hg-med); */
+  padding: 10px;
+  border: 1px solid var(--hg-green);
+  border-radius: 10px;
+  margin-bottom: 10px;
 }
-.pgmChildExpander {
-  padding: 0px;
-  margin-left: -24px;
-  min-width: var(--hg-med);
-}
+
 .pgmCycles {
   composes: blockBorder;
 }
 .pgmMicrocycle {
 }
 .pgmMicrocycleEdit :global(label) {
-  min-width: 148px;
-  width: 44vw;
-  max-width: calc(0.6 * var(--hg-maxwidth));
+  width: 100%;
 }
+
 .pgmMicrocycleEdit {
   border: 1px var(--hg-yellow) solid;
   border-radius: 13px;
@@ -493,6 +492,10 @@ header :global(.q-btn-group) {
   padding: 0px 0px 0px var(--hg-xsmall);
 }
 
+.pgmSegmentPn :global(textarea) {
+  height: 2em;
+}
+
 .listActions {
   position: absolute;
   z-index: 1000;
@@ -517,6 +520,13 @@ header :global(.q-btn-group) {
 
 .buttonArray .q-btn--round {
   width: 40px;
+}
+
+.stickyBottom {
+  position: sticky;
+  bottom: 0px;
+  background-color: var(--hg-black);
+  opacity: 90%;
 }
 
 .pgmSelect {
@@ -695,6 +705,10 @@ header :global(.q-btn-group) {
   background-color: var(--hg-black);
   z-index: 100;
 }
+
+:global(#pgm-context) {
+  margin-bottom: 10px;
+}
 .pgmBlockTitle,
 .pgmCycleTitle {
   composes: horiz;
@@ -709,7 +723,7 @@ header :global(.q-btn-group) {
 }
 .pgmBlockTitle > div:first-child,
 .pgmCycleTitle > div:first-child {
-  width: 4em;
+  width: 5em;
   font-size: 1.25em;
 }
 
@@ -784,6 +798,11 @@ header :global(.q-btn-group) {
 .instInfo .pgmBlock {
   margin-bottom: 4px;
 }
+/* .pgmBlock {
+  min-width: 190px;
+  width: 80vw;
+  max-width: calc(0.8 * var(--hg-maxwidth));
+} */
 
 .instBase {
   height: var(--hg-instbase);

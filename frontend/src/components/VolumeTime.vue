@@ -12,7 +12,7 @@
   const minutes = ref('');
   const seconds = ref('');
 
-  if (!!props.time) {
+  if (props.time) {
     hours.value = Math.floor(props.time / 3600).toString();
 
     minutes.value = Math.floor((props.time % 3600) / 60).toString();

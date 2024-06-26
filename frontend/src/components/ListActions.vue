@@ -13,7 +13,7 @@
 <template>
   <q-btn icon="menu" :class="[styles.hgHamburger]">
     <q-menu>
-      <q-list :class="[styles.hgMenu]">
+      <q-list>
         <q-item clickable v-close-popup dark @click="update(OrderedList.ADD)">
           <q-icon name="add" size="1.65em" color="primary" />
         </q-item>

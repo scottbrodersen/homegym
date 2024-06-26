@@ -87,15 +87,7 @@
 <template>
   <q-dialog ref="dialogRef" @hide="onDialogHide">
     <q-card dark class="q-dialog-plugin">
-      <div
-        :class="[
-          styles.horiz,
-          styles.maxSpacing,
-          styles.alignCenter,
-          styles.blockPadSm,
-          styles.dark,
-        ]"
-      >
+      <div :class="[styles.horiz, styles.blockPadSm, styles.dark]">
         <div :class="[styles.exName]">
           {{ exerciseType.name }}
         </div>
@@ -129,10 +121,10 @@
             "
           />
           <div
-            :class="[styles.horiz, styles.maxSpacing]"
+            :class="[styles.horiz]"
             v-if="exerciseType.volumeConstraint === 2"
           >
-            <div :class="[styles.horiz, styles.maxSpacing]">
+            <div :class="[styles.horiz]">
               <div :class="styles.sibSpSmall">
                 <q-btn
                   round

@@ -15,7 +15,7 @@
 
   const time = props.hideTime ? ref('') : ref(dateUtils.formatTime(dateObj));
 
-  const dateTime = ref(dateUtils.formatDateTime(dateObj));
+  const dateTime = ref(`${date.value} ${time.value}`);
 
   const newDateTime = computed(() => {
     return `${date.value} ${time.value}`;

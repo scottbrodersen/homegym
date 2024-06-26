@@ -31,13 +31,23 @@
     state.value = value;
   };
 
-  const editTitle = ref(false);
-  const toggleEditTitle = () => {
-    editTitle.value = !editTitle.value;
+  const editProgramTitle = ref(false);
+  const editInstanceTitle = ref(false);
+  const toggleProgramTitle = () => {
+    editProgramTitle.value = !editProgramTitle.value;
+  };
+  const toggleInstanceTitle = () => {
+    editInstanceTitle.value = !editInstanceTitle.value;
   };
 
-  provide('editTitle', { editTitle, toggleEditTitle });
-  provide('activity', activityID.value);
+  const newProgram = ref(false);
+  const toggleNewProgram = () => {
+    newProgram.value = !newProgram.value;
+  };
+
+  provide('editProgramTitle', { editProgramTitle, toggleProgramTitle });
+  provide('editInstanceTitle', { editInstanceTitle, toggleInstanceTitle });
+  provide('newProgram', { newProgram, toggleNewProgram });
   provide('state', { state, setState });
 
   const setActivitySelection = (id) => {
@@ -69,7 +79,6 @@
         );
       }
     }
-    // setState(states.READ_ONLY);
   };
 
   const startProgram = () => {
@@ -127,12 +136,12 @@
         <div>
           <q-btn
             id="new"
-            @click="setState(states.NEW)"
+            @click="toggleNewProgram()"
             icon="add"
             round
             dark
             color="primary"
-            :disable="state != states.READ_ONLY || !activityID"
+            :disable="newProgram || !activityID"
           />
         </div>
       </div>
@@ -153,13 +162,17 @@
         <div>
           <q-btn
             id="edit"
-            @click="toggleEditTitle()"
+            @click="
+              selectedProgram ? toggleProgramTitle() : toggleInstanceTitle()
+            "
             icon="edit"
             round
             dark
             color="primary"
             :disabled="
-              (!selectedProgram && !selectedProgramInstance) || editTitle
+              (!selectedProgram && !selectedProgramInstance) ||
+              editInstanceTitle ||
+              editProgramTitle
             "
           />
         </div>
@@ -178,13 +191,14 @@
     </div>
     <div>
       <ActivityProgram
-        v-if="selectedProgram || state == states.NEW"
         :programID="selectedProgram"
+        :activityID="activityID"
         @done="setProgramSelection"
       />
       <ProgramInstance
-        v-if="selectedProgramInstance && state != states.NEW"
+        v-if="selectedProgramInstance && !newProgram"
         :instanceID="selectedProgramInstance"
+        :activityID="activityID"
         @done="setProgramSelection"
       />
     </div>
