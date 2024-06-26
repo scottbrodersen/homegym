@@ -5,6 +5,7 @@
   import ExerciseSelect from './ExerciseSelect.vue';
   import VolumeReps from './VolumeReps.vue';
   import VolumeTime from './VolumeTime.vue';
+  import VolumeDistance from './VolumeDistance.vue';
   import * as styles from '../style.module.css';
   import { openVolumeModal } from '../modules/utils';
   import { QDialog, QBtn, QCard, QCardActions, QCardSection } from 'quasar';
@@ -75,6 +76,7 @@
     }
     exerciseName.value = exerciseTypeStore.get(typeID).name;
   };
+
   const addSegments = () => {
     if (
       exerciseTypeStore.get(instance.value.typeID).intensityType == 'hrZone'
@@ -86,7 +88,14 @@
         });
       }
     } else {
-      instance.value.parts.push({ intensity: 0, volume: [] });
+      const segment = { intensity: 0, volume: [] };
+      const volumeType = exerciseTypeStore.get(
+        instance.value.typeID
+      ).volumeType;
+      if (volumeType == 'time' || volumeType == 'distance') {
+        segment.volume.push(0);
+      }
+      instance.value.parts.push(segment);
     }
   };
 
@@ -190,9 +199,23 @@
           />
         </div>
       </div>
-      <div v-else :class="[styles.sibSpMed]">
+      <div
+        v-else-if="exerciseTypeStore.get(instance.typeID).volumeType == 'time'"
+        :class="[styles.sibSpMed]"
+      >
         <VolumeTime
-          :time="part.volume[0][0]"
+          :time="part.volume.length > 0 ? part.volume[0][0] : ''"
+          :writable="props.writable"
+          @update="
+            (value) => {
+              updateVolume({ volume: [[value]], segmentIndex: partIndex });
+            }
+          "
+        />
+      </div>
+      <div v-else :class="[styles.sibSpMed]">
+        <VolumeDistance
+          :distance="part.volume.length > 0 ? part.volume[0][0] : Number(0.0)"
           :writable="props.writable"
           @update="
             (value) => {
@@ -214,15 +237,15 @@
           flat
           label="No"
           color="accent"
-          text-color="dark"
           @click="toDelete = null"
           v-close-popup
+          dark
         />
         <q-btn
           flat
           label="Yes"
           color="accent"
-          text-color="dark"
+          dark
           @click="deleteSegment()"
           v-close-popup
         />

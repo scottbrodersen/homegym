@@ -389,6 +389,10 @@ header :global(.q-btn-group) {
   max-width: 60px;
 }
 
+.distanceInput {
+  width: 5em;
+}
+
 .compRep {
   max-width: 3em;
 }
