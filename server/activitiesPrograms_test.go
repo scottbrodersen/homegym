@@ -378,5 +378,19 @@ func TestHandlePrograms(t *testing.T) {
 
 			So(body, ShouldResemble, testProgramInstance())
 		})
+
+		Convey("When we receive a request to deactivate the active program instance", func() {
+			piURL := fmt.Sprintf("%s/instances/active", url)
+			mpm.On("DeactivateProgramInstance", mock.Anything, mock.Anything).Return(nil)
+
+			req := httptest.NewRequest(http.MethodDelete, piURL, nil)
+			req = req.WithContext(testContext())
+
+			w := httptest.NewRecorder()
+
+			ActivitiesApi(w, req)
+
+			So(w.Result().StatusCode, ShouldEqual, http.StatusOK)
+		})
 	})
 }

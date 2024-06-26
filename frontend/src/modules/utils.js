@@ -132,11 +132,16 @@ const fetchPrograms = async (activityID) => {
   let lastProgram = '';
   while (!done) {
     const programPage = await fetchProgramPage(lastProgram, activityID);
+    if (programPage) {
     programsStore.addBulk(programPage);
-    if (programPage.length < pageSize()) {
+
+      if (programPage && programPage.length < pageSize()) {
       done = true;
     } else {
       lastProgram = programPage[programPage.length].id;
+      }
+    } else {
+      done = true;
     }
   }
 };
@@ -636,6 +641,29 @@ const updateProgramInstance = async (instance) => {
   return rawInstance.id;
 };
 
+const deactivateProgramInstance = async (activityID) => {
+  const url = `/homegym/api/activities/${activityID}/programs/instances/active/`;
+
+  const headers = new Headers();
+  //headers.set('content-type', 'application/json');
+
+  const options = {
+    method: 'DELETE',
+    //body: JSON.stringify(rawInstance),
+    headers: headers,
+  };
+
+  const resp = await fetch(url, options);
+
+  if (resp.status == 401) {
+    throw new ErrNotLoggedIn('unauthorized fetch of program');
+  } else if (resp.status < 200 || resp.status >= 300) {
+    throw new Error('error deactivating program instance');
+  }
+
+  programInstanceStore.removeActive(activityID);
+  };
+
 // event param has no id if it is new
 const storeEvent = async (url, event) => {
   const headers = new Headers();
@@ -834,6 +862,7 @@ export {
   newProgramInstanceModal,
   editProgramModal,
   updateProgramInstance,
+  deactivateProgramInstance,
   storeEvent,
   openVolumeModal,
   toast,

@@ -103,6 +103,15 @@ func TestProgramDal(t *testing.T) {
 			So(err, ShouldBeNil)
 		})
 
+		Convey("When we deactivate the active program", func() {
+			err := db.DeactivateProgramInstance(testUserID, testActivityID)
+			So(err, ShouldBeNil)
+			activeProgram, err := db.GetActiveProgramInstance(testUserID, testActivityID)
+			So(err, ShouldBeNil)
+			So(activeProgram, ShouldBeNil)
+
+		})
+
 		Convey("When we get a program instance using the wrong ID", func() {
 			expectNil, err := db.GetProgramInstancePage(testUserID, testProgramID, "bad id", 1)
 

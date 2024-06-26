@@ -22,13 +22,13 @@ func ActivitiesApi(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rxpRootPath := regexp.MustCompile(fmt.Sprintf("^%s$", rootpath))
-	rxpExercises := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]*)/exercises/?$", rootpath))
-	rxpActivity := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]*)/?$", rootpath))
-	rxpPrograms := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]*)/programs/?$", rootpath))
-	rxpProgramsID := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]*)/programs/([a-zA-Z0-9-]*)/?$", rootpath))
-	rxpProgramInstances := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]*)/programs/([a-zA-Z0-9-]*)/instances/?$", rootpath))
-	rxpProgramInstancesID := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]*)/programs/([a-zA-Z0-9-]*)/instances/([a-zA-Z0-9-]{7,})/?$", rootpath))
-	rxpProgramInstancesActive := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]*)/programs/instances/active/?$", rootpath))
+	rxpExercises := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]+)/exercises/?$", rootpath))
+	rxpActivity := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]+)/?$", rootpath))
+	rxpPrograms := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]+)/programs/?$", rootpath))
+	rxpProgramsID := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]+)/programs/([a-zA-Z0-9-]+)/?$", rootpath))
+	rxpProgramInstances := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]+)/programs/([a-zA-Z0-9-]+)/instances/?$", rootpath))
+	rxpProgramInstancesID := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]+)/programs/([a-zA-Z0-9-]+)/instances/([a-zA-Z0-9-]{7,})/?$", rootpath))
+	rxpProgramInstancesActive := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]+)/programs/instances/active/?$", rootpath))
 
 	if rxpRootPath.MatchString(r.URL.Path) {
 		if r.Method == http.MethodPost {
@@ -122,7 +122,12 @@ func ActivitiesApi(w http.ResponseWriter, r *http.Request) {
 			getActiveProgramInstance(*username, activityID, w)
 
 			return
+		} else if r.Method == http.MethodDelete {
+			deactivateProgramInstance(*username, activityID, w)
+
+			return
 		}
+
 	}
 
 	http.Error(w, "not found", http.StatusNotFound)

@@ -335,3 +335,13 @@ func (mpm *MockProgramManager) GetActiveProgramInstance(userID, activityID strin
 
 	return args.Get(0).(*programs.ProgramInstance), nil
 }
+
+func (mpm *MockProgramManager) DeactivateProgramInstance(userID, activityID string) error {
+	args := mpm.Called(userID, activityID)
+
+	if args.Error(0) != nil {
+		return nil
+	}
+
+	return nil
+}

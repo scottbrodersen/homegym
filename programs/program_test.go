@@ -247,5 +247,14 @@ func TestPrograms(t *testing.T) {
 			So(err, ShouldBeNil)
 			So(*inst, ShouldResemble, testProgramInstance())
 		})
+
+		Convey("When we deactivate the active program instance", func() {
+
+			db.On("DeactivateProgramInstance", mock.Anything, mock.Anything).Return(nil)
+
+			err := ProgramManager.DeactivateProgramInstance(testUserID, testActivityID)
+
+			So(err, ShouldBeNil)
+		})
 	})
 }
