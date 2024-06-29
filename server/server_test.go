@@ -73,57 +73,6 @@ func testContext() context.Context {
 	return context.WithValue(context.WithValue(c, usernameKey, testUserName), roleKey, string(auth.User))
 }
 
-func newMockEventAdmin() *mockEventAdmin {
-	return new(mockEventAdmin)
-}
-
-type mockEventAdmin struct {
-	mock.Mock
-}
-
-func (e *mockEventAdmin) GetCachedExerciseType(exerciseTypeID string) *workoutlog.ExerciseType {
-	args := e.Called(exerciseTypeID)
-
-	return args.Get(0).(*workoutlog.ExerciseType)
-
-}
-
-func (e *mockEventAdmin) NewEvent(userID string, event workoutlog.Event) (*string, error) {
-	args := e.Called(userID, event)
-
-	if args.Error(1) != nil {
-		return nil, args.Error(1)
-	}
-
-	return args.Get(0).(*string), nil
-}
-
-func (e *mockEventAdmin) UpdateEvent(userID string, currentDate int64, event workoutlog.Event) error {
-	args := e.Called(userID, currentDate, event)
-
-	return args.Error(0)
-}
-
-func (e *mockEventAdmin) GetEventExercises(userID, eventID string) (map[int]workoutlog.ExerciseInstance, error) {
-	args := e.Called(userID, eventID)
-
-	if args.Error(1) != nil {
-		return nil, args.Error(1)
-	}
-
-	return args.Get(0).(map[int]workoutlog.ExerciseInstance), nil
-}
-
-func (e *mockEventAdmin) GetPageOfEvents(userID string, previousEvent workoutlog.Event, pageSize int) ([]workoutlog.Event, error) {
-	args := e.Called(userID, previousEvent, pageSize)
-
-	if args.Error(1) != nil {
-		return nil, args.Error(1)
-	}
-
-	return args.Get(0).([]workoutlog.Event), nil
-}
-
 func newMockActivityAdmin() *mockActivityAdmin {
 	return new(mockActivityAdmin)
 }

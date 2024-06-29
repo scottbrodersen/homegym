@@ -13,6 +13,12 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+type metrics struct {
+	Dates  []int64   `json:"dates"`
+	Volume []float32 `json:"volume"`
+	Load   []float32 `json:"load"`
+}
+
 func EventsApi(w http.ResponseWriter, r *http.Request) {
 	rootPath := "/homegym/api/events/"
 	log.SetLevel(log.DebugLevel)
@@ -28,6 +34,8 @@ func EventsApi(w http.ResponseWriter, r *http.Request) {
 	rxpEventPath := regexp.MustCompile(fmt.Sprintf("^%s(\\d+)/([a-zA-Z0-9-]+)/?$", rootPath))
 	//  /api/events/{id}/exercises
 	rxpExercisesPath := regexp.MustCompile(fmt.Sprintf("^%s(\\d+)/([a-zA-Z0-9-]+)/exercises/?$", rootPath))
+	//  /api/events/metrics?type=blah&start=blah&end=blah
+	rxpMetrics := regexp.MustCompile(fmt.Sprintf("^%smetrics(\\?[a-z]+=[a-zA-Z0-9-]+((&[a-z]+=[a-zA-Z0-9-]+)*)?)?$", rootPath))
 
 	log.Debug("parsing path: ", r.URL.Path)
 
@@ -52,6 +60,12 @@ func EventsApi(w http.ResponseWriter, r *http.Request) {
 		currentDate := rxpEventPath.FindStringSubmatch(r.URL.Path)[1]
 		if r.Method == http.MethodPost {
 			updateEvent(*username, currentDate, w, r)
+			return
+		}
+	} else if rxpMetrics.MatchString(r.URL.Path) {
+		if r.Method == http.MethodGet {
+
+			getMetrics(*username, w, r)
 			return
 		}
 	}
@@ -183,6 +197,83 @@ func getPageOfEvents(username string, w http.ResponseWriter, r *http.Request) {
 	h := w.Header()
 	standardHeaders(&h)
 	w.Write(eventsJson)
+}
+
+// getMetrics returns a page of metrics.
+func getMetrics(username string, w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, `{"message": "could not parse URL query parameters"}`, http.StatusBadRequest)
+		return
+	}
+	startDate := 0
+	start := r.Form.Get("start")
+	if start != "" {
+		startDate, err = strconv.Atoi(start)
+		if err != nil {
+			http.Error(w, `{"message": "bad start value"}`, http.StatusBadRequest)
+			return
+		}
+	}
+	endDate := 0
+	end := r.Form.Get("end")
+	if end != "" {
+		endDate, err = strconv.Atoi(end)
+		if err != nil {
+			http.Error(w, `{"message": "bad end value"}`, http.StatusBadRequest)
+			return
+		}
+	}
+
+	filter := workoutlog.ExerciseFilter{
+		StartDate:     int64(startDate),
+		EndDate:       int64(endDate),
+		ExerciseTypes: []string(r.Form["type"]),
+	}
+
+	dateStack, instancesStack, err := workoutlog.EventManager.GetPageOfInstances(username, filter, 0)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("{\"message\": \"%s\"}", err.Error()), http.StatusInternalServerError)
+		return
+	}
+
+	// Calculate the metrics
+	// For each date, calculate the total volume and load
+	totalVol := []float32{}
+	totalLoad := []float32{}
+	//dateMetrics := make(map[int64]metrics)
+	for _, instances := range instancesStack {
+		volume := float32(0)
+		load := float32(0)
+		for _, inst := range instances {
+			exerciseType, err := workoutlog.ExerciseManager.GetExerciseType(username, inst.TypeID)
+			if err != nil {
+				http.Error(w, `{"message": "could not find exercise type"}`, http.StatusInternalServerError)
+				return
+			}
+			load, volume = exerciseType.CalculateMetrics(&inst)
+
+		}
+		totalVol = append(totalVol, volume)
+		totalLoad = append(totalLoad, load)
+	}
+
+	dateMetrics := metrics{
+		Dates:  dateStack,
+		Volume: totalVol,
+		Load:   totalLoad,
+	}
+
+	body, err := json.Marshal(dateMetrics)
+	if err != nil {
+		http.Error(w, `{"message": "failed to marshal response body"}`, http.StatusInternalServerError)
+		return
+	}
+
+	h := w.Header()
+	standardHeaders(&h)
+	w.Write(body)
+
 }
 
 // TODO: centralize these helper functions

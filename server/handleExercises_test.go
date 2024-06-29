@@ -124,7 +124,7 @@ func TestHandleExercises(t *testing.T) {
 			So(w.Result().StatusCode, ShouldEqual, http.StatusBadRequest)
 		})
 
-		Convey("When we recieve a request for all exercise types", func() {
+		Convey("When we receive a request for all exercise types", func() {
 			mockEmgr.On("GetExerciseTypes", mock.Anything).Return([]workoutlog.ExerciseType{testExerciseTypeNonComposite(), testExerciseTypeNonComposite(), testExerciseTypeNonComposite()}, nil)
 
 			req := httptest.NewRequest(http.MethodGet, baseURL, nil)

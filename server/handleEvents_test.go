@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
 
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/stretchr/testify/mock"
@@ -15,9 +14,17 @@ import (
 	"github.com/scottbrodersen/homegym/workoutlog"
 )
 
-func TestHandleEvents(t *testing.T) {
-	url := "/homegym/api/events/"
+var testExType workoutlog.ExerciseType = testExerciseTypeNonComposite()
 
+const (
+	testTime           = 1719824281
+	testIntensityValue = 5.0
+	numSets            = 4
+	numReps            = 1
+	url                = "/homegym/api/events/"
+)
+
+func testEvents(number int) []workoutlog.Event {
 	testEventMeta := workoutlog.EventMeta{
 		Mood:       1,
 		Energy:     2,
@@ -26,38 +33,44 @@ func TestHandleEvents(t *testing.T) {
 		Notes:      "test note",
 	}
 
-	testExType := testExerciseTypeNonComposite()
-
 	testInstance := workoutlog.ExerciseInstance{
 		TypeID:   testExType.ID,
 		Segments: []workoutlog.ExerciseSegment{},
 	}
 
+	sets := []float32{}
+	for i := 0; i < numSets; i++ {
+		sets = append(sets, float32(numReps))
+	}
+	vol := [][]float32{sets}
+
 	testInstance.Segments = append(testInstance.Segments, workoutlog.ExerciseSegment{
-		Intensity: 5.0,
-		Volume:    [][]float32{{1, 1, 1, 1}},
+		Intensity: testIntensityValue,
+		Volume:    vol,
 	})
 
 	testExercises := map[int]workoutlog.ExerciseInstance{1: testInstance}
 
-	testEvents := []workoutlog.Event{
-		{
-			ID:         "test-event-1",
+	events := []workoutlog.Event{}
+
+	for i := 0; i < number; i++ {
+		events = append(events, workoutlog.Event{
+			ID:         fmt.Sprintf("test-event-%d", i),
 			ActivityID: "test-activity-id",
-			Date:       time.Now().Unix(),
+			Date:       testTime + int64(i),
 			EventMeta:  testEventMeta,
-		},
-		{
-			ID:         "test-event-2",
-			ActivityID: "test-activity-id",
-			Date:       time.Now().Unix(),
-			EventMeta:  testEventMeta,
-		},
+			Exercises:  testExercises,
+		})
 	}
+
+	return events
+}
+
+func TestHandleEvents(t *testing.T) {
 
 	Convey("Given an event manager and an exercise manager", t, func() {
 
-		mockEventManager := newMockEventAdmin()
+		mockEventManager := workoutlog.NewMockEventAdmin()
 		workoutlog.EventManager = mockEventManager
 
 		mockExerciseManager := workoutlog.NewMockExerciseManager()
@@ -105,9 +118,6 @@ func TestHandleEvents(t *testing.T) {
 			eventStruct := &workoutlog.Event{}
 			_ = json.Unmarshal([]byte(testEvent), eventStruct)
 
-			// doest recognize the eventStruct arg as being equal
-			//So(mockEventManager.AssertCalled(t, "UpdateEvent", GymCtxValue(testContext(), usernameKey), 1234, *eventStruct), ShouldBeTrue)
-
 			So(mockEventManager.Calls[0].Method, ShouldEqual, "UpdateEvent")
 			updateEventCalledArgs := mockEventManager.Calls[0].Arguments
 			So(updateEventCalledArgs.Get(0), ShouldEqual, GymContextValue(testContext(), usernameKey))
@@ -116,7 +126,9 @@ func TestHandleEvents(t *testing.T) {
 		})
 
 		Convey("When we get event exercises", func() {
-			mockEventManager.On("GetEventExercises", mock.Anything, mock.Anything, mock.Anything).Return(testExercises, nil)
+			event := testEvents(1)[0]
+
+			mockEventManager.On("GetEventExercises", mock.Anything, mock.Anything, mock.Anything).Return(event.Exercises, nil)
 
 			reqUrl := fmt.Sprintf("%s13456/test-event-id/exercises", url)
 
@@ -132,13 +144,15 @@ func TestHandleEvents(t *testing.T) {
 			returnedExercises := new(map[int]workoutlog.ExerciseInstance)
 			mockEventManager.On("GetCachedExerciseType", mock.Anything).Return(&testExType, nil)
 			So(json.NewDecoder(w.Result().Body).Decode(returnedExercises), ShouldBeNil)
-			So(*returnedExercises, ShouldResemble, testExercises)
+			So(*returnedExercises, ShouldResemble, event.Exercises)
 		})
 
 		Convey("When we get a page of events", func() {
-			mockEventManager.On("GetPageOfEvents", mock.Anything, mock.Anything, mock.Anything).Return(testEvents, nil)
+
+			events := testEvents(2)
+			mockEventManager.On("GetPageOfEvents", mock.Anything, mock.Anything, mock.Anything).Return(events, nil)
 			mockExerciseManager.On("GetExerciseType", mock.Anything, mock.Anything).Return(&testExType, nil)
-			mockEventManager.On("GetCachedExerciseType", mock.Anything).Return(&testExType, nil).Times(len(testEvents))
+			mockEventManager.On("GetCachedExerciseType", mock.Anything).Return(&testExType, nil).Times(len(events))
 
 			req := httptest.NewRequest(http.MethodGet, url, nil)
 			req = req.WithContext(testContext())
@@ -156,7 +170,43 @@ func TestHandleEvents(t *testing.T) {
 				t.Fail()
 			}
 
-			So(returnedEvents, ShouldResemble, testEvents)
+			So(returnedEvents, ShouldResemble, events)
+		})
+
+		Convey("When we get a page of metrics", func() {
+			numEvents := 5
+			events := testEvents(numEvents)
+			testInstances := [][]workoutlog.ExerciseInstance{}
+			testDates := []int64{}
+			for _, evt := range events {
+				testDates = append(testDates, evt.Date)
+				testInstances = append(testInstances, []workoutlog.ExerciseInstance{evt.Exercises[1]})
+			}
+			mockEventManager.On("GetPageOfInstances", mock.Anything, mock.Anything, mock.Anything).Return(testDates, testInstances, nil)
+
+			//  /api/events/metrics?type=blah&startdate=blah&enddate=blah
+			req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("%smetrics", url), nil)
+			req = req.WithContext(testContext())
+
+			w := httptest.NewRecorder()
+
+			EventsApi(w, req)
+
+			So(w.Result().StatusCode, ShouldEqual, http.StatusOK)
+			So(w.Result().Header.Get("content-type"), ShouldEqual, "application/json")
+
+			returnedMetrics := metrics{}
+			err := json.NewDecoder(w.Result().Body).Decode(&returnedMetrics)
+
+			So(err, ShouldBeNil)
+			So(len(returnedMetrics.Dates), ShouldEqual, numEvents)
+			So(len(returnedMetrics.Volume), ShouldEqual, numEvents)
+			So(len(returnedMetrics.Load), ShouldEqual, numEvents)
+			for i := 0; i < numEvents; i++ {
+				So(returnedMetrics.Dates[i], ShouldEqual, testTime+int64(i))
+				So(returnedMetrics.Volume[i], ShouldEqual, numSets*numReps)
+				So(returnedMetrics.Load[i], ShouldEqual, numSets*numReps*testIntensityValue)
+			}
 		})
 	})
 }
