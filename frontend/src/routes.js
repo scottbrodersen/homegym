@@ -5,6 +5,7 @@ import HomePage from './components/HomePage.vue';
 import PageHeader from './components/PageHeader.vue';
 import ExerciseTypesPage from './components/ExerciseTypesPage.vue';
 import ProgramsPage from './components/ProgramsPage.vue';
+import AnalyzePage from './components/AnalyzePage.vue';
 
 const routes = [
   {
@@ -21,6 +22,11 @@ const routes = [
     path: '/homegym/activities/',
     components: { default: PageHeader, main: ActivityPage },
     name: 'activities',
+  },
+  {
+    path: '/homegym/analyze/',
+    components: { default: PageHeader, main: AnalyzePage },
+    name: 'analyze',
   },
   {
     path: '/homegym/event/:eventId?',
