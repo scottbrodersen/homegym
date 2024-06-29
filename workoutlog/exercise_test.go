@@ -19,6 +19,22 @@ const (
 )
 
 var testComposition = map[string]int{"id1": 2, "id2": 3}
+var exerciseType1 = ExerciseType{ID: "id1"}
+var exerciseType2 = ExerciseType{ID: "id2"}
+var exerciseType3 = ExerciseType{ID: "id3"}
+
+var testEvents []Event
+
+func testEventMaker(date int64) Event {
+	return Event{
+		Date:      date,
+		Exercises: map[int]ExerciseInstance{1: {TypeID: exerciseType1.ID}, 2: {TypeID: exerciseType2.ID}, 3: {TypeID: exerciseType3.ID}},
+	}
+}
+
+// func testExerciseInstanceMaker(typeID string) ExerciseInstance {
+// 	return ExerciseInstance{TypeID: typeID}
+// }
 
 func TestExercises(t *testing.T) {
 	Convey("Given a dal client and an exercise manager", t, func() {
@@ -39,10 +55,9 @@ func TestExercises(t *testing.T) {
 		})
 
 		Convey("When we create a composite ExerciseType", func() {
-			exercise1 := ExerciseType{ID: "id1"}
-			exercise2 := ExerciseType{ID: "id2"}
-			ex1Json, _ := json.Marshal(exercise1)
-			ex2Json, _ := json.Marshal(exercise2)
+
+			ex1Json, _ := json.Marshal(exerciseType1)
+			ex2Json, _ := json.Marshal(exerciseType2)
 			exercises := [][]byte{ex1Json, ex2Json}
 			db.On("GetExercises", mock.Anything).Return(exercises, nil)
 			db.On("AddExercise", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
@@ -70,7 +85,7 @@ func TestExercises(t *testing.T) {
 			})
 		})
 
-		Convey("When we attempt to create an exercise composed of non-existant types", func() {
+		Convey("When we attempt to create an exercise composed of non-existent types", func() {
 			db.On("GetExercises", mock.Anything).Return([][]byte{}, nil)
 			db.On("AddExercise", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 			id, err := ExerciseManager.NewExerciseType(testUserID, testExerciseName, testIntensity, testVolume, testVolConstraint, testComposition, "")
@@ -81,5 +96,6 @@ func TestExercises(t *testing.T) {
 			})
 
 		})
+
 	})
 }

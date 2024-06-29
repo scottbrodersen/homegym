@@ -3,15 +3,19 @@ package workoutlog
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
+	"slices"
 	"sync"
+	"time"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/google/uuid"
 	"github.com/scottbrodersen/homegym/dal"
 )
 
-var DefaultPageSize = int(10)
+var DefaultPageSize = int(100)
 var EventManager EventAdmin = new(eventManager)
 var ErrInvalidEvent = fmt.Errorf("invalid event")
 
@@ -21,6 +25,7 @@ type EventAdmin interface {
 	GetCachedExerciseType(exerciseTypeID string) *ExerciseType
 	GetEventExercises(userID, eventID string) (map[int]ExerciseInstance, error)
 	UpdateEvent(userID string, currentDate int64, event Event) error
+	GetPageOfInstances(userID string, filter ExerciseFilter, pageSize int) ([]int64, [][]ExerciseInstance, error)
 }
 
 type eventManager struct{}
@@ -44,7 +49,7 @@ type EventMeta struct {
 
 var exerciseTypeCache sync.Map = sync.Map{}
 
-func (em *eventManager) GetCachedExerciseType(exerciseTypeID string) *ExerciseType {
+func (em eventManager) GetCachedExerciseType(exerciseTypeID string) *ExerciseType {
 	cachedType, ok := exerciseTypeCache.Load(exerciseTypeID)
 	if !ok {
 		return nil
@@ -58,7 +63,7 @@ func (em *eventManager) GetCachedExerciseType(exerciseTypeID string) *ExerciseTy
 // The event data consists of everything but the exercises which are added subsequently in separate calls.
 // If exercises are included in the event they are ignored.
 // The event id is returned.
-func (em *eventManager) NewEvent(userID string, event Event) (*string, error) {
+func (em eventManager) NewEvent(userID string, event Event) (*string, error) {
 	if userID == "" || event.ActivityID == "" || event.Date == 0 {
 		return nil, ErrInvalidEvent
 	}
@@ -85,7 +90,7 @@ func (em *eventManager) NewEvent(userID string, event Event) (*string, error) {
 }
 
 // UpdateEvent replaces a stored event.
-func (em *eventManager) UpdateEvent(userID string, currentDate int64, event Event) error {
+func (em eventManager) UpdateEvent(userID string, currentDate int64, event Event) error {
 	if userID == "" || event.ID == "" || event.ActivityID == "" || event.Date == 0 {
 		return ErrInvalidEvent
 	}
@@ -150,7 +155,10 @@ func prepEventExercises(userID, activityID string, exerciseInstances map[int]Exe
 	return exTypeIDs, exInstances, nil
 }
 
-func (em *eventManager) GetPageOfEvents(userID string, previousEvent Event, pageSize int) ([]Event, error) {
+// GetPageOfEvents gets a page of Event structs from the database.
+// Set previousEvent to the last event returned in the previous page. Set it to an empty struct to get the first page.
+// The maximum page size is 100. Exceeding the maximum returns an error.
+func (em eventManager) GetPageOfEvents(userID string, previousEvent Event, pageSize int) ([]Event, error) {
 	if pageSize > 100 {
 		return nil, fmt.Errorf("page size cannot exceed 100")
 	}
@@ -186,7 +194,7 @@ func (em *eventManager) GetPageOfEvents(userID string, previousEvent Event, page
 	return events, nil
 }
 
-func (em *eventManager) GetEventExercises(userID, eventID string) (map[int]ExerciseInstance, error) {
+func (em eventManager) GetEventExercises(userID, eventID string) (map[int]ExerciseInstance, error) {
 	storedInstances, err := dal.DB.GetEventExercises(userID, eventID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read event exercises: %w", err)
@@ -204,6 +212,74 @@ func (em *eventManager) GetEventExercises(userID, eventID string) (map[int]Exerc
 	}
 
 	return instances, nil
+}
+
+// GetPageOfInstances gets a maximum of 3000 event instances
+// The pageSize is slightly exceeded when the instances added from an event causes the total count to surpass the page limit.
+// The returned map uses a date as the key, and the value is an array of instances that were performed on that date.
+// The StartDate field of filter indicates the earliest date of the event to include in the page. Set to 0 to get the first page.
+func (em eventManager) GetPageOfInstances(userID string, filter ExerciseFilter, pageSize int) ([]int64, [][]ExerciseInstance, error) {
+
+	return getPageOfExercises(em, userID, filter, pageSize)
+}
+
+func getPageOfExercises(eventManager EventAdmin, userID string, filter ExerciseFilter, pageSize int) ([]int64, [][]ExerciseInstance, error) {
+	if pageSize == 0 {
+		pageSize = 3000 // exercise instances
+	}
+
+	dateStack := []int64{}
+	instancesStack := [][]ExerciseInstance{}
+
+	instanceCount := 0
+	startEvent := Event{}
+
+	if filter.StartDate == 0 {
+		filter.StartDate = time.Now().Unix()
+	}
+	startEvent.Date = filter.StartDate
+
+	for instanceCount < pageSize+1 {
+		// get 100 events starting at the start date
+		events, err := eventManager.GetPageOfEvents(userID, startEvent, DefaultPageSize)
+		if err != nil {
+			slog.Error("failed to get exercises", "user", userID, "error", err.Error())
+			return nil, nil, err
+		}
+
+		if len(events) == 0 {
+			break
+		} else {
+			// prepare for next page of events
+			startEvent = events[len(events)-1]
+		}
+
+		// get the exercise instances for each event
+		for _, evt := range events {
+			if evt.Date <= filter.StartDate && evt.Date >= filter.EndDate {
+				// TODO: limit the number of exercises in an event
+				eventInstances, err := EventManager.GetEventExercises(userID, evt.ID)
+				if err != nil {
+					slog.Error("failed to get exercise instances", "user", userID, "error", err.Error())
+					return nil, nil, err
+				}
+				// add them to the map if the pass through the filter
+				instances := []ExerciseInstance{}
+				for _, i := range eventInstances {
+					if len(filter.ExerciseTypes) == 0 || slices.Index(filter.ExerciseTypes, i.TypeID) >= 0 {
+						instances = append(instances, i)
+						instanceCount++
+					}
+				}
+				if len(instances) > 0 {
+					dateStack = append(dateStack, evt.Date)
+					instancesStack = append(instancesStack, instances)
+				}
+			}
+
+		}
+	}
+	return dateStack, instancesStack, nil
 }
 
 func checkActivityForExerciseType(userID, activityID, exerciseTypeID string) error {
@@ -228,4 +304,66 @@ func checkActivityForExerciseType(userID, activityID, exerciseTypeID string) err
 	}
 
 	return nil
+}
+
+func NewMockEventAdmin() *MockEventAdmin {
+	return new(MockEventAdmin)
+}
+
+type MockEventAdmin struct {
+	mock.Mock
+}
+
+func (e *MockEventAdmin) GetCachedExerciseType(exerciseTypeID string) *ExerciseType {
+	args := e.Called(exerciseTypeID)
+
+	return args.Get(0).(*ExerciseType)
+
+}
+
+func (e *MockEventAdmin) NewEvent(userID string, event Event) (*string, error) {
+	args := e.Called(userID, event)
+
+	if args.Error(1) != nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*string), nil
+}
+
+func (e *MockEventAdmin) UpdateEvent(userID string, currentDate int64, event Event) error {
+	args := e.Called(userID, currentDate, event)
+
+	return args.Error(0)
+}
+
+func (e *MockEventAdmin) GetEventExercises(userID, eventID string) (map[int]ExerciseInstance, error) {
+	args := e.Called(userID, eventID)
+
+	if args.Error(1) != nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(map[int]ExerciseInstance), nil
+}
+
+func (e *MockEventAdmin) GetPageOfEvents(userID string, previousEvent Event, pageSize int) ([]Event, error) {
+	args := e.Called(userID, previousEvent, pageSize)
+
+	if args.Error(1) != nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).([]Event), nil
+}
+
+func (e *MockEventAdmin) GetPageOfInstances(userID string, filter ExerciseFilter, pageSize int) ([]int64, [][]ExerciseInstance, error) {
+	args := e.Called(userID, filter, pageSize)
+
+	if args.Error(2) != nil {
+		return nil, nil, args.Error(1)
+
+	}
+
+	return args.Get(0).([]int64), args.Get(1).([][]ExerciseInstance), nil
 }

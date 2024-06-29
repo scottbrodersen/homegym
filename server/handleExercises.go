@@ -20,7 +20,7 @@ func ExerciseTypesApi(w http.ResponseWriter, r *http.Request) {
 
 	username, _, err := whoIsIt(r.Context())
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusForbidden)
+		http.Error(w, fmt.Sprintf("{\"message\": \"%s\"}", err.Error()), http.StatusForbidden)
 		return
 	}
 
@@ -50,13 +50,13 @@ func ExerciseTypesApi(w http.ResponseWriter, r *http.Request) {
 func newExerciseType(username string, w http.ResponseWriter, r *http.Request) {
 
 	if r.Body == nil {
-		http.Error(w, "request body is required", http.StatusBadRequest)
+		http.Error(w, `{"message": "request body is required"}`, http.StatusBadRequest)
 		return
 	}
 	var et *workoutlog.ExerciseType = &workoutlog.ExerciseType{}
 	if err := json.NewDecoder(r.Body).Decode(et); err != nil {
 		log.Error(err)
-		http.Error(w, "problem with request body", http.StatusBadRequest)
+		http.Error(w, `{"message": "problem with request body"}`, http.StatusBadRequest)
 		return
 	}
 
@@ -67,7 +67,7 @@ func newExerciseType(username string, w http.ResponseWriter, r *http.Request) {
 		if errors.Is(err, nu) {
 			http.Error(w, "name is not unique", http.StatusBadRequest)
 		} else if errors.As(err, &workoutlog.ErrInvalidExercise{}) {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(w, fmt.Sprintf("{\"message\": \"%s\"}", err.Error()), http.StatusBadRequest)
 		} else {
 			http.Error(w, internalServerError, http.StatusInternalServerError)
 		}
@@ -110,7 +110,7 @@ func updateExerciseType(username, typeID string, w http.ResponseWriter, r *http.
 		if errors.Is(err, nu) {
 			http.Error(w, `"message": "name is not unique"`, http.StatusBadRequest)
 		} else if errors.As(err, &workoutlog.ErrInvalidExercise{}) {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(w, fmt.Sprintf("{\"message\": \"%s\"}", err.Error()), http.StatusBadRequest)
 		} else {
 			http.Error(w, internalServerError, http.StatusInternalServerError)
 		}
@@ -130,9 +130,7 @@ func listExerciseTypes(username string, w http.ResponseWriter) {
 
 	body, err := json.Marshal(types)
 	if err != nil {
-		message := struct{ Message string }{Message: "failed to get exercise types"}
-		body, _ = json.Marshal(message)
-		http.Error(w, internalServerError, http.StatusInternalServerError)
+		http.Error(w, `{"message": "failed to get exercise types"}`, http.StatusInternalServerError)
 	}
 
 	h := w.Header()
