@@ -21,6 +21,7 @@
   const paths = {
     '/homegym/event/': 'event',
     '/homegym/activities/': 'activities',
+    '/homegym/analyze/': 'analyze',
     '/homegym/exercises/': 'exTypes',
     '/homegym/programs/': 'programs',
   };
@@ -30,6 +31,7 @@
     home: true,
     event: false,
     activities: false,
+    analyze: false,
     exTypes: false,
     programs: false,
   });
@@ -72,6 +74,7 @@
     home: 'Home',
     event: 'Event',
     activities: 'Activities',
+    analyze: 'Analyze',
     exTypes: 'Exercises',
     programs: 'Programs',
     metric: 'Metric',
@@ -127,6 +130,15 @@
           </q-item>
         </q-list>
       </q-btn-dropdown>
+      <q-btn
+        :class="{ active: active.analyze }"
+        :unelevated="active.analyze"
+        :glossy="!active.analyze"
+        :label="labels.analyze"
+        square
+        :padding="padding"
+        :to="{ name: 'analyze' }"
+      />
       <q-btn icon="menu" :class="[styles.hgHamburger]">
         <q-menu>
           <q-list>
