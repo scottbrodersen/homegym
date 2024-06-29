@@ -490,7 +490,7 @@ func (c *DBClient) GetEvent(userID, eventID string, eventDate int64) ([]byte, er
 // GetEventPage gets a page of events.
 // Items are iterated in reverse order so a value of zero for previous date returns no results.
 // To get the latest events, set previous date to now.
-// For subsequent pages, previousEventID and previousDate are used to identify the last item in the previous page
+// For subsequent pages, previousDate and optionally previousEventID are used to identify the last item in the previous page
 func (c *DBClient) GetEventPage(userID, previousEventID string, previousDate int64, pageSize int) (
 	[][]byte, error) {
 	// user:{id}#event:{date}#id:{id}#activity:{activityID}

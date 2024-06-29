@@ -38,18 +38,22 @@ type ExerciseInstance struct {
 }
 
 // ExerciseSegment stores the performance data for an exercise at a specific intensity.
+// Volume is an array of the amount of activity done at the intensity.
+// The volume type and constraint of the exercise type dictates the shape of the values in the inner array.
+// Time and distance types store a single float32 in the inner array.
+// Count types store one or more values of 1 or 0 in the array, depending on the volume constraint
 type ExerciseSegment struct {
 	Intensity float32     `json:"intensity"`
 	Volume    [][]float32 `json:"volume"`
 }
 
-// Indicates the type of values that can be expressed for volumes
+// volumeConstraints indicates the type of values that can be expressed for volumes.
 // 0 is no restriction (any float32)
 // 1 is restricted to the value 1 (for counts)
 // 2 is restricted to either 1 or 0 (success/failure)
 var volumeConstraints []int = []int{0, 1, 2}
 var volumeTypes []string = []string{"count", "distance", "time"}
-var intensityTypes []string = []string{"weight", "distance", "hrZone", "rpe", "percentOfMax", "bodyweight", "pace"}
+var intensityTypes []string = []string{"weight", "hrZone", "rpe", "percentOfMax", "bodyweight", "pace"}
 
 func (e ExerciseType) CreateInstance() ExerciseInstance {
 	return ExerciseInstance{
@@ -115,6 +119,7 @@ func (et ExerciseType) validateInstance(ei *ExerciseInstance) error {
 					ei.Segments[i].Volume[j][k] = float32(math.Floor(float64(rep*10)) / 10)
 
 				case 1:
+					// for simple counts, allow 0 so that the value can be interpreted as either tracking failures or not.
 					fallthrough
 				case 2:
 					if rep != 0 && rep != 1 {
@@ -171,9 +176,56 @@ func (e ExerciseType) validate() error {
 		}
 	}
 
-	if (e.Composition != nil || len(e.Composition) > 0) && e.Basis != "" {
+	if e.Composition != nil || len(e.Composition) > 0 && e.Basis != "" {
 		return ErrInvalidExercise{Message: "cannot be both a composite and a variation"}
 	}
 
+	// Restrict to sensible combinations of intensity and volume types
+	if e.IntensityType == "weight" || e.IntensityType == "bodyweight" || e.IntensityType == "percenttOfMax" {
+		if e.VolumeType != "count" {
+			return ErrInvalidExercise{Message: "weight-based intensities muse use count as volume type"}
+		}
+	} else if e.IntensityType == "hrZone" {
+		if e.VolumeType != "time" {
+			return ErrInvalidExercise{Message: "HR Zone intensities must use time as volume type"}
+		}
+	} else if e.IntensityType == "pace" {
+		if e.VolumeType != "time" {
+			return ErrInvalidExercise{Message: "Pace intensities must use time as volume type"}
+		}
+	}
+	// RPE is valid for any volume type
+
 	return nil
+}
+
+func (et ExerciseType) CalculateMetrics(ei *ExerciseInstance) (load, volume float32) {
+	load = 0
+	volume = 0
+
+	volumeFactor := float32(1)
+
+	// time volume is converted from seconds to hours
+	if et.VolumeType == "time" {
+		volumeFactor = float32(1) / 60 / 60
+	}
+
+	// distance is converted from m to km
+	if et.VolumeType == "distance" {
+		volumeFactor = float32(1) / 1000
+	}
+
+	// for weight and count, volume is the total reps and load is total weight * reps
+	// for distance, volume is number of km
+	// for time, volume is number of hours
+	for _, segment := range ei.Segments {
+		for _, set := range segment.Volume {
+			for _, reps := range set {
+				volume = volume + reps*volumeFactor
+				load = load + segment.Intensity*reps*volumeFactor
+			}
+
+		}
+	}
+	return
 }

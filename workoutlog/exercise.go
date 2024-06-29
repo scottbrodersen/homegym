@@ -3,10 +3,11 @@ package workoutlog
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
 
 	"github.com/google/uuid"
 	"github.com/scottbrodersen/homegym/dal"
-	log "github.com/sirupsen/logrus"
+
 	"github.com/stretchr/testify/mock"
 )
 
@@ -19,6 +20,12 @@ type ExerciseAdmin interface {
 	UpdateExerciseType(userID, exerciseID, name, intensity, volume string, volConstraint int, composition map[string]int, basis string) error
 	GetExerciseTypes(userID string) ([]ExerciseType, error)
 	GetExerciseType(userID, exerciseID string) (*ExerciseType, error)
+}
+
+type ExerciseFilter struct {
+	StartDate     int64
+	EndDate       int64
+	ExerciseTypes []string
 }
 
 type exerciseManager struct{}
@@ -98,7 +105,7 @@ func (ea *exerciseManager) UpdateExerciseType(userID, exerciseID, name, intensit
 
 	err = json.Unmarshal(exerciseByte, eType)
 	if err != nil {
-		log.Warn("the stored exercise type that we're updating was found to be invalid")
+		slog.Warn("the stored exercise type that we're updating was found to be invalid", "user", userID, "error", err.Error())
 	}
 
 	// Check that the name isn't already used

@@ -25,7 +25,8 @@ const testEventID = "test-event-id"
 
 var exerciseType ExerciseType = testExerciseType()
 var testWeight float32 = 10.5
-var testDate int64 = time.Now().Unix()
+
+const testDate int64 = int64(1719669151)
 
 func newTestEvent() Event {
 	return Event{
@@ -50,7 +51,7 @@ func testSetsRepsSegmentMaker() ExerciseSegment {
 }
 
 func getEventPageReturnValuesMaker() ([][]byte, error) {
-	testDate := time.Now().Unix()
+	//testDate := time.Now().Unix()
 	events := make([][]byte, 10)
 
 	for i := 0; i < 10; i++ {
@@ -135,6 +136,136 @@ func TestEvents(t *testing.T) {
 
 			So(err, ShouldBeNil)
 			So(len(events), ShouldEqual, 10)
+		})
+	})
+
+	Convey("Given an event manager", t, func() {
+		mockEM := NewMockEventAdmin()
+		numEvents := 4
+		testEvents = []Event{}
+		for i := 0; i < numEvents; i++ {
+			testEvents = append(testEvents, testEventMaker(testDate+int64(i)))
+		}
+
+		testEventExercises := testEvents[0].Exercises
+
+		Convey("When we get a page of exercise instances, unfiltered, and the page is not full", func() {
+			mockEM.On("GetPageOfEvents", mock.Anything, mock.Anything, mock.Anything).Return(testEvents, nil).Once()
+			mockEM.On("GetPageOfEvents", mock.Anything, mock.Anything, mock.Anything).Return([]Event{}, nil).Once()
+			mockEM.On("GetEventExercises", mock.Anything, mock.Anything).Return(testEventExercises, nil).Times(len(testEvents))
+			EventManager = mockEM
+			filter := ExerciseFilter{StartDate: time.Now().Unix()}
+			dates, instances, err := getPageOfExercises(EventManager, testUserID, filter, 0)
+
+			So(err, ShouldBeNil)
+			So(len(dates), ShouldEqual, numEvents)
+			So(len(instances), ShouldEqual, numEvents)
+			for _, inst := range instances {
+				So(len(inst), ShouldEqual, 3)
+			}
+		})
+
+		Convey("When we get a full page of exercise instances, unfiltered", func() {
+			mockEM.On("GetPageOfEvents", mock.Anything, mock.Anything, mock.Anything).Return(testEvents, nil).Once()
+			mockEM.On("GetPageOfEvents", mock.Anything, mock.Anything, mock.Anything).Return([]Event{}, nil).Once()
+			mockEM.On("GetEventExercises", mock.Anything, mock.Anything).Return(testEventExercises, nil).Times(len(testEvents))
+			EventManager = mockEM
+			filter := ExerciseFilter{StartDate: time.Now().Unix()}
+			dates, instances, err := getPageOfExercises(EventManager, testUserID, filter, 4)
+
+			So(err, ShouldBeNil)
+			So(len(dates), ShouldEqual, 4)
+			So(len(instances), ShouldEqual, 4)
+			for _, inst := range instances {
+				So(len(inst), ShouldEqual, 3)
+			}
+		})
+
+		Convey("When we get instances from multiple pages of events, unfiltered", func() {
+			// force event page size of 1
+			for i := 0; i < numEvents; i++ {
+				mockEM.On("GetPageOfEvents", mock.Anything, mock.Anything, mock.Anything).Return([]Event{testEvents[i]}, nil).Once()
+			}
+			mockEM.On("GetPageOfEvents", mock.Anything, mock.Anything, mock.Anything).Return([]Event{}, nil).Once()
+
+			mockEM.On("GetEventExercises", mock.Anything, mock.Anything).Return(testEventExercises, nil).Times(len(testEvents))
+			EventManager = mockEM
+			filter := ExerciseFilter{StartDate: time.Now().Unix()}
+			dates, instances, err := getPageOfExercises(EventManager, testUserID, filter, 0)
+
+			So(err, ShouldBeNil)
+			So(len(dates), ShouldEqual, numEvents)
+			So(len(instances), ShouldEqual, numEvents)
+			for _, inst := range instances {
+				So(len(inst), ShouldEqual, 3)
+			}
+		})
+
+		Convey("When we filter to return a single exercise type", func() {
+			mockEM.On("GetPageOfEvents", mock.Anything, mock.Anything, mock.Anything).Return(testEvents, nil).Once()
+			mockEM.On("GetPageOfEvents", mock.Anything, mock.Anything, mock.Anything).Return([]Event{}, nil).Once()
+			mockEM.On("GetEventExercises", mock.Anything, mock.Anything).Return(testEventExercises, nil).Times(len(testEvents))
+			EventManager = mockEM
+			filter := ExerciseFilter{StartDate: time.Now().Unix(), ExerciseTypes: []string{"id1"}}
+			dates, instances, err := getPageOfExercises(EventManager, testUserID, filter, 0)
+
+			So(err, ShouldBeNil)
+			So(len(dates), ShouldEqual, numEvents)
+			So(len(instances), ShouldEqual, numEvents)
+			for _, inst := range instances {
+				So(len(inst), ShouldEqual, 1)
+				So(inst[0].TypeID, ShouldEqual, "id1")
+			}
+		})
+
+		Convey("When we filter on multiple exercise types", func() {
+			mockEM.On("GetPageOfEvents", mock.Anything, mock.Anything, mock.Anything).Return(testEvents, nil).Once()
+			mockEM.On("GetPageOfEvents", mock.Anything, mock.Anything, mock.Anything).Return([]Event{}, nil).Once()
+			mockEM.On("GetEventExercises", mock.Anything, mock.Anything).Return(testEventExercises, nil).Times(len(testEvents))
+			EventManager = mockEM
+			filter := ExerciseFilter{StartDate: time.Now().Unix(), ExerciseTypes: []string{"id1"}}
+			dates, instances, err := getPageOfExercises(EventManager, testUserID, filter, 0)
+
+			So(err, ShouldBeNil)
+			So(len(dates), ShouldEqual, numEvents)
+			So(len(instances), ShouldEqual, numEvents)
+			for _, inst := range instances {
+				So(len(inst), ShouldEqual, 1)
+				So(inst[0].TypeID, ShouldEqual, "id1")
+			}
+		})
+
+		Convey("When we set the end date", func() {
+			mockEM.On("GetPageOfEvents", mock.Anything, mock.Anything, mock.Anything).Return(testEvents, nil).Once()
+			mockEM.On("GetPageOfEvents", mock.Anything, mock.Anything, mock.Anything).Return([]Event{}, nil).Once()
+			mockEM.On("GetEventExercises", mock.Anything, mock.Anything).Return(testEventExercises, nil).Times(len(testEvents))
+			EventManager = mockEM
+			filter := ExerciseFilter{EndDate: testEvents[1].Date}
+			dates, instances, err := getPageOfExercises(EventManager, testUserID, filter, 0)
+
+			So(err, ShouldBeNil)
+			So(len(dates), ShouldEqual, 3)
+			So(len(instances), ShouldEqual, 3)
+			for _, inst := range instances {
+				So(len(inst), ShouldEqual, 3)
+			}
+		})
+
+		Convey("When we set a start date", func() {
+			mockEM.On("GetPageOfEvents", mock.Anything, mock.Anything, mock.Anything).Return(testEvents, nil).Once()
+			mockEM.On("GetPageOfEvents", mock.Anything, mock.Anything, mock.Anything).Return([]Event{}, nil).Once()
+			mockEM.On("GetEventExercises", mock.Anything, mock.Anything).Return(testEventExercises, nil).Times(len(testEvents))
+			EventManager = mockEM
+			filter := ExerciseFilter{StartDate: testEvents[1].Date}
+			dates, instances, err := getPageOfExercises(EventManager, testUserID, filter, 0)
+
+			So(err, ShouldBeNil)
+			So(len(dates), ShouldEqual, 2)
+			So(len(instances), ShouldEqual, 2)
+			for _, inst := range instances {
+				So(len(inst), ShouldEqual, 3)
+			}
+
 		})
 	})
 }
