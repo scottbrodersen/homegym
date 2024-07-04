@@ -40,6 +40,7 @@
       const mins = Number(timeParts[1]);
       const secs = Number(timeParts[2]);
 
+      // emit value in seconds
       emit('update', hours * 3600 + mins * 60 + secs);
     }
   };
