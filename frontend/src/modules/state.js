@@ -1,6 +1,34 @@
 import { reactive, computed } from 'vue';
 import { pageSize } from './utils';
 
+/*
+  {
+    "id": "6ef6125f-1708-4977-8dad-598bfff2a3a4",
+    "activityID": "49adfe46-854f-425e-9782-a1d9a5255e43",
+    "date": 1719402960,
+    "mood": 4,
+    "motivation": 4,
+    "energy": 2,
+    "overall": 4,
+    "notes": "",
+    "exercises": {
+      "0": {
+        "typeID": "de2e77e0-c827-4bcb-a9fc-0255cbd0ec57",
+        "index": 0,
+        "parts": [
+          {
+            "intensity": 1,
+            "volume": [
+              [
+                2.2
+              ]
+            ]
+          }
+        ]
+      }
+    }
+  }
+*/
 export const eventStore = reactive({
   events: [],
 
@@ -49,6 +77,16 @@ export const eventStore = reactive({
   },
 });
 
+/*
+  {
+    "id": "4ad08e32-0cb3-4104-889f-7663671364e9",
+    "name": "weightlifting",
+    "exercises": [
+      "89170825-c9b9-4cff-902f-51aab3fa1008",
+      "89b41e66-936c-417a-a749-0fe1b97bc321"
+    ]
+  }
+*/
 export const activityStore = reactive({
   activities: new Map(),
   add(activity) {

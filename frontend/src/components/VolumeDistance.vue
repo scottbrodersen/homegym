@@ -5,16 +5,18 @@
   const props = defineProps({ writable: Boolean, distance: Number });
   const emit = defineEmits(['update']);
 
-  const distance = ref(props.distance);
+  const distance = ref((props.distance / 1000).toFixed(2));
 
+  // input is km
   const validate = (distValue) => {
-    const regex = new RegExp('^[0-9](\.[0-9])?$');
+    const regex = new RegExp('^[0-9](\.[0-9]{1,2})?$');
     return regex.test(distValue);
   };
 
+  // emit meters
   const update = (newDistance) => {
     if (validate(newDistance)) {
-      emit('update', parseFloat(newDistance));
+      emit('update', parseFloat(newDistance * 1000));
     }
   };
 </script>

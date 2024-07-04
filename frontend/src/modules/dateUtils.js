@@ -5,6 +5,10 @@ export const dateFromSeconds = (seconds) => {
   return seconds ? new Date(seconds * 1000) : new Date();
 };
 
+export const nowInSecondsUTC = () => {
+  return Math.floor(Date.now() / 1000);
+};
+
 export const setEpochToMidnight = (seconds) => {
   const date = dateFromSeconds(seconds);
   date.setHours(0, 0, 0);
