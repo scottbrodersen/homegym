@@ -27,7 +27,7 @@ const pageSize = () => {
     return 8;
   }
 };
-const fetchPageSize = 20;
+const fetchPageSize = 100;
 
 const intensityTypes = [
   'weight',

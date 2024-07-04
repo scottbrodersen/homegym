@@ -14,7 +14,10 @@
     "@quasar/extras": "^1.16.11",
     "quasar": "^2.16.4",
     "vue": "^3.4.30",
-    "vue-router": "^4.4.0"
+    "vue-router": "^4.4.0",
+    "chart.js": "^4.4.3",
+    "date-fns": "^v3.6.0",
+    "chartjs-adapter-date-fns": "^v3.0.0"
   },
   "devDependencies": {
     "@quasar/quasar-app-extension-testing-unit-vitest": "^1.0.0",
