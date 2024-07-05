@@ -49,6 +49,7 @@ type Dstore interface {
 	DeactivateProgramInstance(userID, activityID string) error
 
 	Destroy()
+
 	GetKeys(usage string) (map[string][]byte, map[string][]byte, error)
 	RotateKeys(newRSAKey []byte, keyID, usage string) error
 	DeleteKey(keyID, usage string) error
@@ -58,7 +59,10 @@ type Dstore interface {
 	DeleteSession(sessionID string) error
 	GetSessionExpiries() (map[string]int64, error)
 
-	// Iter8er()
+	AddBioStats(userID string, date int64, stats []byte) error
+	GetBioStatsPage(useID string, startDate int64, pageSize int) ([][]byte, error)
+
+	Iter8er()
 }
 
 var (
@@ -717,26 +721,26 @@ func readItem(c *DBClient, key []byte) (*badger.Entry, error) {
 	return entry, nil
 }
 
-// func (c *DBClient) Iter8er() {
-// 	c.db.View(func(txn *badger.Txn) error {
-// 		opts := badger.DefaultIteratorOptions
-// 		opts.PrefetchSize = 10
-// 		it := txn.NewIterator(opts)
-// 		defer it.Close()
-// 		for it.seek(); it.Valid(); it.Next() {
-// 			item := it.Item()
-// 			k := item.Key()
-// 			err := item.Value(func(v []byte) error {
-// 				fmt.Printf("key=%s, value=%s\n", k, v)
-// 				return nil
-// 			})
-// 			if err != nil {
-// 				return err
-// 			}
-// 		}
-// 		return nil
-// 	})
-// }
+func (c *DBClient) Iter8er() {
+	c.db.View(func(txn *badger.Txn) error {
+		opts := badger.DefaultIteratorOptions
+		opts.PrefetchSize = 10
+		it := txn.NewIterator(opts)
+		defer it.Close()
+		for it.Seek([]byte{}); it.Valid(); it.Next() {
+			item := it.Item()
+			k := item.Key()
+			err := item.Value(func(v []byte) error {
+				fmt.Printf("key=%s, value=%s\n", k, v)
+				return nil
+			})
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+}
 
 func readKeyPrefix(c *DBClient, prefix []byte) ([]*badger.Entry, error) {
 	entries := []*badger.Entry{}
@@ -777,7 +781,7 @@ func readKeyPrefixPage(c *DBClient, previousPrefix, validPrefix []byte, pageSize
 		defer it.Close()
 		for it.Seek(startPrefix); it.ValidForPrefix(validPrefix); it.Next() {
 			item := it.Item()
-			// Skip filtered items and the previous page's item (unless)
+			// Skip filtered items and the previous page's item (unless includePrevious is true)
 			if (previousPrefix != nil && strings.Contains(string(item.Key()), string(previousPrefix)) && !includePrevious) || (exclude != "" && strings.Contains(string(item.Key()), exclude)) {
 				continue
 			}

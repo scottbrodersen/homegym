@@ -156,7 +156,7 @@ func getProgramPage(username, activityID string, w http.ResponseWriter, r *http.
 	w.Write(body)
 }
 
-func addProgramInstance(username, activityID, programID string, w http.ResponseWriter, r *http.Request) {
+func addProgramInstance(username, programID string, w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
 		http.Error(w, `{"message":"no body"}`, http.StatusBadRequest)
 		return
@@ -322,7 +322,7 @@ func getProgramInstancePage(username, programID string, w http.ResponseWriter, r
 	w.Write(body)
 }
 
-func setActiveProgramInstance(username, activityID, programID, instanceID string, w http.ResponseWriter, r *http.Request) {
+func setActiveProgramInstance(username, activityID, programID, instanceID string, w http.ResponseWriter) {
 
 	err := programs.ProgramManager.SetActiveProgramInstance(username, activityID, programID, instanceID)
 	if err != nil {

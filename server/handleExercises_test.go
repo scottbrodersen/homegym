@@ -208,7 +208,7 @@ func TestHandleExercises(t *testing.T) {
 		Convey("When we receive a request to update an exercise with an invalid definition", func() {
 			badType := testExerciseTypeNonComposite()
 			badType.IntensityType = "badType"
-			jsonStr, err := json.Marshal(testExerciseTypeNonComposite())
+			jsonStr, err := json.Marshal(badType)
 			if err != nil {
 				t.Errorf("failed to marshal test activity: %s", err.Error())
 			}

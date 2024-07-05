@@ -251,7 +251,9 @@ func getMetrics(username string, w http.ResponseWriter, r *http.Request) {
 				http.Error(w, `{"message": "could not find exercise type"}`, http.StatusInternalServerError)
 				return
 			}
-			load, volume = exerciseType.CalculateMetrics(&inst)
+			instLoad, instVolume := exerciseType.CalculateMetrics(&inst)
+			volume += instVolume
+			load += instLoad
 
 		}
 		totalVol = append(totalVol, volume)
