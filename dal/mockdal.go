@@ -259,7 +259,7 @@ func (d *MockDal) AddProgram(userID, activityID, programID string, program []byt
 func (d *MockDal) GetProgramPage(userID, activityID, previousProgramID string, pageSize int) ([][]byte, error) {
 	args := d.Called(userID, activityID, previousProgramID, pageSize)
 	if args.Error(1) != nil {
-		return nil, args.Error(0)
+		return nil, args.Error(1)
 	}
 	return args.Get(0).([][]byte), nil
 }
@@ -271,10 +271,11 @@ func (d *MockDal) AddProgramInstance(userID, programID, instanceID, activityID s
 	}
 	return nil
 }
+
 func (d *MockDal) GetProgramInstancePage(userID, programID, instanceID string, pageSize int) ([][]byte, error) {
 	args := d.Called(userID, programID, instanceID)
 	if args.Error(1) != nil {
-		return nil, args.Error(0)
+		return nil, args.Error(1)
 	}
 	return args.Get(0).([][]byte), nil
 }
@@ -291,15 +292,30 @@ func (d *MockDal) SetActiveProgramInstance(userID, activityID, programID, instan
 func (d *MockDal) GetActiveProgramInstance(userID, activityID string) ([]byte, error) {
 	args := d.Called(userID, activityID)
 	if args.Error(1) != nil {
-		return nil, args.Error(0)
+		return nil, args.Error(1)
 	}
 	return args.Get(0).([]byte), nil
 }
 
 func (d *MockDal) DeactivateProgramInstance(userID, activityID string) error {
 	args := d.Called(userID, activityID)
+
+	return args.Error(0)
+}
+
+func (d *MockDal) AddBioStats(userID string, date int64, stats []byte) error {
+	args := d.Called(userID, date, stats)
+	return args.Error(0)
+}
+
+func (d *MockDal) GetBioStatsPage(userID string, startDate int64, pageSize int) ([][]byte, error) {
+	args := d.Called(userID, startDate, pageSize)
 	if args.Error(1) != nil {
-		return args.Error(0)
+		return nil, args.Error(1)
 	}
-	return nil
+	return args.Get(0).([][]byte), nil
+}
+
+func (d *MockDal) Iter8er() {
+
 }

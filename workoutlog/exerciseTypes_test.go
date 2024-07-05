@@ -151,14 +151,21 @@ func TestExerciseTypes(t *testing.T) {
 		for _, iType := range intensityTypes {
 			e := testExerciseType()
 			e.IntensityType = iType
-
+			if iType == "hrZone" || iType == "pace" {
+				e.VolumeType = "time"
+				e.VolumeConstraint = 0
+			}
 			tests = append(tests, testEtype{Etype: e, Valid: true})
 		}
 		// add a valid type for each volume type
 		for _, vType := range volumeTypes {
 			e := testExerciseType()
 			e.VolumeType = vType
-			if vType != "count" {
+			if vType == "distance" {
+				e.IntensityType = "pace"
+				e.VolumeConstraint = 0
+			} else if vType == "time" {
+				e.IntensityType = "hrZone"
 				e.VolumeConstraint = 0
 			} else {
 				e.VolumeConstraint = 1
@@ -197,7 +204,7 @@ func TestExerciseTypes(t *testing.T) {
 			So(err, ShouldBeNil)
 		})
 
-		Convey("When we ingest an exerise instance with a bad rep value in the volume part", func() {
+		Convey("When we ingest an exercise instance with a bad rep value in the volume part", func() {
 			exIncoming := ExerciseInstance{}
 
 			if err := json.Unmarshal([]byte(testIncomingWithBadRep), &exIncoming); err != nil {
@@ -210,7 +217,7 @@ func TestExerciseTypes(t *testing.T) {
 
 		})
 
-		Convey("When we ingest an exerise instance with a bad index value in the volume part", func() {
+		Convey("When we ingest an exercise instance with a bad index value in the volume part", func() {
 			exIncoming := ExerciseInstance{}
 
 			if err := json.Unmarshal([]byte(testIncomingWithBadIndex), &exIncoming); err != nil {

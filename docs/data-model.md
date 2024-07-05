@@ -19,6 +19,7 @@
 | user:{id}#activity:{id}#program:{id}                      | []byte                   | training program         |
 | user:{id}#program:{id}#instance:{id}                      | []byte                   | A run of a program       |
 | user:{id}#activity:{id}#active-program                    | string                   | {programID}:{instanceID} |
+| user:{id}#bio:{date}                                      | []byte                   | health daily stats       |
 
 /_ cSpell:enable _/
 

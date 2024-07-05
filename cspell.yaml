@@ -3,14 +3,17 @@ language: en
 words:
   - activeprogram
   - addevent
+  - chartjs
   - checkmark
   - colour
   - colours
   - composables
+  - dailystats
   - Debugf
   - dgraph
   - Dstore
   - Editbles
+  - Emgr
   - Errorf
   - eventstore
   - followroute
@@ -28,6 +31,10 @@ words:
   - moveback
   - MOVEFWD
   - newevent
+  - newhash
+  - newname
+  - newversion
+  - odditems
   - openapi
   - phash
   - programid
@@ -37,11 +44,15 @@ words:
   - scottbrodersen
   - signup
   - sirupsen
+  - startime
   - stretchr
   - swipeable
+  - testsessionid
   - testtesttest
+  - testuserid
   - tokenkey
   - unfound
+  - unmarshaling
   - upsert
   - vnode
   - Warnf

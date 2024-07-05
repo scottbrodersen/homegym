@@ -89,7 +89,7 @@ func TestUsersDal(t *testing.T) {
 		})
 		Convey("When we add a user with id that starts with the entire id of the other user", func() {
 			err := client.NewUser(testUser(testUserID + "2"))
-			Convey("Then noerror is returned", func() {
+			Convey("Then no error is returned", func() {
 				So(err, ShouldBeNil)
 			})
 		})
@@ -156,7 +156,7 @@ var (
 	testExerciseID              = "testExerciseID"
 	testEventTime               = time.Now().Unix()
 	testEventID                 = "testEventID"
-	testExerciseInstance        = []byte("testExercisInstance")
+	testExerciseInstance        = []byte("testExerciseInstance")
 )
 
 func TestLogItemsDal(t *testing.T) {
@@ -455,7 +455,7 @@ func TestKeysDal(t *testing.T) {
 	})
 }
 
-func TestSessionssDal(t *testing.T) {
+func TestSessionsDal(t *testing.T) {
 	defer cleanup()
 	Convey("Given a dal client", t, func() {
 		client, err := InitClient(testPath)
@@ -479,10 +479,10 @@ func TestSessionssDal(t *testing.T) {
 		Convey("When we delete the session", func() {
 			err = client.DeleteSession(testSessionID)
 			So(err, ShouldBeNil)
-			username, exprity, err := client.GetSession(testSessionID)
+			username, expiry, err := client.GetSession(testSessionID)
 			So(err, ShouldBeNil)
 			So(username, ShouldBeNil)
-			So(exprity, ShouldBeNil)
+			So(expiry, ShouldBeNil)
 		})
 		Convey("When we get session expiry times", func() {
 			expiries, err := client.GetSessionExpiries()
