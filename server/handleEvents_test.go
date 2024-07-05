@@ -182,6 +182,8 @@ func TestHandleEvents(t *testing.T) {
 				testDates = append(testDates, evt.Date)
 				testInstances = append(testInstances, []workoutlog.ExerciseInstance{evt.Exercises[1]})
 			}
+			mockExerciseManager.On("GetExerciseType", mock.Anything, mock.Anything).Return(&testExType, nil)
+
 			mockEventManager.On("GetPageOfInstances", mock.Anything, mock.Anything, mock.Anything).Return(testDates, testInstances, nil)
 
 			//  /api/events/metrics?type=blah&startdate=blah&enddate=blah

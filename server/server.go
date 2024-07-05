@@ -66,6 +66,7 @@ func init() {
 	secureMux.HandleFunc("/homegym/api/activities/", ActivitiesApi)
 	secureMux.HandleFunc("/homegym/api/exercises/", ExerciseTypesApi)
 	secureMux.HandleFunc("/homegym/api/events/", EventsApi)
+	secureMux.HandleFunc("/homegym/api/dailystats/", DailyStatsApi)
 	secureMux.Handle("/homegym/home/dist/", http.StripPrefix("/homegym/home", GymFileServer(secured.SecuredEFS)))
 
 	// middleware that authenticates before relaying to secure mux

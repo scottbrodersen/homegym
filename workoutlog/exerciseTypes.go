@@ -176,12 +176,12 @@ func (e ExerciseType) validate() error {
 		}
 	}
 
-	if e.Composition != nil || len(e.Composition) > 0 && e.Basis != "" {
+	if (e.Composition != nil || len(e.Composition) > 0) && e.Basis != "" {
 		return ErrInvalidExercise{Message: "cannot be both a composite and a variation"}
 	}
 
 	// Restrict to sensible combinations of intensity and volume types
-	if e.IntensityType == "weight" || e.IntensityType == "bodyweight" || e.IntensityType == "percenttOfMax" {
+	if e.IntensityType == "weight" || e.IntensityType == "bodyweight" || e.IntensityType == "percentOfMax" {
 		if e.VolumeType != "count" {
 			return ErrInvalidExercise{Message: "weight-based intensities muse use count as volume type"}
 		}
@@ -190,7 +190,7 @@ func (e ExerciseType) validate() error {
 			return ErrInvalidExercise{Message: "HR Zone intensities must use time as volume type"}
 		}
 	} else if e.IntensityType == "pace" {
-		if e.VolumeType != "time" {
+		if e.VolumeType != "time" && e.VolumeType != "distance" {
 			return ErrInvalidExercise{Message: "Pace intensities must use time as volume type"}
 		}
 	}

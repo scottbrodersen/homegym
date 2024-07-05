@@ -75,11 +75,10 @@ func ActivitiesApi(w http.ResponseWriter, r *http.Request) {
 		}
 	} else if rxpProgramInstances.MatchString(r.URL.Path) {
 		ids := rxpProgramInstances.FindStringSubmatch(r.URL.Path)
-		activityID := ids[1]
 		programID := ids[2]
 
 		if r.Method == http.MethodPost {
-			addProgramInstance(*username, activityID, programID, w, r)
+			addProgramInstance(*username, programID, w, r)
 			return
 		} else if r.Method == http.MethodGet {
 			getProgramInstancePage(*username, programID, w, r)
@@ -115,7 +114,7 @@ func ActivitiesApi(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			setActiveProgramInstance(*username, activityID, programID, instanceID, w, r)
+			setActiveProgramInstance(*username, activityID, programID, instanceID, w)
 
 			return
 		} else if r.Method == http.MethodGet {
