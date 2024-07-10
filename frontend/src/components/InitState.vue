@@ -7,11 +7,27 @@
     ErrNotLoggedIn,
     fetchPrograms,
   } from '../modules/utils';
-  import { activityStore, exerciseTypeStore } from '../modules/state';
+  import * as dailyStatsUtils from '../modules/dailyStatsUtils';
+  import * as dateUtils from '../modules/dateUtils';
+  import {
+    activityStore,
+    exerciseTypeStore,
+    dailyStatsStore,
+  } from '../modules/state';
   import * as styles from '../style.module.css';
 
   const init = async () => {
+    const startDate = 0;
+    const endDate = dateUtils.setEpochToMidnight(dateUtils.nowInSecondsUTC());
     try {
+      // Get daily stats from today only
+      const dailyStats = await dailyStatsUtils.fetchDailyStats(
+        startDate,
+        endDate
+      );
+
+      dailyStatsStore.bulkAdd(dailyStats);
+
       if (exerciseTypeStore.exerciseTypes.size === 0) {
         await fetchExerciseTypes();
         await fetchActivities();

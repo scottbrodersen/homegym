@@ -279,6 +279,40 @@ export const eventMetricsStore = reactive({
   },
 });
 
+export const dailyStatsStore = reactive({
+  dailyStats: new Array(),
+  sleep: 0,
+  bodyweight: 0,
+  spirit: { mood: 0, stress: 0, energy: 0 },
+  add(stat) {
+    this.dailyStats.push(stat);
+    if (stat.sleep) {
+      this.sleep = stat;
+    } else if (stat.bodyweight) {
+      this.bodyweight = stat;
+    } else if (stat.mood || stat.stress || stat.energy) {
+      this.spirit = stat;
+    }
+  },
+  update(stat) {
+    for (let i; i < this.dailyStats.length; i++) {
+      if (this.dailyStats[i].date == stat.date) {
+        this.dailyStats.splice(i, 1);
+        break;
+      }
+    }
+    this.add(stat);
+  },
+  bulkAdd(stats) {
+    stats.forEach((stat) => {
+      this.add(stat);
+    });
+  },
+  getAll() {
+    return this.dailyStats;
+  },
+});
+
 export const loginModalState = reactive({
   isOpen: false,
   opened() {
