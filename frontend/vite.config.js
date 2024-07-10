@@ -6,7 +6,7 @@ import VueDevTools from 'vite-plugin-vue-devtools';
 
 export default defineConfig(({ command, mode }) => {
   const config = {
-    base: '/homegym/',
+    base: '/homegym/home/',
     plugins: [
       VueDevTools(),
       vue(),
@@ -35,6 +35,8 @@ export default defineConfig(({ command, mode }) => {
   };
 
   if (mode != 'prod') {
+    config.base = '/homegym/';
+
     config.mode = 'development';
     config.build.mode = 'development';
     config.build.watch = {};

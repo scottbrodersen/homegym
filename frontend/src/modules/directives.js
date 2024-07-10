@@ -18,9 +18,10 @@ export const focus = {
         : null;
 
     if (
-      !!input &&
-      input.hasAttribute('type') &&
-      input.getAttribute('type') == 'number'
+      (input &&
+        input.hasAttribute('type') &&
+        input.getAttribute('type') == 'number') ||
+      (input && !isNaN(input.value))
     ) {
       if (input.value == '0') {
         input.focus();

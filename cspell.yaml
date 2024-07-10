@@ -4,6 +4,7 @@ words:
   - activeprogram
   - addevent
   - chartjs
+  - chartvolume
   - checkmark
   - colour
   - colours
@@ -27,6 +28,7 @@ words:
   - logrus
   - microcycle
   - microcycles
+  - mmol
   - moveahead
   - moveback
   - MOVEFWD

@@ -26,7 +26,7 @@
 
   --hg-yellow: #f9f505;
   --hg-black: #111111;
-  --hg-white: #fcfcfc;
+  --hg-white: rgb(252, 252, 252);
   --hg-mid: #555555;
   --hg-blue: #1976d2;
   --hg-green: #6df31f77;
@@ -203,6 +203,7 @@ h1 {
 
 header {
   width: 100%;
+  max-width: var(--hg-maxwidth);
   height: var(--hg-header);
   position: fixed;
   background-color: var(--hg-black);
@@ -217,6 +218,14 @@ header a:hover {
 
 header :global(.q-btn-group) {
   width: 100%;
+}
+
+header :global(button) :global(.q-icon.q-btn-dropdown__arrow) {
+  margin-left: -2px;
+}
+
+header :global(.q-btn) {
+  padding: 4px 7px;
 }
 
 .hgHamburger {
@@ -577,6 +586,7 @@ header .hgHamburger {
 
 .pgmStatus {
   composes: horiz;
+  padding-top: var(--hg-small);
   justify-content: space-around;
 }
 
@@ -590,7 +600,7 @@ header .hgHamburger {
   align-items: center;
 }
 .carouselWrap {
-  composes: blockPadSm;
+  /* composes: blockPadSm; */
 }
 .carouselSlideContent {
   composes: horiz;
@@ -798,11 +808,6 @@ header .hgHamburger {
 .instInfo .pgmBlock {
   margin-bottom: 4px;
 }
-/* .pgmBlock {
-  min-width: 190px;
-  width: 80vw;
-  max-width: calc(0.8 * var(--hg-maxwidth));
-} */
 
 .instBase {
   height: var(--hg-instbase);
@@ -824,6 +829,64 @@ header .hgHamburger {
 
 .evtMenu {
   min-width: 60px;
+}
+
+.dailyStatsWrap {
+  composes: bgBlack;
+  composes: blockPadSm;
+}
+
+.dailyStatsWrap :global(input::-webkit-inner-spin-button) {
+  display: none;
+}
+
+.dailySliders {
+  composes: horiz;
+  justify-content: space-around;
+  composes: blockPadMed;
+}
+.dailySlider {
+  composes: vert;
+  composes: blockPadSm;
+}
+
+.dailySlider > div {
+  padding-top: var(--hg-med);
+}
+.analyzePage {
+  composes: vert;
+  align-items: center;
+}
+
+.analyzePage .datePicker {
+  max-width: 148px;
+}
+
+.chartFilter {
+  composes: vert;
+  align-items: center;
+  margin-top: var(--hg-lg);
+}
+
+.analyzePage .selExercise {
+  width: 80%;
+  padding: var(--hg-small) 0px var(--hg-lg) 0px;
+}
+.analyzeDates {
+  composes: horiz;
+  justify-content: space-around;
+}
+
+.analyzeDates > div {
+  padding: 0px var(--hg-med);
+}
+
+.filterOptions {
+  padding: var(--hg-xsmall) 0px;
+}
+
+:global(#chartvolume) {
+  padding: var(--hg-med) 0px;
 }
 
 @media (prefers-color-scheme: light) {

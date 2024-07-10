@@ -8,12 +8,10 @@
     QList,
     QItem,
     QItemLabel,
-    QMenu,
-    QToggle,
   } from 'quasar';
-  import { metricState } from '../modules/state';
   import { getCookieValue } from '../modules/utils';
   import * as styles from '../style.module.css';
+  import HeaderHamburger from './HeaderHamburger.vue';
 
   const router = useRouter();
   const route = useRoute();
@@ -60,24 +58,15 @@
     }
   }
 
-  const padding = ref('4px 10px');
-
-  const toggleMetric = (isMetric) => {
-    if (isMetric) {
-      metricState.setMetric();
-    } else {
-      metricState.setImperial();
-    }
-  };
+  const padding = ref('4px 4px');
 
   const labels = reactive({
     home: 'Home',
     event: 'Event',
-    activities: 'Activities',
+    activities: 'Activity',
     analyze: 'Analyze',
     exTypes: 'Exercises',
-    programs: 'Programs',
-    metric: 'Metric',
+    programs: 'Program',
   });
 
   window.addEventListener('popstate', (event) => {
@@ -101,7 +90,6 @@
         :glossy="!active.home"
         :label="labels.home"
         square
-        :padding="padding"
         :to="{ name: 'home' }"
       />
       <q-btn
@@ -110,7 +98,6 @@
         :glossy="!active.programs"
         :label="labels.programs"
         square
-        :padding="padding"
         :to="{ name: 'programs' }"
       />
       <q-btn-dropdown
@@ -119,7 +106,6 @@
         :glossy="!active.activities"
         :label="labels.activities"
         square
-        :padding="padding"
       >
         <q-list>
           <q-item dark clickable :to="{ name: 'activities' }">
@@ -136,23 +122,9 @@
         :glossy="!active.analyze"
         :label="labels.analyze"
         square
-        :padding="padding"
         :to="{ name: 'analyze' }"
       />
-      <q-btn icon="menu" :class="[styles.hgHamburger]">
-        <q-menu>
-          <q-list>
-            <q-item dark>
-              <q-toggle
-                :label="labels.metric"
-                label-left
-                :model-value="metricState.metric"
-                @update:model-value="toggleMetric"
-              />
-            </q-item>
-          </q-list>
-        </q-menu>
-      </q-btn>
+      <HeaderHamburger />
     </q-btn-group>
   </header>
 </template>

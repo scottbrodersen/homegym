@@ -27,7 +27,7 @@ export const fetchMetrics = async (startDate, endDate, exercises) => {
   });
 
   if (resp.status == 401) {
-    throw new ErrNotLoggedIn('unauthorized fetch of event metrics');
+    throw new utils.ErrNotLoggedIn('unauthorized fetch of event metrics');
   }
   const metrics = await resp.json();
 

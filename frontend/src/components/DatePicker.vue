@@ -4,7 +4,10 @@
   import { QTime, QInput, QPopupProxy, QDate, QBtn } from 'quasar';
   import * as dateUtils from '../modules/dateUtils';
 
-  // expect dateValue to be seconds since epoch (utc)
+  /**
+   * @props {Number} dateValue - seconds since Epoch. Omit for now.
+   * @props {Boolean} hideTime - set to true to disable setting the time
+   */
   const props = defineProps({ dateValue: Number, hideTime: Boolean });
   const emit = defineEmits(['update']);
 
