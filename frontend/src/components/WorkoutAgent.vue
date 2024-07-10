@@ -119,7 +119,7 @@
             />
             <div
               :class="[styles.carouselNavButtonArray]"
-              v-show="
+              v-if="
                 slide == props.dayIndex &&
                 activeInstance.events[slide] == undefined &&
                 !slides[slide].restDay

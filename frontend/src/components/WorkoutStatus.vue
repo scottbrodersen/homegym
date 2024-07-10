@@ -45,15 +45,13 @@
     <div :class="[styles.workoutStatusWrap]">
       <div>
         <div>
-          <div :class="[styles.hgBold]">{{ when }}</div>
+          <div :class="[styles.hgBold]">
+            {{ when }}:
+            {{
+              props.workout.title ? props.workout.title : '~~ needs a title ~~'
+            }}
+          </div>
           <div>
-            <span :class="[styles.hgBold]"
-              >{{
-                props.workout.title
-                  ? props.workout.title
-                  : '~~ needs a title ~~'
-              }}:</span
-            >
             {{ props.workout.description }}
           </div>
           <div v-if="props.workout.restDay">REST DAY</div>
@@ -66,7 +64,7 @@
           />
         </div>
       </div>
-      <div :class="[styles.workoutStatusIcon]">
+      <div v-if="icon.name" :class="[styles.workoutStatusIcon]">
         <q-icon :name="icon.name" :color="icon.colour" right />
       </div>
     </div>
