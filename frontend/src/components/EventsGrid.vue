@@ -277,6 +277,7 @@
             <EventDetails
               v-show="props.expand"
               :event-id="props.key"
+              :key="props.key"
               class="slider"
             />
           </Transition>
