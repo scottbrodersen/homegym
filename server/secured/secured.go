@@ -1,5 +1,4 @@
 // Package secured embeds assets that require authentication for access.
-
 package secured
 
 import (

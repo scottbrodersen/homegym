@@ -17,16 +17,16 @@ import (
 )
 
 const (
-	usernameKey         GymContextKey = "username"
-	roleKey             GymContextKey = "role"
-	cookieToken                       = "token"
-	cookieSession                     = "session"
-	cookieUsername                    = "username"
-	cookieRoute                       = "followroute"
-	allowedCorsOrigin                 = "http://127.0.0.1:3000"
-	allowedCorsMethods                = "*"
-	allowedCorsHeaders                = "Set-Cookie"
-	internalServerError               = `{"message":"something went wrong"}`
+	usernameKey    GymContextKey = "username"
+	roleKey        GymContextKey = "role"
+	cookieToken                  = "token"
+	cookieSession                = "session"
+	cookieUsername               = "username"
+	cookieRoute                  = "followroute"
+	//allowedCorsOrigin                 = "http://127.0.0.1:3000"
+	allowedCorsMethods  = "*"
+	allowedCorsHeaders  = "Set-Cookie"
+	internalServerError = `{"message":"something went wrong"}`
 )
 
 var samesite http.SameSite = http.SameSiteLaxMode
