@@ -12,12 +12,20 @@
     "version": "0.2.0",
     "configurations": [
       {
-        "name": "Launch Homegym",
+        "name": "Test Homegym",
         "type": "go",
         "request": "launch",
         "mode": "auto",
         "program": "${workspaceFolder:homegym}/homegym",
         "args": ["-testmode"]
+      },
+      {
+        "name": "Launch Homegym",
+        "type": "go",
+        "request": "launch",
+        "mode": "auto",
+        "program": "${workspaceFolder:homegym}/homegym",
+        "args": ["-path=/Users/scottbrodersen/Documents/testhomegym/datastore"]
       },
       {
         "type": "node",
