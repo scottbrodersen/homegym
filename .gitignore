@@ -1,6 +1,8 @@
+# build artifacts
 server/resources/**/.*
 server/secured/dist/
 bin
+
 # badger files
 *.mem
 *.vlog
@@ -10,6 +12,8 @@ KEYREGISTRY
 MANIFEST
 LOCK
 __debug*
+*.bak
+*.old
 
 
 **/.DS_Store

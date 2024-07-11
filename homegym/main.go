@@ -4,10 +4,11 @@ import (
 	"flag"
 	"os"
 
-	log "github.com/sirupsen/logrus"
+	"path/filepath"
 
 	"github.com/scottbrodersen/homegym/auth"
 	"github.com/scottbrodersen/homegym/server"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/scottbrodersen/homegym/dal"
 )
@@ -43,7 +44,6 @@ func main() {
 		log.Fatal("Database path not configured")
 	}
 	log.Debug("using database at path ", dbPath)
-	var db dal.Dstore
 
 	db, err := dal.InitClient(dbPath)
 	if err != nil {
@@ -56,10 +56,21 @@ func main() {
 	}
 	auth.CleanupSessions()
 
+	dal.InitHourlyGC(*db)
+
+	dbBackupDir := filepath.Join(dbPath, "backups")
+	if err := os.Mkdir(dbBackupDir, 0750); err != nil && !os.IsExist(err) {
+		// backups are important
+		log.Fatal(err)
+	}
+
+	dbBackupFile := filepath.Join(dbBackupDir, "backup.bak")
+	dal.InitDailyBackup(*db, dbBackupFile)
+
 	if dbPath == testDBPath {
 		if err := AddData(); err != nil {
 			log.WithError(err).Warn("error adding data")
-			dal.DB.Iter8er()
+			//dal.DB.Iter8er()
 		}
 	}
 
