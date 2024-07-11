@@ -24,23 +24,13 @@ var snatchID string = ""
 func AddData() error {
 
 	testDate := time.Now().Unix()
-	event := workoutlog.Event{Date: testDate}
-	page, err := workoutlog.EventManager.GetPageOfEvents("test", event, 5)
-	if err != nil {
-		fmt.Println("error getting page: %w", err)
-	}
-	for _, v := range page {
-		fmt.Printf("%v\n", v)
-	}
 
 	log.Print("adding data")
-	err = createUser()
-	if err != nil {
+	if err := createUser(); err != nil {
 		return err
 	}
 
-	err = createExerciseTypes()
-	if err != nil {
+	if err := createExerciseTypes(); err != nil {
 		return err
 	}
 
