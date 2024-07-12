@@ -365,6 +365,17 @@ func TestLogItemsDal(t *testing.T) {
 				})
 			})
 		})
+		Convey("When we delete an event", func() {
+			err := client.DeleteEvent(testUserID, testEventID, testActivityID, testEventTime)
+
+			So(err, ShouldBeNil)
+			Convey("When we get the event", func() {
+				eventByte, err := client.GetEvent(testUserID, testEventID, testEventTime)
+
+				So(err, ShouldBeNil)
+				So(eventByte, ShouldBeNil)
+			})
+		})
 	})
 }
 

@@ -58,8 +58,12 @@ func EventsApi(w http.ResponseWriter, r *http.Request) {
 		}
 	} else if rxpEventPath.MatchString(r.URL.Path) {
 		currentDate := rxpEventPath.FindStringSubmatch(r.URL.Path)[1]
+		eventID := rxpEventPath.FindStringSubmatch(r.URL.Path)[2]
 		if r.Method == http.MethodPost {
 			updateEvent(*username, currentDate, w, r)
+			return
+		} else if r.Method == http.MethodDelete {
+			deleteEvent(*username, eventID, currentDate, w, r)
 			return
 		}
 	} else if rxpMetrics.MatchString(r.URL.Path) {
@@ -129,6 +133,45 @@ func updateEvent(username, currentDate string, w http.ResponseWriter, r *http.Re
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
+	}
+
+	h := w.Header()
+	standardHeaders(&h)
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func deleteEvent(username, eventID, eventDate string, w http.ResponseWriter, r *http.Request) {
+	event := new(workoutlog.Event)
+
+	if err := json.NewDecoder(r.Body).Decode(event); err != nil {
+		log.WithError(err).Error("cannot unmarshal body as event")
+		http.Error(w, `{"message": "invalid request body"}`, http.StatusBadRequest)
+		return
+	}
+
+	dateInt, err := stringToInt64(eventDate)
+	if err != nil {
+		log.WithError(err).Error("cannot convert date to int64")
+		http.Error(w, `{"message": "invalid data parameter"}`, http.StatusBadRequest)
+		return
+	}
+
+	if dateInt != event.Date {
+		log.Error("event date does not match the request path parameter")
+		http.Error(w, `{"message": "incorrect date"}`, http.StatusBadRequest)
+		return
+	}
+
+	if eventID != event.ID {
+		log.Error("event ID does not match the request path parameter")
+		http.Error(w, `{"message": "incorrect ID"}`, http.StatusBadRequest)
+		return
+	}
+
+	if err := workoutlog.EventManager.DeleteEvent(username, *event); err != nil {
+		log.WithError(err).Error("failed to delete event")
+		http.Error(w, `{"message":"failed to delete event"}`, http.StatusNotFound)
+		return
 	}
 
 	h := w.Header()

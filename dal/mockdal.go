@@ -193,6 +193,12 @@ func (d *MockDal) GetEventExercises(userID, eventID string) ([][]byte, error) {
 	return args.Get(0).([][]byte), nil
 }
 
+func (d *MockDal) DeleteEvent(userID, eventID, activityID string, date int64) error {
+	args := d.Called(userID, eventID, activityID, date)
+
+	return args.Error(0)
+}
+
 func (d *MockDal) GetKeys(usage string) (map[string][]byte, map[string][]byte, error) {
 	args := d.Called(usage)
 

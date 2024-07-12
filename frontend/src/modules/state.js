@@ -46,6 +46,19 @@ export const eventStore = reactive({
     throw Error('event not found');
   },
 
+  delete(e) {
+    let index;
+    for (let i = 0; i < this.events.length; i++) {
+      if (this.events[i].id === e.id) {
+        index = i;
+        break;
+      }
+    }
+    if (index) {
+      this.events.splice(index, 1);
+    }
+  },
+
   addBulk(events) {
     this.events = this.events.concat(events);
   },

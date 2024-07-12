@@ -137,6 +137,17 @@ func TestEvents(t *testing.T) {
 			So(err, ShouldBeNil)
 			So(len(events), ShouldEqual, 10)
 		})
+
+		Convey("When we delete an event", func() {
+			db.On("DeleteEvent", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+
+			testEvent := newTestEvent()
+			testEvent.ID = "testID"
+			testEvent.Exercises = map[int]ExerciseInstance{0: testExerciseInstance}
+			err := EventManager.DeleteEvent(testUserID, testEvent)
+
+			So(err, ShouldBeNil)
+		})
 	})
 
 	Convey("Given an event manager", t, func() {
