@@ -147,6 +147,27 @@ func TestHandleEvents(t *testing.T) {
 			So(*returnedExercises, ShouldResemble, event.Exercises)
 		})
 
+		Convey("When we delete an event", func() {
+			event := testEvents(1)[0]
+			eventJSON, err := json.Marshal(event)
+			if err != nil {
+				t.Fail()
+			}
+
+			mockEventManager.On("DeleteEvent", mock.Anything, mock.Anything).Return(nil)
+
+			reqUrl := fmt.Sprintf("%s%d/%s/", url, event.Date, event.ID)
+
+			req := httptest.NewRequest(http.MethodDelete, reqUrl, bytes.NewBuffer(eventJSON))
+			req = req.WithContext(testContext())
+
+			w := httptest.NewRecorder()
+
+			EventsApi(w, req)
+
+			So(w.Result().StatusCode, ShouldEqual, http.StatusNoContent)
+		})
+
 		Convey("When we get a page of events", func() {
 
 			events := testEvents(2)

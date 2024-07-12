@@ -424,15 +424,19 @@ const openVariationModal = (exerciseTypeID, basisID, callback) => {
     .onCancel(() => {});
 };
 
-const openConfirmModal = async (message, callback) => {
-  Dialog.create({
-    component: ConfirmModal,
-    componentProps: { message: message },
-  })
-    .onOk(async () => {
-      await callback();
+const openConfirmModal = (message) => {
+  return new Promise((resolve, reject) => {
+    Dialog.create({
+      component: ConfirmModal,
+      componentProps: { message: message },
     })
-    .onCancel(() => {});
+      .onOk(() => {
+        resolve(true);
+      })
+      .onCancel(() => {
+        resolve(false);
+      });
+  });
 };
 
 const login = async (id, pwd) => {
@@ -684,6 +688,36 @@ const storeEvent = async (url, event) => {
   return event;
 };
 
+const deleteEvent = async (event) => {
+  const url = `/homegym/api/events/${event.date}/${event.id}/`;
+
+  const headers = new Headers();
+
+  headers.set('content-type', 'application/json');
+
+  const options = {
+    method: 'DELETE',
+    body: JSON.stringify(event),
+    headers: headers,
+  };
+
+  const resp = await fetch(url, options);
+
+  if (resp.status == 401) {
+    throw new ErrNotLoggedIn('unauthorized delete of event');
+  } else if (resp.status < 200 || resp.status >= 300) {
+    console.log('failed to delete event');
+    throw new Error();
+  }
+
+  if (resp.status != 204) {
+    const body = await resp.json();
+    console.log(body.message);
+  }
+
+  return;
+};
+
 const toast = (message, type) => {
   const color = type == 'positive' ? 'green' : 'red';
   const icon = type == 'positive' ? 'checkmark' : 'error';
@@ -855,6 +889,7 @@ export {
   updateProgramInstance,
   deactivateProgramInstance,
   storeEvent,
+  deleteEvent,
   openVolumeModal,
   toast,
   openCompositionModal,

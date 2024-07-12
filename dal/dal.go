@@ -39,6 +39,7 @@ type Dstore interface {
 	GetEvent(userID, eventID string, eventDate int64) ([]byte, error)
 	GetEventPage(userID, previousEventID string, previousDate int64, pageSize int) ([][]byte, error)
 	GetEventExercises(userID, eventID string) ([][]byte, error)
+	DeleteEvent(userID, eventID, activityID string, date int64) error
 
 	AddProgram(userID, activityID, programID string, program []byte) error
 	GetProgramPage(userID, activityID, previousProgramID string, pageSize int) ([][]byte, error)
@@ -452,7 +453,7 @@ func (c *DBClient) UpdateEvent(userID, eventID, activityID string, currentDate, 
 	return updateDeleteItems(c, updates, deletes)
 }
 
-// Returns a slice of exercise instances as byte slices.
+// GetEventExercises returns a slice of exercise instances as byte slices.
 func (c *DBClient) GetEventExercises(userID, eventID string) ([][]byte, error) {
 	prefix := []string{userKey, userID, eventKey, eventID, exerciseKey}
 	exEntries, err := readKeyPrefix(c, keyPrefix(prefix))
@@ -529,6 +530,28 @@ func (c *DBClient) GetEventPage(userID, previousEventID string, previousDate int
 	return events, nil
 }
 
+// DeleteEvent deletes an event and related exercise instances
+func (c *DBClient) DeleteEvent(userID, eventID, activityID string, date int64) error {
+	deletes := [][]byte{}
+
+	eventPrefix := []string{userKey, userID, eventKey, fmt.Sprint(date), idKey, eventID, activityKey, activityID}
+	deletes = append(deletes, key(eventPrefix))
+
+	exercisePrefix := []string{userKey, userID, eventKey, eventID, exerciseKey}
+
+	// delete existing exercise instances
+	exEntries, err := readKeyPrefix(c, keyPrefix(exercisePrefix))
+	if err != nil {
+		return fmt.Errorf("error getting event exercises")
+	}
+
+	for _, e := range exEntries {
+		deletes = append(deletes, e.Key)
+	}
+
+	return deleteItems(c, deletes)
+}
+
 func (c *DBClient) GetKeys(usage string) (active, retired map[string][]byte, err error) {
 	prefix := fmt.Sprintf("%s:", keyByCryptoUsage(usage))
 	keyEntries, err := readKeyPrefix(c, []byte(prefix))
@@ -585,7 +608,7 @@ func (c *DBClient) RotateKeys(newKey []byte, keyID, usage string) error {
 func (c *DBClient) DeleteKey(keyID, usage string) error {
 	keyPrefix := []string{keyByCryptoUsage(usage), keyID}
 	keys := [][]byte{key(keyPrefix)}
-	err := deleteKeys(c, keys)
+	err := deleteItems(c, keys)
 	if err != nil {
 		return fmt.Errorf("failed to delete key: %w", err)
 	}
@@ -650,7 +673,7 @@ func (c *DBClient) DeleteSession(sessionID string) error {
 	sessionKey := key(sessionPrefix)
 
 	keys := [][]byte{sessionKey}
-	if err := deleteKeys(c, keys); err != nil {
+	if err := deleteItems(c, keys); err != nil {
 		return fmt.Errorf("failed to delete session: %w", err)
 	}
 	return nil
@@ -845,7 +868,7 @@ func writeUpdates(c *DBClient, updates []*badger.Entry) error {
 	return nil
 }
 
-func deleteKeys(c *DBClient, keys [][]byte) error {
+func deleteItems(c *DBClient, keys [][]byte) error {
 	err := c.db.Update(func(txn *badger.Txn) error {
 		for _, v := range keys {
 			if err := txn.Delete(v); err != nil {
