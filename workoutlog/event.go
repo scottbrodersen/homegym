@@ -26,6 +26,7 @@ type EventAdmin interface {
 	GetEventExercises(userID, eventID string) (map[int]ExerciseInstance, error)
 	UpdateEvent(userID string, currentDate int64, event Event) error
 	GetPageOfInstances(userID string, filter ExerciseFilter, pageSize int) ([]int64, [][]ExerciseInstance, error)
+	DeleteEvent(userID string, event Event) error
 }
 
 type eventManager struct{}
@@ -118,6 +119,19 @@ func (em eventManager) UpdateEvent(userID string, currentDate int64, event Event
 	err = dal.DB.UpdateEvent(userID, event.ID, event.ActivityID, currentDate, event.Date, eventJson, typeIDs, exercisesJSON)
 	if err != nil {
 		return fmt.Errorf("failed to update event: %w", err)
+	}
+
+	return nil
+}
+
+func (em eventManager) DeleteEvent(userID string, event Event) error {
+	if userID == "" || event.ID == "" || event.ActivityID == "" || event.Date == 0 {
+		return ErrInvalidEvent
+	}
+
+	if err := dal.DB.DeleteEvent(userID, event.ID, event.ActivityID, event.Date); err != nil {
+		log.WithError(err).Error("failed to delete event")
+		return fmt.Errorf("failed to delete event: %w", err)
 	}
 
 	return nil
@@ -366,4 +380,10 @@ func (e *MockEventAdmin) GetPageOfInstances(userID string, filter ExerciseFilter
 	}
 
 	return args.Get(0).([]int64), args.Get(1).([][]ExerciseInstance), nil
+}
+
+func (e *MockEventAdmin) DeleteEvent(userID string, event Event) error {
+	args := e.Called(userID, event)
+
+	return args.Error(0)
 }

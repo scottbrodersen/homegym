@@ -13,6 +13,7 @@
   import {
     authPromptAsync,
     storeEvent,
+    deleteEvent,
     ErrNotLoggedIn,
     toast,
     fetchEventPage,
@@ -20,6 +21,7 @@
     updateProgramInstance,
   } from '../modules/utils.js';
   import { useRouter } from 'vue-router';
+  import EventDetails from './EventDetails.vue';
 
   const router = useRouter();
 
@@ -103,7 +105,7 @@
   // An empty updated instance removes it
   const setExerciseInstance = (index, updated) => {
     if (index == null) {
-      if (!!!thisEvent.value.exercises) {
+      if (!thisEvent.value.exercises) {
         // initialize the exercises object
         thisEvent.value.exercises = {};
       }
@@ -176,6 +178,28 @@
     }
   };
 
+  const deleteThisEvent = () => {
+    openConfirmModal('Delete event forever?').then(async (confirmed) => {
+      if (confirmed === true) {
+        try {
+          await deleteEvent(thisEvent.value);
+          toast('Saved', 'positive');
+          eventStore.delete(thisEvent.value);
+          await router.replace({ name: 'home' });
+        } catch (e) {
+          if (e instanceof ErrNotLoggedIn) {
+            console.log(e.message);
+            await authPromptAsync();
+            deleteThisEvent(thisEvent.value);
+          } else {
+            console.log(e);
+            toast('Error', 'negative');
+          }
+        }
+      }
+    });
+  };
+
   const changed = computed(() => {
     return baseline.value != JSON.stringify(thisEvent.value);
   });
@@ -183,12 +207,11 @@
   const cancel = async () => {
     const route = { name: 'home' };
     if (changed.value) {
-      const response = await openConfirmModal(
-        'Lose unsaved changes?',
-        async () => {
+      openConfirmModal('Lose unsaved changes?').then(async (confirmed) => {
+        if (confirmed === true) {
           await router.replace(route);
         }
-      );
+      });
     } else {
       await router.replace(route);
     }
@@ -250,6 +273,7 @@
     v-show="thisEvent.activityID"
   >
     <q-btn label="Cancel" color="accent" text-color="dark" @click="cancel" />
+    <q-btn label="Delete" color="negative" dark @click="deleteThisEvent" />
     <q-btn
       :label="updateButtonText"
       color="accent"
