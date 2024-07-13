@@ -9,7 +9,7 @@
     activityStore,
     programInstanceStore,
   } from '../modules/state';
-  import { QBtn, QSelect } from 'quasar';
+  import { QBtn, QSelect, QSpinner } from 'quasar';
   import {
     authPromptAsync,
     storeEvent,
@@ -21,7 +21,6 @@
     updateProgramInstance,
   } from '../modules/utils.js';
   import { useRouter } from 'vue-router';
-  import EventDetails from './EventDetails.vue';
 
   const router = useRouter();
 
@@ -140,6 +139,9 @@
   };
 
   const saveThisEvent = async () => {
+    disableSave.value = true;
+    showSpinner.value = true;
+
     // Use the stored date for the URL path in case the date has been edited
     const url = thisEvent.value.id
       ? `/homegym/api/events/${eventStore.getByID(thisEvent.value.id).date}/${
@@ -158,7 +160,10 @@
       }
 
       setBaseline();
+      showSpinner.value = false;
       toast('Saved', 'positive');
+      disableSave.value = false;
+
       // update the program instance if props.instanceID
       if (updateProgram) {
         programInstance.events[props.dayIndex] = thisEvent.value.id;
@@ -200,9 +205,15 @@
     });
   };
 
+  // controls whether the Save button is enabled
   const changed = computed(() => {
     return baseline.value != JSON.stringify(thisEvent.value);
   });
+
+  // use to override changed
+  const disableSave = ref(false);
+
+  const showSpinner = ref(false);
 
   const cancel = async () => {
     const route = { name: 'home' };
@@ -219,67 +230,71 @@
 </script>
 
 <template>
-  <h1 :id="styles.event" :class="[styles.blockPadSm]">Edit Event</h1>
-  <div :class="[styles.vert]">
-    <div :class="[styles.eventTopRow]">
-      <DatePicker
-        :style="[styles.blockPadMed]"
-        :date-value="thisEvent.date"
-        @update="updateDateValue"
-      />
-      <q-select
-        :class="[styles.selActivity]"
-        :model-value="thisEventActivityName"
-        @update:model-value="setActivity"
-        :options="activityNames"
-        label="Activity"
-        dark
-      />
-    </div>
-    <div :class="[styles.blockPadSm]">
-      <EventMeta
-        :mood="thisEvent.mood"
-        :energy="thisEvent.energy"
-        :motivation="thisEvent.motivation"
-        :overall="thisEvent.overall"
-        :notes="thisEvent.notes"
-        v-show="thisEvent.activityID"
-        @update="(meta, value) => (thisEvent[meta] = value)"
-      />
-    </div>
-
-    <div
-      :class="[styles.exInstContainer]"
-      v-for="(value, index) in thisEvent.exercises"
-      :key="index"
-    >
-      <ExerciseInstance
-        :exercise-instance="value"
-        :activity-i-d="thisEvent.activityID"
-        :writable="true"
-        @update="(updated) => setExerciseInstance(index, updated)"
-      />
-    </div>
-  </div>
   <div>
-    <q-btn
-      label="Add exercise"
-      color="primary"
-      @click="setExerciseInstance(null, null)"
-    />
-  </div>
-  <div
-    :class="[styles.buttonArray, styles.stickyBottom]"
-    v-show="thisEvent.activityID"
-  >
-    <q-btn label="Cancel" color="accent" text-color="dark" @click="cancel" />
-    <q-btn label="Delete" color="negative" dark @click="deleteThisEvent" />
-    <q-btn
-      :label="updateButtonText"
-      color="accent"
-      text-color="dark"
-      :disabled="!changed"
-      @click="saveThisEvent"
-    />
+    <h1 :id="styles.event" :class="[styles.blockPadSm]">Edit Event</h1>
+    <div :class="[styles.vert]">
+      <div :class="[styles.eventTopRow]">
+        <DatePicker
+          :style="[styles.blockPadMed]"
+          :date-value="thisEvent.date"
+          @update="updateDateValue"
+        />
+        <q-select
+          :class="[styles.selActivity]"
+          :model-value="thisEventActivityName"
+          @update:model-value="setActivity"
+          :options="activityNames"
+          label="Activity"
+          dark
+        />
+      </div>
+      <div :class="[styles.blockPadSm]">
+        <EventMeta
+          :mood="thisEvent.mood"
+          :energy="thisEvent.energy"
+          :motivation="thisEvent.motivation"
+          :overall="thisEvent.overall"
+          :notes="thisEvent.notes"
+          v-show="thisEvent.activityID"
+          @update="(meta, value) => (thisEvent[meta] = value)"
+        />
+      </div>
+      <div
+        :class="[styles.exInstContainer]"
+        v-for="(value, index) in thisEvent.exercises"
+        :key="index"
+      >
+        <ExerciseInstance
+          :exercise-instance="value"
+          :activity-i-d="thisEvent.activityID"
+          :writable="true"
+          @update="(updated) => setExerciseInstance(index, updated)"
+        />
+      </div>
+    </div>
+    <div>
+      <q-btn
+        label="Add exercise"
+        color="primary"
+        @click="setExerciseInstance(null, null)"
+      />
+    </div>
+    <div
+      :class="[styles.buttonArray, styles.stickyBottom]"
+      v-show="thisEvent.activityID"
+    >
+      <q-btn label="Cancel" color="accent" text-color="dark" @click="cancel" />
+      <q-btn label="Delete" color="negative" dark @click="deleteThisEvent" />
+      <q-btn
+        :label="updateButtonText"
+        color="accent"
+        text-color="dark"
+        :disabled="!changed || disableSave"
+        @click="saveThisEvent"
+      />
+    </div>
+    <div v-show="showSpinner" :class="[styles.spinner, styles.horiz]">
+      <q-spinner size="3em" />
+    </div>
   </div>
 </template>

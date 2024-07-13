@@ -889,6 +889,18 @@ header .hgHamburger {
   padding: var(--hg-med) 0px;
 }
 
+.spinner {
+  height: 95vh;
+  width: 95vw;
+  position: absolute;
+  top: 0vh;
+  background: black;
+  opacity: 50%;
+  z-index: 100;
+  justify-content: center;
+  align-items: center;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: var(--hg-white);
