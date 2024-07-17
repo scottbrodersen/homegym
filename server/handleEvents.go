@@ -284,7 +284,7 @@ func getMetrics(username string, w http.ResponseWriter, r *http.Request) {
 	// For each date, calculate the total volume and load
 	totalVol := []float32{}
 	totalLoad := []float32{}
-	//dateMetrics := make(map[int64]metrics)
+
 	for _, instances := range instancesStack {
 		volume := float32(0)
 		load := float32(0)
@@ -297,7 +297,6 @@ func getMetrics(username string, w http.ResponseWriter, r *http.Request) {
 			instLoad, instVolume := exerciseType.CalculateMetrics(&inst)
 			volume += instVolume
 			load += instLoad
-
 		}
 		totalVol = append(totalVol, volume)
 		totalLoad = append(totalLoad, load)

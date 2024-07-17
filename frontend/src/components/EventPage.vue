@@ -130,10 +130,6 @@
     }
   };
 
-  const updateButtonText = computed(() => {
-    return !!thisEvent.value.id ? 'Update' : 'Add and continue';
-  });
-
   const updateDateValue = (newDate) => {
     thisEvent.value.date = newDate;
   };
@@ -286,7 +282,7 @@
       <q-btn label="Cancel" color="accent" text-color="dark" @click="cancel" />
       <q-btn label="Delete" color="negative" dark @click="deleteThisEvent" />
       <q-btn
-        :label="updateButtonText"
+        label="Save"
         color="accent"
         text-color="dark"
         :disabled="!changed || disableSave"
