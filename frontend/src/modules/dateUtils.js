@@ -5,7 +5,7 @@ export const dateFromSeconds = (seconds) => {
   return seconds ? new Date(seconds * 1000) : new Date();
 };
 
-export const nowInSecondsUTC = () => {
+export const nowInSeconds = () => {
   return Math.floor(Date.now() / 1000);
 };
 
@@ -37,7 +37,11 @@ export const formatDate = (dateObj) => {
 
 // Returns a formatted string as HH:mm
 export const formatTime = (dateObj) => {
-  return `${dateObj.getHours()}:${dateObj.getMinutes()}`;
+  const minutes =
+    dateObj.getMinutes() < 10
+      ? '0' + dateObj.getMinutes()
+      : dateObj.getMinutes();
+  return `${dateObj.getHours()}:${minutes}`;
 };
 
 export const formatDateTime = (dateObj) => {
