@@ -17,8 +17,9 @@
   import * as styles from '../style.module.css';
 
   const init = async () => {
-    const startDate = 0;
-    const endDate = dateUtils.setEpochToMidnight(dateUtils.nowInSecondsUTC());
+    const endDate = dateUtils.setEpochToMidnight(dateUtils.nowInSeconds());
+    const startDate = endDate + 24 * 60 * 60;
+
     try {
       // Get daily stats from today only
       const dailyStats = await dailyStatsUtils.fetchDailyStats(

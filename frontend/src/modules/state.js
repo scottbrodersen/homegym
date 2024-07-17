@@ -90,16 +90,6 @@ export const eventStore = reactive({
   },
 });
 
-/*
-  {
-    "id": "4ad08e32-0cb3-4104-889f-7663671364e9",
-    "name": "weightlifting",
-    "exercises": [
-      "89170825-c9b9-4cff-902f-51aab3fa1008",
-      "89b41e66-936c-417a-a749-0fe1b97bc321"
-    ]
-  }
-*/
 export const activityStore = reactive({
   activities: new Map(),
   add(activity) {
@@ -301,9 +291,11 @@ export const dailyStatsStore = reactive({
     this.dailyStats.push(stat);
     if (stat.sleep) {
       this.sleep = stat;
-    } else if (stat.bodyweight) {
+    }
+    if (stat.bodyweight) {
       this.bodyweight = stat;
-    } else if (stat.mood || stat.stress || stat.energy) {
+    }
+    if (stat.mood || stat.stress || stat.energy) {
       this.spirit = stat;
     }
   },
@@ -317,9 +309,9 @@ export const dailyStatsStore = reactive({
     this.add(stat);
   },
   bulkAdd(stats) {
-    stats.forEach((stat) => {
-      this.add(stat);
-    });
+    for (const [key, value] of Object.entries(stats)) {
+      this.add(value);
+    }
   },
   getAll() {
     return this.dailyStats;

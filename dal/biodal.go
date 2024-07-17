@@ -32,7 +32,7 @@ func (c *DBClient) GetBioStatsPage(userID string, startDate int64, pageSize int)
 			firstPage = false
 		}
 	}
-	entries, err := readKeyPrefixPage(c, startKey, key(prefix), pageSize, "", firstPage, false)
+	entries, err := readKeyPrefixPage(c, startKey, key(prefix), pageSize, "", firstPage, true)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read bio stats: %w", err)
 	}

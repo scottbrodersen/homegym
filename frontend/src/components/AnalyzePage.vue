@@ -4,25 +4,19 @@
   import * as dateUtils from '../modules/dateUtils';
   import * as styles from '../style.module.css';
   import * as dailyStatsUtils from '../modules/dailyStatsUtils';
-  import * as state from '../modules/state';
   import DatePicker from './DatePicker.vue';
   import * as analyzeUtils from '../modules/analyzeUtils';
-  import { QBtn, QSelect } from 'quasar';
   import Chart from 'chart.js/auto';
-  import 'date-fns';
-  import 'chartjs-adapter-date-fns';
-  import 'date-fns';
   import ExerciseFilter from './ExerciseFilter.vue';
 
   // default date range is 16 weeks since now
-  const startDate = ref(dateUtils.nowInSecondsUTC());
+  const startDate = ref(dateUtils.nowInSeconds());
   const endDate = ref(startDate.value - 16 * 7 * 24 * 60 * 60);
   let exerciseTypes = [];
 
-  const metrics = ref([]);
+  let rawMetrics = { dates: [], load: [], volume: [] };
+  const metrics = ref({});
   const dailyStats = ref([]);
-
-  let volChart;
 
   const updateStartDate = (newDate) => {
     if (newDate <= endDate.value) {
@@ -43,17 +37,23 @@
   };
 
   Chart.defaults.color = 'rgb(252,252,252)';
-  const chart = async () => {
-    if (typeof volChart == 'object' && volChart.hasOwnProperty('id')) {
-      volChart.destroy();
-    }
-    const volData = Array();
+  Chart.defaults.elements.line.borderWidth = 1;
+  Chart.defaults.elements.point.radius = 1;
+  Chart.defaults.plugins.legend.labels.boxHeight = 1;
+  Chart.defaults.plugins.legend.labels.color = 'rgb(252,252,252)';
+  Chart.defaults.scale.title.display = true;
+  Chart.defaults.scale.border.color = 'rgb(72,72,72)';
+  Chart.defaults.scales.time.time.unit = 'day';
+  Chart.defaults.scales.time.time.tooltipFormat = 'MMM d, yyyy';
+
+  const exerciseChart = () => {
+    const lvRatioData = Array();
     const loadData = Array();
 
     for (let i = 0; i < metrics.value.dates.length; i++) {
-      volData.push({
+      lvRatioData.push({
         x: metrics.value.dates[i] * 1000,
-        y: metrics.value.volume[i],
+        y: metrics.value.lvRatio[i],
       });
       loadData.push({
         x: metrics.value.dates[i] * 1000,
@@ -61,95 +61,79 @@
       });
     }
 
-    volChart = new Chart(document.getElementById('chartvolume'), {
-      type: 'line',
-      data: {
-        labels: metrics.value.dates,
-        datasets: [
-          { data: volData, yAxisID: 'yVol', label: 'Volume' },
-          { data: loadData, yAxisID: 'yLoad', label: 'Load' },
-        ],
-      },
-      options: {
-        elements: {
-          line: {
-            borderWidth: 1,
-          },
-          point: {
-            radius: 1,
-          },
-        },
-        scales: {
-          x: {
-            type: 'time',
-            time: {
-              unit: 'day',
-            },
-            max: startDate.value * 1000,
-            min: endDate.value * 1000,
-            border: {
-              display: true,
-              color: 'rgb(72,72,72)',
-            },
-          },
-          yLoad: {
-            position: 'right',
-            title: {
-              display: true,
-              text: 'Load',
-            },
-            border: {
-              display: true,
-              color: 'rgb(72,72,72)',
-            },
-          },
-          yVol: {
-            title: {
-              display: true,
-              text: 'Volume',
-            },
-            position: 'left',
-            border: {
-              display: true,
-              color: 'rgb(72,72,72)',
-            },
-          },
-        },
-        plugins: {
-          legend: {
-            labels: {
-              boxHeight: 1,
-              color: 'rgb(252,252,252)',
-            },
-          },
-        },
-      },
-    });
+    analyzeUtils.getVolumeChart(
+      document.getElementById('chartvolume'),
+      startDate.value,
+      endDate.value,
+      metrics.value.dates,
+      lvRatioData,
+      loadData
+    );
+  };
+
+  const dailyStatsChart = () => {
+    const dayBuckets = dailyStatsUtils.toDayBuckets(dailyStats.value);
+    dailyStatsUtils.getDailyChart(
+      document.getElementById('chartdaily'),
+      startDate.value,
+      endDate.value,
+      dayBuckets
+    );
+  };
+
+  const timeSeriesChart = () => {
+    const datasets = dailyStatsUtils.getTimeSeriesDataSets(dailyStats.value);
+    dailyStatsUtils.getTimeSeriesChart(
+      document.getElementById('charttimeseries'),
+      startDate.value,
+      endDate.value,
+      datasets
+    );
   };
 
   const setExerciseTypes = (types) => {
     exerciseTypes = types;
-    getMetrics();
+    getMetrics(true);
   };
-  const getMetrics = async () => {
+
+  const getMetrics = async (updatedTypes = false) => {
+    resetMetrics();
     try {
       if (startDate.value && endDate.value) {
-        metrics.value = await analyzeUtils.fetchMetrics(
-          startDate.value,
-          endDate.value,
-          exerciseTypes
-        );
+        if (exerciseTypes.length > 0) {
+          rawMetrics = await analyzeUtils.fetchMetrics(
+            startDate.value,
+            endDate.value,
+            exerciseTypes
+          );
+
+          metrics.value = analyzeUtils.getDailyTotals(rawMetrics);
+          exerciseChart();
+        }
+
+        // Get daily stats only on date changes
+        if (!updatedTypes) {
+          dailyStats.value = await dailyStatsUtils.fetchDailyStats(
+            startDate.value,
+            endDate.value
+          );
+          dailyStatsChart();
+          timeSeriesChart();
+        }
       }
     } catch (e) {
       if (e instanceof utils.ErrNotLoggedIn) {
         console.log(e.message);
         await utils.authPromptAsync();
-        getMetrics();
+        await getMetrics();
       } else {
         console.log(e);
       }
     }
-    chart();
+  };
+
+  const resetMetrics = () => {
+    metrics.value = { dates: [], lvRatios: [], load: [] };
   };
 
   onMounted(async () => {
@@ -178,5 +162,7 @@
     </div>
     <ExerciseFilter @ids="(val) => setExerciseTypes(val)" />
     <canvas id="chartvolume"></canvas>
+    <canvas id="chartdaily"></canvas>
+    <canvas id="charttimeseries"></canvas>
   </div>
 </template>

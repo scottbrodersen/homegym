@@ -1,6 +1,11 @@
 import DailyStatModal from '../components/DailyStatModal.vue';
 import { Dialog } from 'quasar';
 import * as utils from './utils';
+import * as dateUtils from '../modules/dateUtils';
+import Chart from 'chart.js/auto';
+import 'date-fns';
+import 'chartjs-adapter-date-fns';
+import 'date-fns';
 
 export const statNames = [
   'bg',
@@ -105,7 +110,7 @@ export const saveDailyStat = async (stat) => {
     utils.toast('Saved', 'positive');
   } else if (resp.status == 401) {
     console.log('unauthorized upsert of daily stat');
-    await authPromptAsync();
+    await utils.authPromptAsync();
     saveDailyStat(stat);
   } else if (resp.status < 200 && resp.status >= 300) {
     const errBody = await resp.json();
@@ -159,4 +164,245 @@ export const fetchDailyStats = async (startDate, endDate, pageSize) => {
     done = true;
   }
   return stats;
+};
+
+export const toDayBuckets = (dailyStats) => {
+  const dayBuckets = {};
+
+  for (let i = 0; i < dailyStats.length; i++) {
+    const midnight = dateUtils.setEpochToMidnight(dailyStats[i].date) * 1000;
+    let dayBucket;
+    if (dayBuckets[midnight]) {
+      dayBucket = dayBuckets[midnight];
+    } else {
+      dayBucket = { date: midnight, sequential: [] };
+    }
+    if (
+      dailyStats[i].sleep ||
+      dailyStats[i].bodyweight ||
+      dailyStats[i].mood ||
+      dailyStats[i].energy ||
+      dailyStats[i].stress
+    ) {
+      if (dailyStats[i].sleep) {
+        dayBucket.sleep = dailyStats[i].sleep;
+      }
+      if (dailyStats[i].bodyweight) {
+        dayBucket.bodyweight = dailyStats[i].bodyweight;
+      }
+      if (dailyStats[i].mood) {
+        dayBucket.mood = dailyStats[i].mood;
+      }
+      if (dailyStats[i].energy) {
+        dayBucket.energy = dailyStats[i].energy;
+      }
+      if (dailyStats[i].stress) {
+        dayBucket.stress = dailyStats[i].stress;
+      }
+    } else {
+      dayBucket.sequential = dayBucket.sequential.concat(dailyStats[i]);
+    }
+
+    dayBuckets[midnight] = dayBucket;
+  }
+
+  return dayBuckets;
+};
+
+export const getDailyChart = (element, startDate, endDate, dataset) => {
+  const existing = Chart.getChart(element);
+  if (existing) {
+    existing.destroy();
+  }
+
+  return new Chart(element, {
+    type: 'line',
+    data: {
+      datasets: [
+        {
+          label: 'Sleep',
+          data: Object.values(dataset),
+          parsing: {
+            xAxisKey: 'date',
+            yAxisKey: 'sleep',
+          },
+          yAxisID: 'yBio',
+        },
+        {
+          label: 'Mood',
+          data: Object.values(dataset),
+          parsing: { xAxisKey: 'date', yAxisKey: 'mood' },
+          yAxisID: 'yBio',
+        },
+        {
+          label: 'Energy',
+          data: Object.values(dataset),
+          parsing: { xAxisKey: 'date', yAxisKey: 'energy' },
+          yAxisID: 'yBio',
+        },
+        {
+          label: 'Stress',
+          data: Object.values(dataset),
+          yAxisID: 'yBio',
+          parsing: { xAxisKey: 'date', yAxisKey: 'stress' },
+        },
+        {
+          label: 'BodyWeight',
+          data: Object.values(dataset),
+          parsing: {
+            xAxisKey: 'date',
+            yAxisKey: 'bodyweight',
+          },
+          yAxisID: 'yBW',
+
+          spanGaps: true,
+        },
+      ],
+    },
+
+    options: {
+      scales: {
+        x: {
+          type: 'time',
+          max: startDate * 1000,
+          min: endDate * 1000,
+        },
+        yBW: {
+          position: 'right',
+          min: 0,
+          title: {
+            text: 'Body Weight',
+          },
+        },
+        yBio: {
+          position: 'left',
+          min: 0,
+          max: 12,
+          title: {
+            text: 'Sleep, Mood, Stress, Energy',
+          },
+        },
+      },
+    },
+  });
+};
+
+export const getTimeSeriesDataSets = (dailyStats) => {
+  const bgData = new Array();
+  const foodData = new Array();
+  const bpData = new Array();
+
+  dailyStats.forEach((stat) => {
+    const x = dateUtils.setEpochToMidnight(stat.date) * 1000;
+
+    // stat times normalized to be within 24h of epoch
+    const offsetMS = new Date().getTimezoneOffset() * 60 * 1000;
+    const y = stat.date * 1000 - x + offsetMS;
+
+    const statDate = new Date(y);
+    const timeStr = dateUtils.formatTime(statDate);
+
+    if (stat.bg) {
+      bgData.push({
+        x: x,
+        y: y,
+        description: [stat.bg],
+        timeStr: timeStr,
+      });
+
+      if (stat.bp && stat.bp[0] && stat.bp[1]) {
+        bpData.push({
+          x: x,
+          y: y,
+          description: [`${stat.bp[0]}/${stat.bp[1]}`],
+        });
+      }
+
+      if (
+        stat.food.description ||
+        stat.food.protein ||
+        stat.food.fat ||
+        stat.food.carbs
+      ) {
+        foodData.push({
+          x: x,
+          y: y,
+          description: [
+            stat.description,
+            `protein: ${stat.protein}`,
+            `fat: ${stat.fat}`,
+            `carbs: ${stat.carbs}`,
+          ],
+        });
+      }
+    }
+  });
+  return { bg: bgData, bp: bpData, food: foodData };
+};
+
+export const getTimeSeriesChart = (
+  element,
+  startDate,
+  endDate,
+  datasetsObj
+) => {
+  const existing = Chart.getChart(element);
+  if (existing) {
+    existing.destroy();
+  }
+  const datasets = new Array();
+
+  for (const [key, value] of Object.entries(datasetsObj)) {
+    datasets.push({
+      label: key,
+      data: value,
+    });
+  }
+
+  return new Chart(element, {
+    type: 'scatter',
+    data: {
+      datasets: datasets,
+    },
+    options: {
+      elements: {
+        point: {
+          radius: 3,
+        },
+      },
+      scales: {
+        x: {
+          type: 'time',
+        },
+        y: {
+          type: 'time',
+          time: { unit: 'hour' },
+          min: '00:00:00',
+          max: '23:59:59',
+        },
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            title: (context) => {
+              if (context[0].raw.timeStr) {
+                return context[0].raw.timeStr;
+              }
+            },
+            label: (context) => {
+              let label = context.dataset.label || '';
+
+              if (label) {
+                label += ': ';
+              }
+              if (context.raw.description) {
+                label += context.raw.description;
+              }
+              return label;
+            },
+          },
+        },
+      },
+    },
+  });
 };
