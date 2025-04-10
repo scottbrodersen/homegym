@@ -1,5 +1,6 @@
 import * as utils from '../modules/utils';
 import * as dateUtils from '../modules/dateUtils';
+import * as state from '../modules/state';
 import Chart from 'chart.js/auto';
 import 'date-fns';
 import 'chartjs-adapter-date-fns';
@@ -51,10 +52,62 @@ export const fetchMetrics = async (startDate, endDate, exercises) => {
   return metrics;
 };
 
+export const getTimeSeriesData = async (startDate, endDate) => {
+  const timeSeries = new Array();
+
+  if (
+    state.eventStore.events.length == 0 ||
+    startDate > state.eventStore.events[0].date
+  ) {
+    // we need to get more recent events
+    // easiest to just reset the cache
+    state.eventStore.clear();
+    await utils.fetchEvents('', startDate, endDate);
+  } else {
+    const lastCachedEvent = state.eventStore.getLast();
+
+    if (endDate < lastCachedEvent.date) {
+      // we need to get earlier events
+      await utils.fetchEvents(
+        lastCachedEvent.id,
+        lastCachedEvent.date,
+        endDate
+      );
+    }
+  }
+  const events = state.eventStore.getAll();
+
+  events.forEach((evt) => {
+    if (evt.date <= startDate && evt.date >= endDate) {
+      const x = dateUtils.setEpochToMidnight(evt.date) * 1000;
+
+      // stat times normalized to be within 24h of epoch
+      const offsetMS = new Date().getTimezoneOffset() * 60 * 1000;
+      const y = evt.date * 1000 - x + offsetMS;
+
+      const statDate = new Date(y);
+      const timeStr = dateUtils.formatTime(statDate);
+
+      const description = new Array();
+      description.push(state.activityStore.get(evt.activityID).name);
+
+      for (const ex of Object.values(evt.exercises)) {
+        description.push(state.exerciseTypeStore.get(ex.typeID).name);
+      }
+
+      timeSeries.push({
+        x: x,
+        y: y,
+        description: description,
+        timeStr: timeStr,
+      });
+    }
+  });
+  return timeSeries;
+};
+
 /**
  * Amalgamates raw metrics into daily metrics.
- * @param {*} metrics
- * @returns
  */
 export const getDailyTotals = (metrics) => {
   const dailyTotals = new Map();
@@ -112,6 +165,8 @@ export const getVolumeChart = (
       ],
     },
     options: {
+      maintainAspectRatio: false,
+      aspectRatio: 1,
       scales: {
         x: {
           type: 'time',
