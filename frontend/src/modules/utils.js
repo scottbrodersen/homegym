@@ -791,12 +791,23 @@ class ErrNotLoggedIn extends Error {
   }
 }
 
+/**
+ * An ordered list supported by a number of actions that manipulate the list.
+ * The ListActions component provides a UI for the list actions.
+ */
 class OrderedList {
   // model
   list = [];
-
+  copiedIndex = -1;
   // define the verbs for items in the list
-  static #actions = { add: 0, delete: 1, moveback: 2, moveahead: 3 };
+  static #actions = {
+    add: 0,
+    delete: 1,
+    moveback: 2,
+    moveahead: 3,
+    copy: 4,
+    paste: 5,
+  };
   static get ADD() {
     return OrderedList.#actions.add;
   }
@@ -808,6 +819,12 @@ class OrderedList {
   }
   static get MOVEFWD() {
     return OrderedList.#actions.moveahead;
+  }
+  static get COPY() {
+    return OrderedList.#actions.copy;
+  }
+  static get PASTE() {
+    return OrderedList.#actions.paste;
   }
   get list() {
     return this.list;
@@ -840,6 +857,12 @@ class OrderedList {
       case OrderedList.#actions.moveahead:
         this.shiftItemForward(index);
         break;
+      case OrderedList.#actions.copy:
+        this.copyItem(index);
+        break;
+      case OrderedList.#actions.paste:
+        this.pasteItem(index);
+        break;
     }
   }
   deleteItem(index) {
@@ -863,6 +886,17 @@ class OrderedList {
     if (index >= 0 && index < this.list.length - 1) {
       const moved = this.list.splice(index, 1);
       this.list.splice(index + 1, 0, moved[0]);
+    }
+  }
+  copyItem(index) {
+    this.copiedIndex = index;
+    console.log(this.list[index]);
+  }
+  pasteItem(index) {
+    if (this.copiedIndex > -1) {
+      const copy = Object.assign({}, this.list[this.copiedIndex]);
+      console.log(copy);
+      this.list[index] = copy;
     }
   }
 }
