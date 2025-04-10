@@ -48,6 +48,7 @@ var internalRoutes []string = []string{
 	"/homegym/activities/",
 	"/homegym/exercises/",
 	"/homegym/programs/",
+	"/homegym/analyze/",
 }
 
 var secureMux *http.ServeMux
@@ -67,7 +68,9 @@ func init() {
 	secureMux.HandleFunc("/homegym/api/exercises/", ExerciseTypesApi)
 	secureMux.HandleFunc("/homegym/api/events/", EventsApi)
 	secureMux.HandleFunc("/homegym/api/dailystats/", DailyStatsApi)
-	secureMux.Handle("/homegym/home/dist/", http.StripPrefix("/homegym/home", GymFileServer(secured.SecuredEFS)))
+	secureFileServer := GymFileServer(secured.SecuredEFS)
+	secureMux.Handle("/homegym/home/dist/", http.StripPrefix("/homegym/home", secureFileServer))
+	//secureMux.Handle("/homegym/home/assets/", http.StripPrefix("/homegym/home", secureFileServer))
 
 	// middleware that authenticates before relaying to secure mux
 	secureGateway = newGateway(secureMux)
