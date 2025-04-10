@@ -1,5 +1,5 @@
 <script setup>
-  import { ref } from 'vue';
+  // UI for the OrderedList class
   import { QBtn } from 'quasar';
   import * as styles from '../style.module.css';
   import { OrderedList } from '../modules/utils';
@@ -33,6 +33,13 @@
         >
           <q-icon name="move_down" size="1.65em" color="primary" />
         </q-item>
+        <q-item clickable v-close-popup dark @click="update(OrderedList.COPY)">
+          <q-icon name="content_copy" size="1.65em" color="primary" />
+        </q-item>
+        <q-item clickable v-close-popup dark @click="update(OrderedList.PASTE)">
+          <q-icon name="content_paste" size="1.65em" color="primary" />
+        </q-item>
+
         <q-item
           clickable
           v-close-popup
