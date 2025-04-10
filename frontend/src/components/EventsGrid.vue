@@ -8,7 +8,7 @@
   import { QTable, QTr, QTd, QBtn } from 'quasar';
   import {
     authPromptAsync,
-    fetchEventPage,
+    fetchEvents,
     pageSize,
     ErrNotLoggedIn,
   } from '../modules/utils.js';
