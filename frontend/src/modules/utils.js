@@ -114,7 +114,7 @@ const intensityProps = (intensityType) => {
 const volumeTypes = ['count', 'time', 'distance'];
 
 const fetchEventPage = async (eventID = '', date = null) => {
-  const startTime = !!date ? date : Math.floor(Date.now() / 1000);
+  const startTime = date ? date : Math.floor(Date.now() / 1000);
   const params = new URLSearchParams();
 
   params.append('count', fetchPageSize);
@@ -133,8 +133,48 @@ const fetchEventPage = async (eventID = '', date = null) => {
     throw new ErrNotLoggedIn('unauthorized fetch of event page');
   }
   const eventPage = await resp.json();
-  eventStore.addBulk(eventPage);
   return eventPage;
+};
+
+const fetchEvents = async (eventID, startDate, endDate) => {
+  let events = new Array();
+  let done = false;
+  let pageDate = startDate;
+  let previousID = eventID;
+  while (!done) {
+    let page;
+    try {
+      page = await fetchEventPage(previousID, pageDate);
+    } catch (e) {
+      if (e instanceof ErrNotLoggedIn) {
+        console.log(e.message);
+        await authPromptAsync();
+      } else {
+        console.log(e);
+        throw e;
+      }
+    }
+
+    // if we had to log in after a 401, don't update the page boundaries
+    if (page) {
+      eventStore.addBulk(page);
+
+      events = events.concat(page);
+
+      const lastEvent = page[page.length - 1];
+      if (
+        page.length == 0 ||
+        lastEvent.date < endDate ||
+        page.length < fetchPageSize
+      ) {
+        done = true;
+      } else {
+        pageDate = lastEvent.date;
+        previousID = lastEvent.id;
+      }
+    }
+  }
+  return events;
 };
 
 const fetchPrograms = async (activityID) => {
@@ -868,6 +908,7 @@ export {
   fetchProgramInstances,
   fetchActiveProgramInstance,
   fetchEventPage,
+  fetchEvents,
   fetchExerciseTypes,
   pageSize,
   login,
