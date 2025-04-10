@@ -11,7 +11,8 @@ export default defineConfig(({ command, mode }) => {
       VueDevTools(),
       vue(),
       quasar({
-        sassVariables: 'src/quasar-variables.sass',
+        sassVariables:
+          '/Users/scottbrodersen/Documents/code/homegym/frontend/src/quasar-variables.sass',
         extras: ['material-icons'],
       }),
     ],
