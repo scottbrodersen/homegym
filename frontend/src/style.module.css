@@ -423,6 +423,8 @@ header .hgHamburger {
 
 #wrapper {
   max-width: var(--hg-maxwidth);
+  display: flex;
+  flex-direction: column;
 }
 
 .metaRating {
@@ -605,6 +607,9 @@ header .hgHamburger {
   composes: horiz;
   justify-content: space-evenly;
   align-items: center;
+}
+.carouselWrap {
+  min-width: 340px;
 }
 .carouselSlideContent {
   composes: horiz;
@@ -983,11 +988,8 @@ header .hgHamburger {
   header :global(.q-btn) {
     padding: 4px 47px;
   }
-  header .hgHamburger {
-    margin-right: 50px;
-  }
-  header > div {
-    margin-left: 300px;
+  .pgmWrap {
+    max-width: 700px;
   }
 
   .pgmDash {
