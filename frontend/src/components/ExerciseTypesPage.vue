@@ -377,15 +377,14 @@
             text-color="dark"
             icon="restart_alt"
             @click="resetValues"
-            :disable="
-              (!isChanged && state == states.READ_ONLY) || state != states.NEW
-            "
+            :disable="!isChanged"
           />
           <q-btn
             color="accent"
             text-color="dark"
             icon="done"
             @click="resetAndCancel"
+            :disable="isChanged"
           />
         </div>
       </div>
