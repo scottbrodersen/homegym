@@ -792,7 +792,10 @@ class ErrNotLoggedIn extends Error {
 }
 
 class OrderedList {
+  // model
   list = [];
+
+  // define the verbs for items in the list
   static #actions = { add: 0, delete: 1, moveback: 2, moveahead: 3 };
   static get ADD() {
     return OrderedList.#actions.add;
@@ -819,8 +822,8 @@ class OrderedList {
   }
 
   /**
-   * Use when the action is issued from the context of the item component
-   * and the component is unaware of its index.
+   * Use update when the action is issued from the context of a component
+   * such that the component is unaware of the list item index.
    * The component emits the action value.
    */
   update(action, index) {
@@ -846,7 +849,8 @@ class OrderedList {
     if (!index) {
       this.list.splice(this.list.length, 0, {});
     } else {
-      this.list.splice(index, 0, {});
+      // add the item after the one on which add was invoked
+      this.list.splice(index + 1, 0, {});
     }
   }
   shiftItemBack(index) {
