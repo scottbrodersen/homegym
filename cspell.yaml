@@ -1,17 +1,18 @@
-version: "0.2"
+version: '0.2'
 language: en
 words:
   - activeprogram
   - addevent
   - chartdaily
   - chartjs
-  - charttimeseries
+  - chartglucose
   - chartvolume
   - checkmark
   - colour
   - colours
   - composables
   - dailystats
+  - datalabels
   - Debugf
   - dgraph
   - Dstore

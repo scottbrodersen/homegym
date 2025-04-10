@@ -59,6 +59,10 @@ export const eventStore = reactive({
     }
   },
 
+  clear() {
+    this.events = [];
+  },
+
   addBulk(events) {
     this.events = this.events.concat(events);
   },
