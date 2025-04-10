@@ -121,7 +121,7 @@ const getEventsForDate = async (activityID, date) => {
   nextDay.setDate(nextDay.getDate() + 1);
 
   // Get page of events that occur earlier than nextDay
-  const eventPage = await utils.fetchEventPage(
+  const eventPage = await utils.fetchEvents(
     null,
     Math.floor(nextDay.valueOf() / 1000)
   );

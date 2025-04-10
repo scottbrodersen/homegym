@@ -16,7 +16,7 @@
     deleteEvent,
     ErrNotLoggedIn,
     toast,
-    fetchEventPage,
+    fetchEvents,
     openConfirmModal,
     updateProgramInstance,
   } from '../modules/utils.js';
@@ -47,7 +47,7 @@
   // populate state when opening an existing event
   if (props.eventId) {
     if (!eventStore.getByID(props.eventId)) {
-      await fetchEventPage(props.eventId);
+      await fetchEvents(props.eventId);
     }
     setBaseline();
     thisEvent.value = JSON.parse(baseline.value);
