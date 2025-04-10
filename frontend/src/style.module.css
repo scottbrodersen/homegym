@@ -8,6 +8,7 @@
 
   --hg-maxwidth: 540px;
   --hg-minwidth: 350px;
+  --hg-minwidthwide: 1000px;
   --hg-xxsmall: 2px;
   --hg-xsmall: 4px;
   --hg-small: 8px;
@@ -84,6 +85,12 @@ main {
 h1 {
   font-size: 1.25em;
   line-height: 1.5em;
+  font-weight: var(--hg-bold-weight);
+}
+
+h3 {
+  font-size: 1.1em;
+  line-height: 1.1em;
   font-weight: var(--hg-bold-weight);
 }
 
@@ -599,11 +606,11 @@ header .hgHamburger {
   justify-content: space-evenly;
   align-items: center;
 }
-.carouselWrap {
-  /* composes: blockPadSm; */
-}
 .carouselSlideContent {
   composes: horiz;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--hg-black) var(--hg-mid);
 }
 .carouselNav {
   composes: horiz;
@@ -653,6 +660,7 @@ header .hgHamburger {
   min-height: 14px;
   width: 14px;
   height: 14px;
+  cursor: default;
 }
 .carouselNavCurrent {
   min-width: 18px;
@@ -862,6 +870,13 @@ header .hgHamburger {
   max-width: 148px;
 }
 
+.analyzeFilter {
+  align-self: flex-start;
+}
+
+.analyzeFilter :global(.q-item__label) {
+  font-weight: 700;
+}
 .chartFilter {
   composes: vert;
   align-items: center;
@@ -875,12 +890,16 @@ header .hgHamburger {
 .analyzeDates {
   composes: horiz;
   justify-content: space-around;
+  margin-bottom: 3em;
 }
 
 .analyzeDates > div {
   padding: 0px var(--hg-med);
 }
 
+.analyzeChart {
+  height: 700px;
+}
 .filterOptions {
   padding: var(--hg-xsmall) 0px;
 }
@@ -934,5 +953,44 @@ header .hgHamburger {
   .eventTopRow {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+@media screen and (1250px <= width) {
+  body {
+    min-width: var(--hg-minwidthwide);
+  }
+
+  main > div.vert {
+    align-items: center;
+  }
+
+  .eventsTable {
+    min-width: 700px;
+  }
+  #wrapper {
+    min-width: var(--hg-minwidthwide);
+  }
+
+  .analyzeChart {
+    width: 700px;
+  }
+
+  header {
+    max-width: var(--hg-minwidthwide);
+  }
+
+  header :global(.q-btn) {
+    padding: 4px 47px;
+  }
+  header .hgHamburger {
+    margin-right: 50px;
+  }
+  header > div {
+    margin-left: 300px;
+  }
+
+  .pgmDash {
+    width: 200px;
   }
 }

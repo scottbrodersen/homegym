@@ -8,30 +8,31 @@
   import * as analyzeUtils from '../modules/analyzeUtils';
   import Chart from 'chart.js/auto';
   import ExerciseFilter from './ExerciseFilter.vue';
+  import { QExpansionItem } from 'quasar';
 
   // default date range is 16 weeks since now
-  const startDate = ref(dateUtils.nowInSeconds());
-  const endDate = ref(startDate.value - 16 * 7 * 24 * 60 * 60);
+  const endDate = ref(dateUtils.nowInSeconds());
+  const startDate = ref(endDate.value - 16 * 7 * 24 * 60 * 60);
   let exerciseTypes = [];
 
   let rawMetrics = { dates: [], load: [], volume: [] };
   const metrics = ref({});
   const dailyStats = ref([]);
 
-  const updateStartDate = (newDate) => {
-    if (newDate <= endDate.value) {
-      utils.openConfirmModal('Start date must occur after end date');
+  const updateStartDate = (newStartDate) => {
+    if (newStartDate > endDate.value) {
+      utils.openConfirmModal('Start date must occur before end date');
     } else {
-      startDate.value = newDate;
+      startDate.value = newStartDate;
     }
     getMetrics();
   };
 
-  const updateEndDate = (newDate) => {
-    if (newDate >= startDate.value) {
-      utils.openConfirmModal('End date must occur before start date');
+  const updateEndDate = (newEndDate) => {
+    if (newEndDate < startDate.value) {
+      utils.openConfirmModal('End date must occur after start date');
     } else {
-      endDate.value = newDate;
+      endDate.value = newEndDate;
     }
     getMetrics();
   };
@@ -63,8 +64,8 @@
 
     analyzeUtils.getVolumeChart(
       document.getElementById('chartvolume'),
-      startDate.value,
       endDate.value,
+      startDate.value,
       metrics.value.dates,
       lvRatioData,
       loadData
@@ -75,18 +76,25 @@
     const dayBuckets = dailyStatsUtils.toDayBuckets(dailyStats.value);
     dailyStatsUtils.getDailyChart(
       document.getElementById('chartdaily'),
-      startDate.value,
       endDate.value,
+      startDate.value,
       dayBuckets
     );
   };
 
-  const timeSeriesChart = () => {
+  const timeSeriesChart = async () => {
     const datasets = dailyStatsUtils.getTimeSeriesDataSets(dailyStats.value);
-    dailyStatsUtils.getTimeSeriesChart(
-      document.getElementById('charttimeseries'),
-      startDate.value,
+    const eventDataset = await analyzeUtils.getTimeSeriesData(
       endDate.value,
+      startDate.value
+    );
+
+    datasets.events = eventDataset;
+
+    dailyStatsUtils.getTimeSeriesChart(
+      document.getElementById('chartglucose'),
+      endDate.value,
+      startDate.value,
       datasets
     );
   };
@@ -99,11 +107,11 @@
   const getMetrics = async (updatedTypes = false) => {
     resetMetrics();
     try {
-      if (startDate.value && endDate.value) {
+      if (endDate.value && startDate.value) {
         if (exerciseTypes.length > 0) {
           rawMetrics = await analyzeUtils.fetchMetrics(
-            startDate.value,
             endDate.value,
+            startDate.value,
             exerciseTypes
           );
 
@@ -114,8 +122,8 @@
         // Get daily stats only on date changes
         if (!updatedTypes) {
           dailyStats.value = await dailyStatsUtils.fetchDailyStats(
-            startDate.value,
-            endDate.value
+            endDate.value,
+            startDate.value
           );
           dailyStatsChart();
           timeSeriesChart();
@@ -160,9 +168,28 @@
         />
       </div>
     </div>
-    <ExerciseFilter @ids="(val) => setExerciseTypes(val)" />
-    <canvas id="chartvolume"></canvas>
-    <canvas id="chartdaily"></canvas>
-    <canvas id="charttimeseries"></canvas>
+    <h3>Exercise Volume</h3>
+    <q-expansion-item
+      :class="[styles.analyzeFilter]"
+      label="Exercise Filters"
+      dark
+      dense
+    >
+      <ExerciseFilter @ids="(val) => setExerciseTypes(val)" />
+    </q-expansion-item>
+    <div :class="[styles.analyzeChart]">
+      <canvas id="chartvolume"></canvas>
+    </div>
+    <h3>Health Markers</h3>
+
+    <div :class="[styles.analyzeChart]">
+      <canvas id="chartdaily"></canvas>
+    </div>
+
+    <h3>Blood Glucose Markers</h3>
+
+    <div :class="[styles.analyzeChart]">
+      <canvas id="chartglucose"></canvas>
+    </div>
   </div>
 </template>

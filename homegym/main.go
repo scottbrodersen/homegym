@@ -70,7 +70,7 @@ func main() {
 	if dbPath == testDBPath {
 		if err := AddData(); err != nil {
 			log.WithError(err).Warn("error adding data")
-			dal.DB.Iter8er()
+			//dal.DB.Iter8er()
 		}
 	}
 

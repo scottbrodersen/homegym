@@ -6,6 +6,8 @@ import Chart from 'chart.js/auto';
 import 'date-fns';
 import 'chartjs-adapter-date-fns';
 import 'date-fns';
+import { getRelativePosition } from 'chart.js/helpers';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 export const statNames = [
   'bg',
@@ -71,7 +73,7 @@ export const openDailyStatsModal = (statName, stats) => {
 const bgRegex = new RegExp('^[0-9]{1,2}[.][0-9]$');
 const systolicRegex = new RegExp('^1[0-9]{2}$');
 const diastolicRegex = new RegExp('^[0-9]{2,3}$');
-const sleepRegex = new RegExp('^1?[0-9][.][0-9]$');
+const sleepRegex = new RegExp('^[1]?[0-9][.][0-9]$');
 const bodyWeightRegex = new RegExp('^[0-9]{3}');
 const descriptionRegex = new RegExp('^[0-9a-zA-Z -"\',@%$&]{5,256}$');
 const nutrientRegex = new RegExp(`^[0-9]{0,3}$`);
@@ -261,6 +263,8 @@ export const getDailyChart = (element, startDate, endDate, dataset) => {
     },
 
     options: {
+      maintainAspectRatio: false,
+      aspectRatio: 1,
       scales: {
         x: {
           type: 'time',
@@ -309,32 +313,33 @@ export const getTimeSeriesDataSets = (dailyStats) => {
         description: [stat.bg],
         timeStr: timeStr,
       });
+    }
+    if (stat.bp && stat.bp[0] && stat.bp[1]) {
+      bpData.push({
+        x: x,
+        y: y,
+        description: [`${stat.bp[0]}/${stat.bp[1]}`],
+        timeStr: timeStr,
+      });
+    }
 
-      if (stat.bp && stat.bp[0] && stat.bp[1]) {
-        bpData.push({
-          x: x,
-          y: y,
-          description: [`${stat.bp[0]}/${stat.bp[1]}`],
-        });
-      }
-
-      if (
-        stat.food.description ||
-        stat.food.protein ||
-        stat.food.fat ||
-        stat.food.carbs
-      ) {
-        foodData.push({
-          x: x,
-          y: y,
-          description: [
-            stat.description,
-            `protein: ${stat.protein}`,
-            `fat: ${stat.fat}`,
-            `carbs: ${stat.carbs}`,
-          ],
-        });
-      }
+    if (
+      stat.food.description ||
+      stat.food.protein ||
+      stat.food.fat ||
+      stat.food.carbs
+    ) {
+      foodData.push({
+        x: x,
+        y: y,
+        description: [
+          stat.food.description,
+          `protein: ${stat.food.protein}`,
+          `fat: ${stat.food.fat}`,
+          `carbs: ${stat.food.carbs}`,
+        ],
+        timeStr: timeStr,
+      });
     }
   });
   return { bg: bgData, bp: bpData, food: foodData };
@@ -353,18 +358,33 @@ export const getTimeSeriesChart = (
   const datasets = new Array();
 
   for (const [key, value] of Object.entries(datasetsObj)) {
-    datasets.push({
+    const ds = {
       label: key,
       data: value,
-    });
+    };
+    if (key == 'bg') {
+      ds.datalabels = {
+        display: true,
+        formatter: function (value, context) {
+          return Number(value.description[0]) > 6 ? value.description : null;
+        },
+        color: '#FF0000',
+        align: 'right',
+        offset: 2,
+      };
+    }
+    datasets.push(ds);
   }
 
-  return new Chart(element, {
+  const chart = new Chart(element, {
+    plugins: [ChartDataLabels],
     type: 'scatter',
     data: {
       datasets: datasets,
     },
     options: {
+      maintainAspectRatio: false,
+      aspectRatio: 1,
       elements: {
         point: {
           radius: 3,
@@ -373,12 +393,14 @@ export const getTimeSeriesChart = (
       scales: {
         x: {
           type: 'time',
+          max: startDate * 1000,
+          min: endDate * 1000,
         },
         y: {
           type: 'time',
           time: { unit: 'hour' },
-          min: '00:00:00',
-          max: '23:59:59',
+          min: '1970-01-01T01',
+          max: '1970-01-01T23',
         },
       },
       plugins: {
@@ -402,7 +424,22 @@ export const getTimeSeriesChart = (
             },
           },
         },
+        datalabels: {
+          display: false,
+        },
+      },
+      onClick: (e) => {
+        const canvasPosition = getRelativePosition(e, chart);
+
+        // Substitute the appropriate scale IDs
+        const dataX = chart.scales.x.getValueForPixel(canvasPosition.x);
+        const dataY = chart.scales.y.getValueForPixel(canvasPosition.y);
+        console.log(`clicked: (${dataX}, ${dataY})`);
+        console.log(chart.tooltip.dataPoints);
+        console.log(e);
       },
     },
   });
+
+  return chart;
 };

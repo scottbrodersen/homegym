@@ -144,12 +144,7 @@
         const lastEventID = lastEvent ? lastEvent.id : 0;
         const lastEventDate = lastEvent ? lastEvent.date : 0;
 
-        const events = await fetchEventPage(lastEventID, lastEventDate);
-
-        // initialize objects in metrics store
-        events.forEach((event) => {
-          setMetrics(event);
-        });
+        const events = await fetchEvents(lastEventID, lastEventDate);
       }
     } catch (e) {
       if (e instanceof ErrNotLoggedIn) {
@@ -162,6 +157,10 @@
     }
 
     rows.value = eventStore.getPage(props.pagination.page - 1);
+    // initialize objects in metrics store
+    rows.value.forEach((event) => {
+      setMetrics(event);
+    });
     pagination.value.rowsNumber = eventStore.events.length;
     pagination.value.page = props.pagination.page;
   };
