@@ -26,22 +26,15 @@ func (g *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	sessionIDCookie, err := r.Cookie(cookieSession)
 	if err != nil {
-		if r.URL.Path == homePath {
-			http.Redirect(w, r, "/homegym/login/", http.StatusFound)
-			return
-		}
-		http.Error(w, `{"message": "Log in again please"}`, http.StatusUnauthorized)
+		log.Debug("session cookie not found")
+		http.Redirect(w, r, "/homegym/login/", http.StatusFound)
 		return
 	}
 
 	tokenCookie, err := r.Cookie(cookieToken)
 	if err != nil {
-		log.Debug("token not found, returning 401")
-		if r.URL.Path == homePath {
-			http.Redirect(w, r, "/homegym/login/", http.StatusFound)
-			return
-		}
-		http.Error(w, `{"message": "Log in again please"}`, http.StatusUnauthorized)
+		log.Debug("token not found")
+		http.Redirect(w, r, "/homegym/login/", http.StatusFound)
 		return
 	}
 	sessionID := strings.TrimSpace(sessionIDCookie.Value)
