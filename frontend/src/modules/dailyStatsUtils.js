@@ -70,13 +70,13 @@ export const openDailyStatsModal = (statName, stats) => {
   });
 };
 
-const bgRegex = new RegExp('^[0-9]{1,2}[.][0-9]$');
-const systolicRegex = new RegExp('^1[0-9]{2}$');
-const diastolicRegex = new RegExp('^[0-9]{2,3}$');
-const sleepRegex = new RegExp('^[1]?[0-9][.][0-9]$');
-const bodyWeightRegex = new RegExp('^[0-9]{3}');
-const descriptionRegex = new RegExp('^[0-9a-zA-Z -"\',@%$&]{5,256}$');
-const nutrientRegex = new RegExp(`^[0-9]{0,3}$`);
+const bgRegex = new RegExp('^\\d{1,2}([.]\\d)?$');
+const systolicRegex = new RegExp('^1\\d{2}$');
+const diastolicRegex = new RegExp('^\\d{2,3}$');
+const sleepRegex = new RegExp('^1?\\d([.]\\d{1,2})?$');
+const bodyWeightRegex = new RegExp('^\\d{2,3}$');
+const descriptionRegex = new RegExp('^[\\da-zA-Z -"\',@%$&]{5,256}$');
+const nutrientRegex = new RegExp(`^\\d{0,3}$`);
 const scaleOfFiveRegex = new RegExp(`^[1-5]$`);
 
 const fieldValidatorFactory = (regex) => {
