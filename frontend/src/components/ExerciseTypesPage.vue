@@ -15,6 +15,17 @@
   } from '../modules/utils';
   import * as styles from '../style.module.css';
   import { computed, ref, onBeforeMount } from 'vue';
+  import {
+    QBtn,
+    QBtnDropdown,
+    QList,
+    QItem,
+    QItemSection,
+    QItemLabel,
+    QSelect,
+    QInput,
+    QCheckbox,
+  } from 'quasar';
 
   const emptyType = () => {
     return {
