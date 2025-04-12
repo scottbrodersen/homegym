@@ -188,7 +188,7 @@ const fetchPrograms = async (activityID) => {
       if (programPage && programPage.length < pageSize()) {
         done = true;
       } else {
-        lastProgram = programPage[programPage.length].id;
+        lastProgram = programPage[programPage.length - 1].id;
       }
     } else {
       done = true;
