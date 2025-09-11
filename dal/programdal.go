@@ -2,7 +2,6 @@ package dal
 
 import (
 	"fmt"
-	"strings"
 
 	badger "github.com/dgraph-io/badger/v4"
 )
@@ -77,15 +76,15 @@ func (c *DBClient) AddProgramInstance(userID, programID, instanceID, activityID 
 
 	updates := []*badger.Entry{instanceEntry}
 
-	if activityID != "" {
+	// if activityID != "" {
 
-		activePrefix := []string{userKey, userID, activityKey, activityID, activeProgramKey}
+	// 	activePrefix := []string{userKey, userID, activityKey, activityID, activeProgramKey}
 
-		// value is in format {instanceID}:{programID}
-		activeProgramEntry := badger.NewEntry(key(activePrefix), []byte(fmt.Sprintf("%s:%s", instanceID, programID)))
+	// 	// value is in format {instanceID}:{programID}
+	// 	activeProgramEntry := badger.NewEntry(key(activePrefix), []byte(fmt.Sprintf("%s:%s", instanceID, programID)))
 
-		updates = append(updates, activeProgramEntry)
-	}
+	// 	updates = append(updates, activeProgramEntry)
+	// }
 
 	if err := writeUpdates(c, updates); err != nil {
 		return fmt.Errorf("failed to add program instance: %w", err)
@@ -95,7 +94,7 @@ func (c *DBClient) AddProgramInstance(userID, programID, instanceID, activityID 
 }
 
 // GetProgramInstancePage gets a page of program instances.
-// To get a specific instance, set pageSize to 1.
+// To get a specific instance, set pageSize to 1 and previousProgramInstanceID to the instance ID.
 // Returns nil if a specific instance was requested and not found.
 func (c *DBClient) GetProgramInstancePage(userID, programID, previousProgramInstanceID string, pageSize int) ([][]byte, error) {
 	prefix := []string{userKey, userID, programKey, programID, programInstanceKey}
@@ -134,50 +133,106 @@ func (c *DBClient) GetProgramInstancePage(userID, programID, previousProgramInst
 	return programInstances, nil
 }
 
-func (c *DBClient) SetActiveProgramInstance(userID, activityID, programID, instanceID string) error {
-	prefix := []string{userKey, userID, activityKey, activityID, activeProgramKey}
+// func (c *DBClient) SetActiveProgramInstance(userID, activityID, programID, instanceID string) error {
+// 	prefix := []string{userKey, userID, activityKey, activityID, activeProgramKey}
 
-	// value is in format {instanceID}:{programID}
-	activeProgramEntry := badger.NewEntry(key(prefix), []byte(fmt.Sprintf("%s:%s", instanceID, programID)))
+// 	// value is in format {instanceID}:{programID}
+// 	activeProgramEntry := badger.NewEntry(key(prefix), []byte(fmt.Sprintf("%s:%s", instanceID, programID)))
+// 	updates := []*badger.Entry{activeProgramEntry}
+
+// 	if err := writeUpdates(c, updates); err != nil {
+// 		return fmt.Errorf("failed to set active program: %w", err)
+// 	}
+
+// 	return nil
+// }
+
+func (c *DBClient) ActivateProgramInstance(userID, activityID, programID, instanceID string) error {
+	prefix := []string{userKey, userID, activityKey, activityID, activeProgramKey, instanceID}
+
+	// value is {programID:instanceID}
+	activeProgramEntry := badger.NewEntry(key(prefix), []byte(fmt.Sprintf("%s:%s", programID, instanceID)))
 	updates := []*badger.Entry{activeProgramEntry}
 
 	if err := writeUpdates(c, updates); err != nil {
-		return fmt.Errorf("failed to set active program: %w", err)
+		return fmt.Errorf("failed to activate program: %w", err)
 	}
 
 	return nil
 }
 
-func (c *DBClient) GetActiveProgramInstance(userID, activityID string) ([]byte, error) {
-
+// GetActiveProgramInstancePage gets a page of active program instance IDs with their programID for a specific activity.
+// Returned values are an array of byte arrays of value {programID}:{programInstanceID}.
+// To get a specific instance, set pageSize to 1.
+// Returns nil if a specific instance was requested and not found.
+func (c *DBClient) GetActiveProgramInstancePage(userID, activityID, previousActiveInstanceID string, pageSize int) ([][]byte, error) {
 	prefix := []string{userKey, userID, activityKey, activityID, activeProgramKey}
-	entry, err := readItem(c, key(prefix))
-
+	var startKey []byte = nil
+	firstPage := true
+	if previousActiveInstanceID != "" {
+		startKey = key(append(prefix, previousActiveInstanceID))
+		if pageSize > 1 {
+			firstPage = false
+		}
+	}
+	entries, err := readKeyPrefixPage(c, startKey, key(prefix), pageSize, "", firstPage, false)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read event: %w", err)
+		return nil, fmt.Errorf("failed to read program instances: %w", err)
+	}
+	activeInstances := [][]byte{}
+
+	if pageSize > 1 {
+		for _, v := range entries {
+			activeInstances = append(activeInstances, v.Value)
+		}
+
+		return activeInstances, nil
 	}
 
-	if entry == nil {
+	// When getting a specific instance, make sure we got the right one
+	if len(entries) == 0 {
 		return nil, nil
 	}
 
-	ids := strings.Split(string(entry.Value), ":")
-
-	instancePage, err := c.GetProgramInstancePage(userID, ids[1], ids[0], 1)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read program instance: %w", err)
-	}
-
-	if len(instancePage) == 0 {
+	if string(entries[0].Key) != string(startKey) {
 		return nil, nil
 	}
+	activeInstances = append(activeInstances, entries[0].Value)
 
-	return instancePage[0], nil
-
+	return activeInstances, nil
 }
 
-func (c *DBClient) DeactivateProgramInstance(userID, activityID string) error {
-	keyPrefix := []string{userKey, userID, activityKey, activityID, activeProgramKey}
+// func (c *DBClient) GetActiveProgramInstance(userID, activityID string) ([]byte, error) {
+
+// 	prefix := []string{userKey, userID, activityKey, activityID, activeProgramKey}
+// 	entry, err := readItem(c, key(prefix))
+
+// 	if err != nil {
+// 		return nil, fmt.Errorf("failed to read event: %w", err)
+// 	}
+
+// 	if entry == nil {
+// 		return nil, nil
+// 	}
+
+// 	ids := strings.Split(string(entry.Value), ":")
+
+// 	instancePage, err := c.GetProgramInstancePage(userID, ids[1], ids[0], 1)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("failed to read program instance: %w", err)
+// 	}
+
+// 	if len(instancePage) == 0 {
+// 		return nil, nil
+// 	}
+
+// 	return instancePage[0], nil
+
+// }
+
+func (c *DBClient) DeactivateProgramInstance(userID, activityID, activeInstanceID string) error {
+
+	keyPrefix := []string{userKey, userID, activityKey, activityID, activeProgramKey, activeInstanceID}
 	keys := [][]byte{key(keyPrefix)}
 	err := deleteItems(c, keys)
 	if err != nil {

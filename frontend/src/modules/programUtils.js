@@ -47,12 +47,12 @@ export const getStatusIcons = (workoutStatus) => {
 
 // Returns the planned workouts of the active instance
 export const getWorkouts = (activityID) => {
-  const activeInstance = programInstanceStore.getActive(activityID);
+  const currentInstance = programInstanceStore.getCurrent(activityID);
 
   // walk the program to retrieve workouts
   let workouts = new Array();
 
-  activeInstance.blocks.forEach((block) => {
+  currentInstance.blocks.forEach((block) => {
     block.microCycles.forEach((cycle) => {
       workouts = workouts.concat(cycle.workouts);
     });
@@ -267,7 +267,12 @@ export const getProgramInstanceStatus = (instanceID) => {
     coords = getWorkoutCoords(instance, dayIndex);
   }
 
-  return [percentComplete, adherence, coords, dayIndex];
+  return {
+    percentComplete: percentComplete,
+    adherence: adherence,
+    coords: coords,
+    dayIndex: dayIndex,
+  };
 };
 
 export const requiredFieldValidator = (val) => {
@@ -380,4 +385,37 @@ export const newWorkoutModal = (instance, coords) => {
       })
       .onDismiss(() => {});
   });
+};
+
+// Finds the current active workout instance based on date
+// Earliest start date is active
+export const selectCurrentProgramInstance = (activityID) => {
+  let active = null;
+
+  // Get the instances from the store
+  let instances = [];
+  let activeInstances = programInstanceStore.getActive(activityID);
+  if (activeInstances) {
+    for (let i = 0; i < activeInstances.length; i++) {
+      instances.push(
+        programInstanceStore.get(
+          activeInstances[i].id,
+          activeInstances[i].programID
+        )
+      );
+    }
+    let earliest = null;
+    for (let i = 0; i < activeInstances.length; i++) {
+      if (i == 0) {
+        earliest = instances[i].startDate;
+        active = instances[i];
+      } else if (instances[i].startDate < earliest) {
+        earliest = instances[i].startDate;
+        active = instances[i];
+      }
+    }
+
+    console.log('active program: ' + active);
+  }
+  return active;
 };

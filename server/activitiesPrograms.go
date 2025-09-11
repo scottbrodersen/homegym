@@ -4,10 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"strconv"
-
-	log "github.com/sirupsen/logrus"
 
 	"github.com/scottbrodersen/homegym/programs"
 )
@@ -19,13 +18,13 @@ func newProgram(username, activityID string, w http.ResponseWriter, r *http.Requ
 
 	var program *programs.Program = &programs.Program{}
 	if err := json.NewDecoder(r.Body).Decode(program); err != nil {
-		log.Error(err)
+		slog.Debug(err.Error())
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	if program.ActivityID != activityID {
-		log.Error("wrong activity ID in path")
+		slog.Debug("wrong activity ID in path")
 		http.Error(w, `{"message":"wrong activity ID in path"}`, http.StatusBadRequest)
 		return
 	}
@@ -62,19 +61,19 @@ func updateProgram(username, activityID, programID string, w http.ResponseWriter
 
 	var program *programs.Program = &programs.Program{}
 	if err := json.NewDecoder(r.Body).Decode(program); err != nil {
-		log.Error(err)
+		slog.Debug(err.Error())
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	if program.ID != programID {
-		log.Error("wrong program ID in path")
+		slog.Debug("wrong program ID in path")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	if program.ActivityID != activityID {
-		log.Error("wrong activity ID in path")
+		slog.Debug("wrong activity ID in path")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -82,9 +81,11 @@ func updateProgram(username, activityID, programID string, w http.ResponseWriter
 	err := programs.ProgramManager.UpdateProgram(username, *program)
 	if err != nil {
 		if errors.As(err, new(programs.ErrInvalidProgram)) {
+			slog.Debug(err.Error())
 			http.Error(w, `{"message":"invalid program"}`, http.StatusBadRequest)
 			return
 		}
+		slog.Error(err.Error())
 		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
@@ -140,6 +141,7 @@ func getProgramPage(username, activityID string, w http.ResponseWriter, r *http.
 	page, err := programs.ProgramManager.GetProgramsPageForActivity(username, activityID, previousID, int(pageSizeInt))
 
 	if err != nil {
+		slog.Error(err.Error())
 		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
@@ -147,6 +149,7 @@ func getProgramPage(username, activityID string, w http.ResponseWriter, r *http.
 	body, err := json.Marshal(page)
 
 	if err != nil {
+		slog.Error(err.Error())
 		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
@@ -158,6 +161,7 @@ func getProgramPage(username, activityID string, w http.ResponseWriter, r *http.
 
 func addProgramInstance(username, programID string, w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
+		slog.Debug("No request body")
 		http.Error(w, `{"message":"no body"}`, http.StatusBadRequest)
 		return
 	}
@@ -165,7 +169,7 @@ func addProgramInstance(username, programID string, w http.ResponseWriter, r *ht
 	var programInstance *programs.ProgramInstance = &programs.ProgramInstance{}
 
 	if err := json.NewDecoder(r.Body).Decode(programInstance); err != nil {
-		log.Error(err)
+		slog.Debug(err.Error())
 		http.Error(w, fmt.Sprintf(`{"message":"%s"}`, err.Error()), http.StatusBadRequest)
 		return
 	}
@@ -186,6 +190,7 @@ func addProgramInstance(username, programID string, w http.ResponseWriter, r *ht
 			http.Error(w, fmt.Sprintf(`{"message":"invalid program: %s"}`, err.Error()), http.StatusBadRequest)
 			return
 		}
+		slog.Error(err.Error())
 		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
@@ -193,6 +198,7 @@ func addProgramInstance(username, programID string, w http.ResponseWriter, r *ht
 	body, err := json.Marshal(programInstance)
 
 	if err != nil {
+		slog.Error(err.Error())
 		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
@@ -209,25 +215,26 @@ func updateProgramInstance(username, activityID, programID, instanceID string, w
 
 	var programInstance *programs.ProgramInstance = &programs.ProgramInstance{}
 	if err := json.NewDecoder(r.Body).Decode(programInstance); err != nil {
-		log.Error(err)
+		slog.Debug(err.Error())
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
+	// Check that the path values match the instance properties
 	if programInstance.ID != instanceID {
-		log.Error("wrong program instance ID in path")
+		slog.Debug("wrong program instance ID in path")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	if programInstance.ActivityID != activityID {
-		log.Error("wrong activity ID in path")
+		slog.Debug("wrong activity ID in path")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	if programInstance.ProgramID != programID {
-		log.Error("wrong program ID in path")
+		slog.Debug("wrong program ID in path")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -238,12 +245,14 @@ func updateProgramInstance(username, activityID, programID, instanceID string, w
 			http.Error(w, `{"message":"invalid program instance"}`, http.StatusBadRequest)
 			return
 		}
+		slog.Error(err.Error())
 		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
 
 	body, err := json.Marshal(*pi)
 	if err != nil {
+		slog.Error(err.Error())
 		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
@@ -257,6 +266,7 @@ func getProgramInstance(username, programID, instanceID string, w http.ResponseW
 	page, err := programs.ProgramManager.GetProgramInstancesPage(username, programID, instanceID, int(1))
 
 	if err != nil {
+		slog.Error(err.Error())
 		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
@@ -268,6 +278,7 @@ func getProgramInstance(username, programID, instanceID string, w http.ResponseW
 	}
 
 	if err != nil {
+		slog.Error(err.Error())
 		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
@@ -300,6 +311,7 @@ func getProgramInstancePage(username, programID string, w http.ResponseWriter, r
 	page, err := programs.ProgramManager.GetProgramInstancesPage(username, programID, previousID, int(pageSizeInt))
 
 	if err != nil {
+		slog.Error(err.Error())
 		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
@@ -310,6 +322,7 @@ func getProgramInstancePage(username, programID string, w http.ResponseWriter, r
 		body, err = json.Marshal(page)
 
 		if err != nil {
+			slog.Error(err.Error())
 			http.Error(w, internalServerError, http.StatusInternalServerError)
 			return
 		}
@@ -322,10 +335,11 @@ func getProgramInstancePage(username, programID string, w http.ResponseWriter, r
 	w.Write(body)
 }
 
-func setActiveProgramInstance(username, activityID, programID, instanceID string, w http.ResponseWriter) {
+func activateProgramInstance(username, activityID, programID, instanceID string, w http.ResponseWriter) {
 
-	err := programs.ProgramManager.SetActiveProgramInstance(username, activityID, programID, instanceID)
+	err := programs.ProgramManager.ActivateProgramInstance(username, activityID, programID, instanceID)
 	if err != nil {
+		slog.Error(err.Error())
 		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
@@ -335,35 +349,36 @@ func setActiveProgramInstance(username, activityID, programID, instanceID string
 	w.WriteHeader(http.StatusOK)
 }
 
-func getActiveProgramInstance(username, activityID string, w http.ResponseWriter) {
-	activeInstance, err := programs.ProgramManager.GetActiveProgramInstance(username, activityID)
+func getActiveProgramInstances(username, activityID string, w http.ResponseWriter) {
+	activeInstances, err := programs.ProgramManager.GetActiveProgramInstancesPage(username, activityID, "", 5)
 	if err != nil {
+		slog.Error(err.Error())
 		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
 
-	if activeInstance == nil {
-		h := w.Header()
-		standardHeaders(&h)
-		w.Write([]byte("{}"))
-		return
+	var body []byte = []byte{}
+
+	if activeInstances == nil {
+		body = []byte("[]")
+	} else {
+		body, err = json.Marshal(activeInstances)
+
+		if err != nil {
+			slog.Error(err.Error())
+			http.Error(w, internalServerError, http.StatusInternalServerError)
+			return
+		}
 	}
-
-	body, err := json.Marshal(activeInstance)
-
-	if err != nil {
-		http.Error(w, internalServerError, http.StatusInternalServerError)
-		return
-	}
-
 	h := w.Header()
 	standardHeaders(&h)
 	w.Write(body)
 }
 
-func deactivateProgramInstance(username, activityID string, w http.ResponseWriter) {
-	err := programs.ProgramManager.DeactivateProgramInstance(username, activityID)
+func deactivateProgramInstance(username, activityID, instanceID string, w http.ResponseWriter) {
+	err := programs.ProgramManager.DeactivateProgramInstance(username, activityID, instanceID)
 	if err != nil {
+		slog.Error(err.Error())
 		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}

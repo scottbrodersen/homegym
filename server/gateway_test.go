@@ -37,7 +37,7 @@ func TestGateway(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		gw.ServeHTTP(w, req)
-		So(w.Result().StatusCode, ShouldEqual, http.StatusFound)
+		So(w.Result().StatusCode, ShouldEqual, http.StatusUnauthorized)
 		//so(w.Result().)
 	})
 

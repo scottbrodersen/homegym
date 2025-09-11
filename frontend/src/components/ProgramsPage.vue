@@ -10,7 +10,7 @@
   } from '../modules/utils';
   import * as styles from '../style.module.css';
   import { onBeforeMount, provide, ref, Suspense } from 'vue';
-  import { QSelect, QBtn } from 'quasar';
+  import { QSelect, QBtn, QCheckbox } from 'quasar';
   import ActivityProgram from './ActivityProgram.vue';
   import ProgramSelect from './ProgramSelect.vue';
   import ProgramInstance from './ProgramInstance.vue';
@@ -24,6 +24,8 @@
   const selectedProgram = ref(props.programID ? props.programID : '');
   const selectedProgramInstance = ref(props.instanceID ? props.instanceID : '');
   const activityID = ref(props.activityID);
+
+  const hideCompleted = ref(true);
 
   const state = ref(states.READ_ONLY);
 
@@ -156,6 +158,7 @@
                 ? props.instanceID
                 : ''
             "
+            :hideCompleted="hideCompleted"
             @selected="setProgramSelection"
           />
         </Suspense>
@@ -175,6 +178,9 @@
               editProgramTitle
             "
           />
+        </div>
+        <div>
+          <q-checkbox v-model="hideCompleted" label="Hide completed" dark />
         </div>
       </div>
     </div>

@@ -279,14 +279,23 @@ func (d *MockDal) AddProgramInstance(userID, programID, instanceID, activityID s
 }
 
 func (d *MockDal) GetProgramInstancePage(userID, programID, instanceID string, pageSize int) ([][]byte, error) {
-	args := d.Called(userID, programID, instanceID)
+	args := d.Called(userID, programID, instanceID, pageSize)
 	if args.Error(1) != nil {
 		return nil, args.Error(1)
 	}
 	return args.Get(0).([][]byte), nil
 }
 
-func (d *MockDal) SetActiveProgramInstance(userID, activityID, programID, instanceID string) error {
+// func (d *MockDal) SetActiveProgramInstance(userID, activityID, programID, instanceID string) error {
+// 	args := d.Called(userID, activityID, programID, instanceID)
+// 	if args.Error(0) != nil {
+// 		return args.Error(0)
+// 	}
+
+// 	return nil
+// }
+
+func (d *MockDal) ActivateProgramInstance(userID, activityID, programID, instanceID string) error {
 	args := d.Called(userID, activityID, programID, instanceID)
 	if args.Error(0) != nil {
 		return args.Error(0)
@@ -295,16 +304,24 @@ func (d *MockDal) SetActiveProgramInstance(userID, activityID, programID, instan
 	return nil
 }
 
-func (d *MockDal) GetActiveProgramInstance(userID, activityID string) ([]byte, error) {
-	args := d.Called(userID, activityID)
+// func (d *MockDal) GetActiveProgramInstance(userID, activityID string) ([]byte, error) {
+// 	args := d.Called(userID, activityID)
+// 	if args.Error(1) != nil {
+// 		return nil, args.Error(1)
+// 	}
+// 	return args.Get(0).([]byte), nil
+// }
+
+func (d *MockDal) GetActiveProgramInstancePage(userID, activityID, activeInstanceID string, pageSize int) ([][]byte, error) {
+	args := d.Called(userID, activityID, activeInstanceID, pageSize)
 	if args.Error(1) != nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).([]byte), nil
+	return args.Get(0).([][]byte), nil
 }
 
-func (d *MockDal) DeactivateProgramInstance(userID, activityID string) error {
-	args := d.Called(userID, activityID)
+func (d *MockDal) DeactivateProgramInstance(userID, activityID, instanceID string) error {
+	args := d.Called(userID, activityID, instanceID)
 
 	return args.Error(0)
 }

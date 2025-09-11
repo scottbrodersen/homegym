@@ -4,13 +4,15 @@ import (
 	"fmt"
 	"testing"
 
-	log "github.com/sirupsen/logrus"
+	"log"
+
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 const (
 	testProgramID             = "test-program-id"
 	testProgramInstanceID     = "test-program-instance-id"
+	testProgramInstanceID2    = "test-program-instance-id-2"
 	numberOfTestProgramsToAdd = 10
 )
 
@@ -89,27 +91,44 @@ func TestProgramDal(t *testing.T) {
 			So(instance, ShouldResemble, [][]byte{testProgramInstance})
 		})
 
+		Convey("When we activate the program instance", func() {
+			err := db.ActivateProgramInstance(testUserID, testActivityID, testProgramID, testProgramInstanceID)
+
+			So(err, ShouldBeNil)
+		})
+
 		Convey("When we get the active program", func() {
-			activeProgram, err := db.GetActiveProgramInstance(testUserID, testActivityID)
+			activePrograms, err := db.GetActiveProgramInstancePage(testUserID, testActivityID, testProgramInstanceID, 1)
 
 			So(err, ShouldBeNil)
-			So(activeProgram, ShouldResemble, testProgramInstance)
+			So(len(activePrograms), ShouldEqual, 1)
+			So(activePrograms[0], ShouldResemble, ([]byte)(fmt.Sprintf("%s:%s", testProgramID, testProgramInstanceID)))
+		})
+
+		Convey("When we activate another program instance", func() {
+			err := db.ActivateProgramInstance(testUserID, testActivityID, testProgramID, testProgramInstanceID2)
+
+			So(err, ShouldBeNil)
+		})
+
+		Convey("When we get a page of active program instances", func() {
+			activePrograms, err := db.GetActiveProgramInstancePage(testUserID, testActivityID, "", 10)
+			So(err, ShouldBeNil)
+			So(len(activePrograms), ShouldEqual, 2)
+			So(activePrograms[0], ShouldResemble, ([]byte)(fmt.Sprintf("%s:%s", testProgramID, testProgramInstanceID)))
+			So(activePrograms[1], ShouldResemble, ([]byte)(fmt.Sprintf("%s:%s", testProgramID, testProgramInstanceID2)))
 
 		})
 
-		Convey("When we set the active program", func() {
-			err := db.SetActiveProgramInstance(testUserID, testActivityID, testProgramID, testProgramInstanceID)
+		Convey("When we deactivate an active program", func() {
+			err := db.DeactivateProgramInstance(testUserID, testActivityID, testProgramInstanceID)
 
 			So(err, ShouldBeNil)
-		})
 
-		Convey("When we deactivate the active program", func() {
-			err := db.DeactivateProgramInstance(testUserID, testActivityID)
-			So(err, ShouldBeNil)
-			activeProgram, err := db.GetActiveProgramInstance(testUserID, testActivityID)
+			activeProgram, err := db.GetActiveProgramInstancePage(testUserID, testActivityID, testProgramInstanceID, 1)
+
 			So(err, ShouldBeNil)
 			So(activeProgram, ShouldBeNil)
-
 		})
 
 		Convey("When we get a program instance using the wrong ID", func() {

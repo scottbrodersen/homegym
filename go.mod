@@ -1,6 +1,6 @@
 module github.com/scottbrodersen/homegym
 
-go 1.21.5
+go 1.25.1
 
 replace golang.org/x/net => golang.org/x/net v0.23.0
 
@@ -10,7 +10,6 @@ require (
 	github.com/dgraph-io/badger/v4 v4.2.0
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/google/uuid v1.6.0
-	github.com/sirupsen/logrus v1.9.0
 	github.com/smartystreets/goconvey v1.8.0
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/crypto v0.24.0

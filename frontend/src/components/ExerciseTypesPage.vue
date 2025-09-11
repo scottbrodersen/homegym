@@ -104,6 +104,7 @@
   });
 
   const setCurrentExercise = (exerciseType) => {
+    console.log(exerciseType);
     currentExerciseType.value = Object.assign(
       currentExerciseType.value,
       exerciseType

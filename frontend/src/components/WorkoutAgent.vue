@@ -20,10 +20,10 @@
     dayIndex: Number,
   });
 
-  const activeInstance = programInstanceStore.getActive(props.activityID);
+  const currentInstance = programInstanceStore.getCurrent(props.activityID);
 
-  if (!activeInstance.events) {
-    activeInstance['events'] = {};
+  if (!currentInstance.events) {
+    currentInstance['events'] = {};
   }
 
   // content for slides
@@ -34,12 +34,12 @@
 
   provide('current', slide);
 
-  setFocusedEvent(activeInstance.events[slide.value]);
+  setFocusedEvent(currentInstance.events[slide.value]);
 
   const statusColourStyles = [];
   for (let i = 0; i < slides.value.length; i++) {
     const status = utils.getWorkoutStatus(
-      activeInstance.events[i],
+      currentInstance.events[i],
       i,
       props.dayIndex,
       slides.value[i].restDay
@@ -51,13 +51,13 @@
     // ensure we can only start today's workout
     if (props.dayIndex == slideIndex) {
       if (slides.value[slideIndex].restDay) {
-        activeInstance.events[props.dayIndex] = '';
-        updateProgramInstance(activeInstance);
+        currentInstance.events[props.dayIndex] = '';
+        updateProgramInstance(currentInstance);
       } else {
         router.push({
           name: 'event',
           query: {
-            instance: activeInstance.id,
+            instance: currentInstance.id,
             block: props.workoutCoords[0],
             cycle: props.workoutCoords[1],
             workout: props.workoutCoords[2],
@@ -69,18 +69,18 @@
   };
 
   const skipWorkout = (outstandingIndex) => {
-    activeInstance.events[
+    currentInstance.events[
       props.dayIndex - (slides.value.length - 1 - outstandingIndex)
     ] = '';
 
-    updateProgramInstance(activeInstance);
+    updateProgramInstance(currentInstance);
   };
 
   watch(
     () => selectedEvent.value,
     (newID) => {
-      for (let i = 0; i < Object.entries(activeInstance.events).length; i++) {
-        if (activeInstance.events[i] == newID) {
+      for (let i = 0; i < Object.entries(currentInstance.events).length; i++) {
+        if (currentInstance.events[i] == newID) {
           slide.value = i;
           setFocusedEvent(newID);
           break;
@@ -104,7 +104,7 @@
         height="100%"
         @update:model-value="
           (value) => {
-            setFocusedEvent(activeInstance.events[value]);
+            setFocusedEvent(currentInstance.events[value]);
           }
         "
       >
@@ -112,7 +112,7 @@
           <div :class="[styles.carouselSlideContent]">
             <WorkoutStatus
               :class="[styles.workoutStatus]"
-              :eventID="activeInstance.events[index]"
+              :eventID="currentInstance.events[index]"
               :todayIndex="dayIndex"
               :workoutIndex="index"
               :workout="w"
@@ -121,7 +121,7 @@
               :class="[styles.carouselNavButtonArray]"
               v-if="
                 slide == props.dayIndex &&
-                activeInstance.events[slide] == undefined &&
+                currentInstance.events[slide] == undefined &&
                 !slides[slide].restDay
               "
             >
@@ -136,7 +136,7 @@
                 "
                 :disable="
                   slide != props.dayIndex ||
-                  activeInstance.events[slide] != undefined ||
+                  currentInstance.events[slide] != undefined ||
                   slides[slide].restDay
                 "
               />
@@ -146,7 +146,7 @@
                 icon="do_not_disturb"
                 :disable="
                   slide > props.dayIndex ||
-                  activeInstance.events[slide] != undefined ||
+                  currentInstance.events[slide] != undefined ||
                   slides[slide].restDay
                 "
                 @Click="

@@ -8,38 +8,51 @@
   import * as utils from '../modules/utils';
   const router = useRouter();
 
+  const percentComplete = ref(null);
+  const adherence = ref(null);
+  const coords = ref(null);
+  const dayIndex = ref(null);
+
   const props = defineProps({ activityID: String });
-  const activeInstance = props.activityID
-    ? programInstanceStore.getActive(props.activityID)
-    : null;
-  const activity = ref(activeInstance ? props.activityID : null);
+  const currentInstance = ref(
+    props.activityID ? programInstanceStore.getCurrent(props.activityID) : null
+  );
+  const activity = ref(currentInstance ? props.activityID : null);
   provide('activity', activity);
 
   const state = ref(utils.states.READ_ONLY);
   provide('state', { state });
 
   // get program stats
-  const [percentComplete, adherence, workoutCoords, dayIndex] = activeInstance
-    ? getProgramInstanceStatus(activeInstance.id)
-    : [null, null, null, null];
+  const currentInstanceStatus = currentInstance.value
+    ? getProgramInstanceStatus(currentInstance.value.id)
+    : null;
+  console.log('current instance status: ' + currentInstanceStatus);
+
+  if (currentInstanceStatus) {
+    percentComplete.value = currentInstanceStatus.percentComplete;
+    adherence.value = currentInstanceStatus.adherence;
+    coords.value = currentInstanceStatus.coords;
+    dayIndex.value = currentInstanceStatus.dayIndex;
+  }
 
   const goToProgram = () => {
-    if (activeInstance) {
+    if (currentInstance.value) {
       router.push({
         name: 'programs',
         query: {
           activity: props.activityID,
-          instance: activeInstance.id,
+          instance: currentInstance.value.id,
         },
       });
     }
   };
 </script>
 <template>
-  <div v-if="activeInstance">
+  <div v-if="currentInstance">
     <h1>
       Current Focus:<span @click="goToProgram">
-        {{ activeInstance.title }}</span
+        {{ currentInstance.title }}</span
       >
     </h1>
     <div :class="[styles.pgmStatus]">
@@ -50,7 +63,7 @@
       <WorkoutAgent
         v-if="percentComplete < 100"
         :activityID="props.activityID"
-        :workoutCoords="workoutCoords"
+        :workoutCoords="coords"
         :dayIndex="dayIndex"
       />
       <div v-else>
@@ -60,7 +73,10 @@
             label="Remove from dashboard"
             @click="
               () => {
-                utils.deactivateProgramInstance(props.activityID);
+                utils.deactivateProgramInstance(
+                  props.activityID,
+                  currentInstance.id
+                );
               }
             "
             dark

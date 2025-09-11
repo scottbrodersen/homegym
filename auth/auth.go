@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"regexp"
 	"strconv"
 	"strings"
@@ -17,7 +18,6 @@ import (
 	"github.com/scottbrodersen/homegym/dal"
 
 	"github.com/golang-jwt/jwt/v5"
-	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -48,11 +48,11 @@ func SetKeyRotationTime(rotationTime string) error {
 	rx := regexp.MustCompile("^[0-9]{2}:[0-9]{2}:[0-9]{2}$")
 	if !rx.Match([]byte(rotationTime)) {
 		err := fmt.Errorf("invalid time, using default: %s", keyRotationTime)
-		log.WithError(err).Error("key rotation time not in hh:mm:ss format")
-		log.Info("using default rotation time.")
+		slog.Error("key rotation time not in hh:mm:ss format", "error", err.Error())
+		slog.Info("using default rotation time.")
 		return err
 	}
-	log.Info("key rotation time set to: ", rotationTime)
+	slog.Info("key rotation time set to: ", rotationTime)
 	keyRotationTime = rotationTime
 	return nil
 }
@@ -74,15 +74,15 @@ func InitiateKeyRotation(keyType string) error {
 	if keyType == KeyTypes.Token {
 		signingKey, err := getSigningKey()
 		if err != nil {
-			log.WithError(err).Error("failed to get signing key -- ignoring")
+			slog.Error("failed to get signing key -- ignoring", "error", err.Error())
 		}
 		if signingKey == nil {
-			log.Warn("signing key not found; initiating key rotation immediately")
+			slog.Warn("signing key not found; initiating key rotation immediately")
 			rotateKey(KeyTypes.Token)
 		}
 	}
 	// initiate daily rotation
-	log.Info("initiating daily key rotation.")
+	slog.Info("initiating daily key rotation.")
 	dailyKeyRotation(keyType)
 
 	return nil
@@ -121,7 +121,7 @@ func dailyKeyRotation(keyType string) {
 	h, m, s := now.Clock()
 	seconds := h*3600 + m*60 + s
 
-	log.Debug(fmt.Sprintf("Key rotation time is set to %s", keyRotationTime))
+	slog.Debug(fmt.Sprintf("Key rotation time is set to %s", keyRotationTime))
 
 	hmsSched := strings.Split(keyRotationTime, ":")
 	hSched, errH := strconv.Atoi(hmsSched[0])
@@ -129,7 +129,7 @@ func dailyKeyRotation(keyType string) {
 	sSched, errS := strconv.Atoi(hmsSched[2])
 
 	if errH != nil || errM != nil || errS != nil {
-		log.Warn("error parsing key rotation time -- using fallback delay")
+		slog.Warn("error parsing key rotation time -- using fallback delay")
 	} else {
 		secondsSched := hSched*3600 + mSched*60 + sSched
 		secondsToRot := secondsSched - seconds
@@ -141,12 +141,12 @@ func dailyKeyRotation(keyType string) {
 		rotationDelay = time.Second * time.Duration(secondsToRot)
 	}
 
-	log.Info(fmt.Sprintf("Scheduling %s key rotation to occur in %s", keyType, rotationDelay.String()))
+	slog.Info(fmt.Sprintf("Scheduling %s key rotation to occur in %s", keyType, rotationDelay.String()))
 
 	time.AfterFunc(rotationDelay, func() {
 		err := rotateKey(keyType)
 		if err != nil {
-			log.WithError(err).Error("failed to rotate key")
+			slog.Error("failed to rotate key", "error", err.Error())
 		}
 		dailyKeyRotation(keyType)
 	})
@@ -155,7 +155,7 @@ func dailyKeyRotation(keyType string) {
 // rotateKey rotates the key of a specific type.
 // Old keys are scheduled for deletion.
 func rotateKey(keyType string) error {
-	log.Info(fmt.Sprintf("rotating %s key", keyType))
+	slog.Info(fmt.Sprintf("rotating %s key", keyType))
 
 	keyID := uuid.NewString()
 	newKey, err := generateRsaPrivate(2048)
@@ -170,7 +170,7 @@ func rotateKey(keyType string) error {
 		return err
 	}
 
-	log.Info(fmt.Sprintf("%s key created; id %s", keyType, keyID))
+	slog.Info(fmt.Sprintf("%s key created; id %s", keyType, keyID))
 
 	// delete old key(s)
 	_, retiredKeys, err := dal.DB.GetKeys(keyType)
@@ -186,15 +186,15 @@ func rotateKey(keyType string) error {
 }
 
 func deleteKeyAfterDuration(keyID, usage string, duration time.Duration) {
-	log.Info(fmt.Sprintf("deletion of %s key scheduled in %s; id: %s", usage, duration.String(), keyID))
+	slog.Info(fmt.Sprintf("deletion of %s key scheduled in %s; id: %s", usage, duration.String(), keyID))
 
 	time.AfterFunc(duration, func() {
 
 		err := dal.DB.DeleteKey(keyID, usage)
 		if err != nil {
-			log.WithError(err).Errorf("failed to delete %s key", usage)
+			slog.Error(fmt.Sprintf("failed to delete %s key", usage), "error", err.Error())
 		}
-		log.Info(fmt.Sprintf("deleted %s key on schedule; id: %s", usage, keyID))
+		slog.Info(fmt.Sprintf("deleted %s key on schedule; id: %s", usage, keyID))
 
 	})
 }
@@ -346,7 +346,7 @@ type GymClaims struct {
 
 func (c *Claims) Valid() error {
 	if c.Issuer != issuer {
-		log.Debugf("token claim contained invalid issuer: %s", c.Issuer)
+		slog.Debug(fmt.Sprintf("token claim contained invalid issuer: %s", c.Issuer))
 		return fmt.Errorf("invalid issuer")
 	}
 	return nil
@@ -397,7 +397,7 @@ func (a Authorizer) IssueToken(username string, pwd string) (*string, *string, e
 	if err != nil {
 		return nil, nil, fmt.Errorf("could not create user session: %w", err)
 	}
-	log.Info("Session created: ", sessionID)
+	slog.Info("Session created ", "id", sessionID)
 	endSessionAfterDuration(sessionID, time.Hour*time.Duration(24))
 
 	return &tokenStr, &sessionID, nil
@@ -503,13 +503,13 @@ func (a Authorizer) TokenClaims(tokenString string) (Claims, error) {
 }
 
 func endSessionAfterDuration(sessionID string, duration time.Duration) {
-	log.Info("Scheduling deletion of session: ", duration)
+	slog.Info("Scheduling deletion of session", "in", duration)
 	time.AfterFunc(duration, func() {
 		err := dal.DB.DeleteSession(sessionID)
 		if err != nil {
-			log.Warnf("failed to delete session: %s", err.Error())
+			slog.Warn(fmt.Sprintf("failed to delete session: %s", err.Error()))
 		}
-		log.Debug("session deleted: ", sessionID)
+		slog.Debug("session deleted. ", "sessionID", sessionID)
 	})
 }
 
@@ -517,9 +517,9 @@ func endSessionAfterDuration(sessionID string, duration time.Duration) {
 func CleanupSessions() {
 	expiryTimes, err := dal.DB.GetSessionExpiries()
 	if err != nil {
-		log.WithError(err).Error("failed to get expiry times")
+		slog.Error("failed to get expiry times", "error", err.Error())
 	}
-	log.Infof("scheduling the deletion of %d sessions", len(expiryTimes))
+	slog.Info(fmt.Sprintf("scheduling the deletion of %d sessions", len(expiryTimes)))
 
 	for k, v := range expiryTimes {
 		var ttl int64

@@ -8,7 +8,6 @@ import (
 	"sync"
 	"time"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/google/uuid"
@@ -130,7 +129,7 @@ func (em eventManager) DeleteEvent(userID string, event Event) error {
 	}
 
 	if err := dal.DB.DeleteEvent(userID, event.ID, event.ActivityID, event.Date); err != nil {
-		log.WithError(err).Error("failed to delete event")
+		slog.Error("failed to delete event.", "error", err.Error())
 		return fmt.Errorf("failed to delete event: %w", err)
 	}
 
@@ -159,7 +158,7 @@ func prepEventExercises(userID, activityID string, exerciseInstances map[int]Exe
 
 		instanceByte, err := json.Marshal(inst)
 		if err != nil {
-			log.WithError(err).Debug("failed to marshal exercise instance")
+			slog.Debug("failed to marshal exercise instance.", "error", err.Error())
 			return nil, nil, fmt.Errorf("failed to add exercise: %w", err)
 		}
 		exInstances[int(k)] = instanceByte
@@ -299,7 +298,7 @@ func getPageOfExercises(eventManager EventAdmin, userID string, filter ExerciseF
 func checkActivityForExerciseType(userID, activityID, exerciseTypeID string) error {
 	_, exerciseIDs, err := dal.DB.ReadActivity(userID, activityID)
 	if err != nil {
-		log.WithError(err).Debug("failed to read activity")
+		slog.Debug("failed to read activity.", "error", err.Error())
 		return fmt.Errorf("failed to check exercise belongs to event activity: %w", err)
 	}
 

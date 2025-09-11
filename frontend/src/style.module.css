@@ -553,8 +553,19 @@ header .hgHamburger {
   align-items: center;
 }
 
-.pgmInstItem {
+.pgmInstItem,
+.pgmInstItemPast,
+.pgmInstItemCurrent {
   padding-left: 10px;
+}
+
+.pgmInstItemCurrent {
+  font-weight: bold;
+  color: var(--hg-green);
+}
+
+.pgmInstItemPast {
+  color: var(--hg-mid);
 }
 
 .pgmSelect :global(.q-btn) {

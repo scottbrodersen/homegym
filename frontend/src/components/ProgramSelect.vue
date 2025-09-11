@@ -8,7 +8,13 @@
     fetchProgramInstances,
     ErrNotLoggedIn,
   } from '../modules/utils';
-  const props = defineProps({ activityID: String, programID: String });
+  import { QItem, QSelect } from 'quasar';
+
+  const props = defineProps({
+    activityID: String,
+    programID: String,
+    hideCompleted: Boolean,
+  });
   const emit = defineEmits(['selected']);
 
   const listItems = ref([]);
@@ -16,13 +22,20 @@
 
   // populates program list for selected activity
   const populatePrograms = (activityID) => {
+    listItems.value = [];
     const programs = programsStore.getByActivity(activityID);
     if (programs) {
       programs.forEach((program) => {
         listItems.value.push(program);
         const instances = programInstanceStore.getByProgram(program.id);
         if (instances) {
-          listItems.value.push(...instances);
+          for (const instance of instances) {
+            if (props.hideCompleted && isActive(activityID, instance.id)) {
+              listItems.value.push(instance);
+            } else if (!props.hideCompleted) {
+              listItems.value.push(instance);
+            }
+          }
         }
       });
     }
@@ -32,9 +45,9 @@
     if (activityID && programsStore.getByActivity(activityID) === undefined) {
       try {
         await fetchPrograms(activityID);
-        const pgms = programsStore.getByActivity(activityID);
-        if (pgms) {
-          for (const pgm of pgms) {
+        const programs = programsStore.getByActivity(activityID);
+        if (programs) {
+          for (const pgm of programs) {
             await fetchProgramInstances(pgm.id, activityID);
           }
         }
@@ -49,6 +62,27 @@
       }
     }
     populatePrograms(activityID);
+  };
+
+  const isActive = (activityID, instanceID) => {
+    if (!programInstanceStore.activeInstances.has(activityID)) {
+      return false;
+    }
+    const activeInstances = programInstanceStore.getActive(activityID);
+    for (const instance of activeInstances) {
+      if (instance.id === instanceID) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const isCurrent = (activityID, instanceID) => {
+    const current = programInstanceStore.getCurrent(activityID);
+    if (current != null && current.id == instanceID) {
+      return true;
+    }
+    return false;
   };
 
   watch(
@@ -72,6 +106,12 @@
         ? { programInstanceID: selectedObj.value.id }
         : { programID: selectedObj.value.id };
       emit('selected', idObj);
+    }
+  );
+  watch(
+    () => props.hideCompleted,
+    () => {
+      populatePrograms(props.activityID);
     }
   );
 
@@ -105,10 +145,29 @@
   >
     <template v-slot:option="scope">
       <q-item v-bind="scope.itemProps">
-        <div v-if="scope.opt.programID" :class="[styles.pgmInstItem]">
+        <div
+          v-if="
+            scope.opt.programID && isCurrent(scope.opt.activityID, scope.opt.id)
+          "
+          :class="[styles.pgmInstItemCurrent]"
+        >
           {{ scope.opt.title }}
         </div>
-        <div v-else>{{ scope.opt.title }}</div>
+        <div
+          v-else-if="
+            scope.opt.programID && isActive(scope.opt.activityID, scope.opt.id)
+          "
+          :class="[styles.pgmInstItem]"
+        >
+          {{ scope.opt.title }}
+        </div>
+        <div
+          v-else-if="scope.opt.programID && !props.hideCompleted"
+          :class="[styles.pgmInstItemPast]"
+        >
+          {{ scope.opt.title }} (complete)
+        </div>
+        <div v-else-if="!scope.opt.programID">{{ scope.opt.title }}</div>
       </q-item>
     </template>
     <template v-slot:selected>

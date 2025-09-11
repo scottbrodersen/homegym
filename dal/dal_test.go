@@ -3,14 +3,16 @@ package dal
 import (
 	"bytes"
 	"fmt"
+	"log/slog"
 	"os"
 	"strconv"
 	"strings"
 	"testing"
 	"time"
 
+	"log"
+
 	"github.com/google/uuid"
-	log "github.com/sirupsen/logrus"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -517,7 +519,7 @@ func TestSessionsDal(t *testing.T) {
 func cleanup() {
 	err := os.RemoveAll(testFolder)
 	if err != nil {
-		log.WithError(err).Error("failed to delete test db")
+		slog.Error("failed to delete test db.", "error", err.Error())
 	}
 }
 

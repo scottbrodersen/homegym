@@ -5,11 +5,12 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"log/slog"
 	"regexp"
 	"strings"
 	"time"
 
-	log "github.com/sirupsen/logrus"
+	"log"
 
 	badger "github.com/dgraph-io/badger/v4"
 )
@@ -45,9 +46,11 @@ type Dstore interface {
 	GetProgramPage(userID, activityID, previousProgramID string, pageSize int) ([][]byte, error)
 	AddProgramInstance(userID, programID, instanceID, activityID string, instance []byte) error
 	GetProgramInstancePage(userID, programID, instanceID string, pageSize int) ([][]byte, error)
-	SetActiveProgramInstance(userID, activityID, programID, instanceID string) error
-	GetActiveProgramInstance(userID, activityID string) ([]byte, error)
-	DeactivateProgramInstance(userID, activityID string) error
+	//SetActiveProgramInstance(userID, activityID, programID, instanceID string) error
+	ActivateProgramInstance(userID, activityID, programID, instanceID string) error
+	GetActiveProgramInstancePage(userID, programID, previousActiveInstanceID string, pageSize int) ([][]byte, error)
+	//GetActiveProgramInstance(userID, activityID string) ([]byte, error)
+	DeactivateProgramInstance(userID, activityID, activeInstanceID string) error
 
 	Destroy()
 
@@ -110,7 +113,7 @@ func InitClient(path string) (*DBClient, error) {
 }
 
 func (c *DBClient) Destroy() {
-	log.Info("closing database")
+	slog.Info("closing database")
 	c.db.Close()
 }
 
@@ -517,7 +520,7 @@ func (c *DBClient) GetEventPage(userID, previousEventID string, previousDate int
 
 	events := [][]byte{}
 
-	// prefix also matches exercise instances so exclude exerciseKey them from the results
+	// prefix also matches exercise instances so exclude exerciseKey from the results
 	entries, err := readKeyPrefixPage(c, startKey, key(prefix), pageSize, exerciseKey, firstPage, true)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read events: %w", err)
