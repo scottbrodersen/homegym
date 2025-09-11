@@ -29,11 +29,9 @@ func TestBioDal(t *testing.T) {
 			bioStats, err := client.GetBioStatsPage(testUserID, testDate, 1)
 
 			So(err, ShouldBeNil)
-
 			So(bioStats, ShouldNotBeNil)
 			So(len(bioStats), ShouldEqual, 1)
 			So(bioStats[0], ShouldResemble, testBioStat)
-
 		})
 
 		Convey("When we get a page of bio stats", func() {
@@ -41,7 +39,7 @@ func TestBioDal(t *testing.T) {
 			if err != nil {
 				t.Fail()
 			}
-			bioStats, err := client.GetBioStatsPage(testUserID, 0, 10)
+			bioStats, err := client.GetBioStatsPage(testUserID, 0, 20)
 
 			So(err, ShouldBeNil)
 

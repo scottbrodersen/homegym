@@ -3,18 +3,23 @@
     authPromptAsync,
     fetchActivities,
     fetchExerciseTypes,
-    fetchActiveProgramInstance,
+    fetchActiveProgramInstances,
+    fetchProgramInstances,
     ErrNotLoggedIn,
     fetchPrograms,
   } from '../modules/utils';
+  import { selectCurrentProgramInstance } from '../modules/programUtils';
   import * as dailyStatsUtils from '../modules/dailyStatsUtils';
   import * as dateUtils from '../modules/dateUtils';
   import {
     activityStore,
     exerciseTypeStore,
     dailyStatsStore,
+    programInstanceStore,
+    programsStore,
   } from '../modules/state';
   import * as styles from '../style.module.css';
+  import { getCurrentInstance } from 'vue';
 
   const init = async () => {
     const endDate = dateUtils.setEpochToMidnight(dateUtils.nowInSeconds());
@@ -36,9 +41,25 @@
         const promises = [];
         for (const activity of activityStore.getAll()) {
           promises.push(fetchPrograms(activity.id));
-          promises.push(fetchActiveProgramInstance(activity.id));
+          promises.push(fetchActiveProgramInstances(activity.id));
         }
         await Promise.all(promises);
+
+        for (const activity of activityStore.getAll()) {
+          const promises2 = [];
+          for (const program of programsStore.getByActivity(activity.id)) {
+            promises2.push(fetchProgramInstances(program.id, activity.id));
+          }
+          await Promise.all(promises2);
+        }
+
+        for (const activity of activityStore.getAll()) {
+          programInstanceStore.setCurrent(
+            activity.id,
+            selectCurrentProgramInstance(activity.id)
+          );
+        }
+        console.log('done init state');
       }
     } catch (e) {
       if (e instanceof ErrNotLoggedIn) {

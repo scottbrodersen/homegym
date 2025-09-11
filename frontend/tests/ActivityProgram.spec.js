@@ -11,7 +11,7 @@ import ProgramBlock from '../src/components/ProgramBlock.vue';
 import { QBtn, QInput } from 'quasar';
 import * as data from '../mocks/data';
 import { focus } from '../src/modules/directives';
-import { nextTick } from 'vue';
+import { nextTick, ref } from 'vue';
 import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-vitest';
 
 config.global.directives = {
@@ -41,12 +41,14 @@ describe('ActivityProgram component', () => {
       global: {
         provide: {
           state: { value: states.READ_ONLY },
-
-          activity: { value: data.fetchedTestActivities[0] },
+          editProgramTitle: { value: ref(false) },
+          newProgram: { value: ref(false) },
+          //     activity: { value: data.fetchedTestActivities[0] },
         },
       },
       props: {
         programID: 'anything',
+        activityID: data.fetchedTestActivities[0].id,
       },
     });
   });
@@ -57,15 +59,18 @@ describe('ActivityProgram component', () => {
       global: {
         provide: {
           state: { value: states.READ_ONLY },
-          activity: { value: data.fetchedTestActivities[0] },
+          editProgramTitle: { value: ref(false) },
+          newProgram: { value: ref(false) },
         },
       },
       props: {
         programID: data.testProgram().id,
+        activityID: data.fetchedTestActivities[0].id,
       },
     });
     nextTick();
     await flushPromises();
+    console.log(wrapper.html());
     wrapper.findAllComponents(QBtn).forEach((w) => {
       expect(w.isVisible()).toBeFalsy;
     });
@@ -83,11 +88,14 @@ describe('ActivityProgram component', () => {
       global: {
         provide: {
           state: { value: states.EDIT },
-          activity: { value: data.fetchedTestActivities[0] },
+          //          activity: { value: data.fetchedTestActivities[0] },
+          editProgramTitle: { value: ref(false) },
+          newProgram: { value: ref(false) },
         },
       },
       props: {
         programID: 'anything',
+        activityID: data.fetchedTestActivities[0].id,
       },
     });
     const buttons = wrapper.findAllComponents(QBtn);

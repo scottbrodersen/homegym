@@ -265,7 +265,7 @@ func (mpm *MockProgramManager) GetProgramInstancesPage(userID, programID, previo
 	return args.Get(0).([]programs.ProgramInstance), nil
 }
 
-func (mpm *MockProgramManager) SetActiveProgramInstance(userID, activityID, programID, instanceID string) error {
+func (mpm *MockProgramManager) ActivateProgramInstance(userID, activityID, programID, instanceID string) error {
 	args := mpm.Called(userID, activityID, programID, instanceID)
 
 	if args.Error(0) != nil {
@@ -275,18 +275,18 @@ func (mpm *MockProgramManager) SetActiveProgramInstance(userID, activityID, prog
 	return nil
 }
 
-func (mpm *MockProgramManager) GetActiveProgramInstance(userID, activityID string) (*programs.ProgramInstance, error) {
-	args := mpm.Called(userID, activityID)
+func (mpm *MockProgramManager) GetActiveProgramInstancesPage(userID, activityID, lastInstanceID string, pageSize int) ([]programs.ProgramInstance, error) {
+	args := mpm.Called(userID, activityID, lastInstanceID, pageSize)
 
 	if args.Error(1) != nil {
 		return nil, args.Error(1)
 	}
 
-	return args.Get(0).(*programs.ProgramInstance), nil
+	return args.Get(0).([]programs.ProgramInstance), nil
 }
 
-func (mpm *MockProgramManager) DeactivateProgramInstance(userID, activityID string) error {
-	args := mpm.Called(userID, activityID)
+func (mpm *MockProgramManager) DeactivateProgramInstance(userID, activityID, instanceID string) error {
+	args := mpm.Called(userID, activityID, instanceID)
 
 	if args.Error(0) != nil {
 		return nil

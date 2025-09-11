@@ -5,12 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"regexp"
 	"strconv"
 
 	"github.com/scottbrodersen/homegym/workoutlog"
-	log "github.com/sirupsen/logrus"
 )
 
 type metrics struct {
@@ -21,10 +21,10 @@ type metrics struct {
 
 func EventsApi(w http.ResponseWriter, r *http.Request) {
 	rootPath := "/homegym/api/events/"
-	log.SetLevel(log.DebugLevel)
 
 	username, _, err := whoIsIt(r.Context())
 	if err != nil {
+		slog.Debug(err.Error())
 		http.Error(w, err.Error(), http.StatusForbidden)
 		return
 	}
@@ -37,14 +37,14 @@ func EventsApi(w http.ResponseWriter, r *http.Request) {
 	//  /api/events/metrics?type=blah&start=blah&end=blah
 	rxpMetrics := regexp.MustCompile(fmt.Sprintf("^%smetrics(\\?[a-z]+=[a-zA-Z0-9-]+((&[a-z]+=[a-zA-Z0-9-]+)*)?)?$", rootPath))
 
-	log.Debug("parsing path: ", r.URL.Path)
+	slog.Debug("parsing path", "path", r.URL.Path)
 
 	if rxpRootPath.MatchString(r.URL.Path) {
 		if r.Method == http.MethodGet {
 			getPageOfEvents(*username, w, r)
 			body, _ := io.ReadAll(r.Body)
 			r.Body.Close()
-			log.Debug("got page of events: ", string(body))
+			slog.Debug("got page of events: ", "events", string(body))
 		} else if r.Method == http.MethodPost {
 			addEvent(*username, w, r)
 		}
@@ -81,6 +81,7 @@ func addEvent(username string, w http.ResponseWriter, r *http.Request) {
 	newEvent := new(workoutlog.Event)
 
 	if err := json.NewDecoder(r.Body).Decode(newEvent); err != nil {
+		slog.Debug(err.Error())
 		http.Error(w, `{"message": "invalid request body"}`, http.StatusBadRequest)
 		return
 	}
@@ -89,9 +90,11 @@ func addEvent(username string, w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		if errors.Is(err, workoutlog.ErrInvalidEvent) {
+			slog.Debug(err.Error())
 			http.Error(w, `{"message":"invalid event"}`, http.StatusBadRequest)
 			return
 		}
+		slog.Error(err.Error())
 		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
@@ -99,6 +102,7 @@ func addEvent(username string, w http.ResponseWriter, r *http.Request) {
 	body := returnedID{ID: *eventID}
 	bodyJson, err := json.Marshal(body)
 	if err != nil {
+		slog.Error(err.Error())
 		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
@@ -114,22 +118,27 @@ func updateEvent(username, currentDate string, w http.ResponseWriter, r *http.Re
 
 	currentDateInt, err := stringToInt64(currentDate)
 	if err != nil {
+		slog.Debug(err.Error())
 		http.Error(w, "invalid date format", http.StatusBadRequest)
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(updatedEvent); err != nil {
+		slog.Debug(err.Error())
 		http.Error(w, `{"message": "invalid request body"}`, http.StatusBadRequest)
 		return
 	}
 
 	if err := workoutlog.EventManager.UpdateEvent(username, currentDateInt, *updatedEvent); err != nil {
 		if errors.Is(err, workoutlog.ErrNotFound) {
-			http.Error(w, `{"message":"failed to update event"}`, http.StatusNotFound)
+			slog.Debug(err.Error())
+			http.Error(w, `{"message":"event not found"}`, http.StatusNotFound)
 			return
 		} else if errors.Is(err, workoutlog.ErrInvalidEvent) {
+			slog.Debug(err.Error())
 			http.Error(w, `{"message":"invalid event"}`, http.StatusBadRequest)
 			return
 		} else {
+			slog.Error(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -144,32 +153,32 @@ func deleteEvent(username, eventID, eventDate string, w http.ResponseWriter, r *
 	event := new(workoutlog.Event)
 
 	if err := json.NewDecoder(r.Body).Decode(event); err != nil {
-		log.WithError(err).Error("cannot unmarshal body as event")
+		slog.Debug(err.Error())
 		http.Error(w, `{"message": "invalid request body"}`, http.StatusBadRequest)
 		return
 	}
 
 	dateInt, err := stringToInt64(eventDate)
 	if err != nil {
-		log.WithError(err).Error("cannot convert date to int64")
+		slog.Debug(err.Error())
 		http.Error(w, `{"message": "invalid data parameter"}`, http.StatusBadRequest)
 		return
 	}
 
 	if dateInt != event.Date {
-		log.Error("event date does not match the request path parameter")
+		slog.Debug(err.Error())
 		http.Error(w, `{"message": "incorrect date"}`, http.StatusBadRequest)
 		return
 	}
 
 	if eventID != event.ID {
-		log.Error("event ID does not match the request path parameter")
+		slog.Debug(err.Error())
 		http.Error(w, `{"message": "incorrect ID"}`, http.StatusBadRequest)
 		return
 	}
 
 	if err := workoutlog.EventManager.DeleteEvent(username, *event); err != nil {
-		log.WithError(err).Error("failed to delete event")
+		slog.Debug(err.Error())
 		http.Error(w, `{"message":"failed to delete event"}`, http.StatusNotFound)
 		return
 	}
@@ -182,11 +191,13 @@ func deleteEvent(username, eventID, eventDate string, w http.ResponseWriter, r *
 func getExercises(username, eventID string, w http.ResponseWriter) {
 	exercises, err := workoutlog.EventManager.GetEventExercises(username, eventID)
 	if err != nil {
+		slog.Error(err.Error())
 		http.Error(w, internalServerError, http.StatusInternalServerError)
 	}
 
 	exercisesJson, err := json.Marshal(exercises)
 	if err != nil {
+		slog.Error(err.Error())
 		http.Error(w, internalServerError, http.StatusInternalServerError)
 	}
 
@@ -199,21 +210,21 @@ func getPageOfEvents(username string, w http.ResponseWriter, r *http.Request) {
 
 	err := r.ParseForm()
 	if err != nil {
-		log.Debug(err)
+		slog.Debug(err.Error())
 		http.Error(w, "failed to read url query parameters", http.StatusBadRequest)
 		return
 	}
 
 	pageSize, err := stringToInt(r.Form.Get("count"))
 	if err != nil {
-		log.Debug(err)
+		slog.Debug(err.Error())
 		http.Error(w, "failed to read count param", http.StatusBadRequest)
 		return
 	}
 
 	date, err := stringToInt64(r.Form.Get("date"))
 	if err != nil {
-		log.Debug(err)
+		slog.Debug(err.Error())
 		http.Error(w, "failed to read date param", http.StatusBadRequest)
 		return
 	}
@@ -225,14 +236,14 @@ func getPageOfEvents(username string, w http.ResponseWriter, r *http.Request) {
 
 	events, err := workoutlog.EventManager.GetPageOfEvents(username, event, pageSize)
 	if err != nil {
-		log.Debug(err)
+		slog.Error(err.Error())
 		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
 
 	eventsJson, err := json.Marshal(events)
 	if err != nil {
-		log.Debug(err)
+		slog.Error(err.Error())
 		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
@@ -246,6 +257,7 @@ func getPageOfEvents(username string, w http.ResponseWriter, r *http.Request) {
 func getMetrics(username string, w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
+		slog.Debug(err.Error())
 		http.Error(w, `{"message": "could not parse URL query parameters"}`, http.StatusBadRequest)
 		return
 	}
@@ -254,6 +266,7 @@ func getMetrics(username string, w http.ResponseWriter, r *http.Request) {
 	if start != "" {
 		startDate, err = strconv.Atoi(start)
 		if err != nil {
+			slog.Debug(err.Error())
 			http.Error(w, `{"message": "bad start value"}`, http.StatusBadRequest)
 			return
 		}
@@ -263,6 +276,7 @@ func getMetrics(username string, w http.ResponseWriter, r *http.Request) {
 	if end != "" {
 		endDate, err = strconv.Atoi(end)
 		if err != nil {
+			slog.Debug(err.Error())
 			http.Error(w, `{"message": "bad end value"}`, http.StatusBadRequest)
 			return
 		}
@@ -276,6 +290,7 @@ func getMetrics(username string, w http.ResponseWriter, r *http.Request) {
 
 	dateStack, instancesStack, err := workoutlog.EventManager.GetPageOfInstances(username, filter, 0)
 	if err != nil {
+		slog.Error(err.Error())
 		http.Error(w, fmt.Sprintf("{\"message\": \"%s\"}", err.Error()), http.StatusInternalServerError)
 		return
 	}
@@ -291,6 +306,7 @@ func getMetrics(username string, w http.ResponseWriter, r *http.Request) {
 		for _, inst := range instances {
 			exerciseType, err := workoutlog.ExerciseManager.GetExerciseType(username, inst.TypeID)
 			if err != nil {
+				slog.Error(err.Error())
 				http.Error(w, `{"message": "could not find exercise type"}`, http.StatusInternalServerError)
 				return
 			}
@@ -310,6 +326,7 @@ func getMetrics(username string, w http.ResponseWriter, r *http.Request) {
 
 	body, err := json.Marshal(dateMetrics)
 	if err != nil {
+		slog.Error(err.Error())
 		http.Error(w, `{"message": "failed to marshal response body"}`, http.StatusInternalServerError)
 		return
 	}

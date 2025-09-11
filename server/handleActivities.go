@@ -4,10 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"regexp"
-
-	log "github.com/sirupsen/logrus"
 
 	"github.com/scottbrodersen/homegym/workoutlog"
 )
@@ -104,25 +103,33 @@ func ActivitiesApi(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
 			programID := r.URL.Query().Get("programid")
 			if programID == "" {
+				slog.Debug("No programid query parameter")
 				http.Error(w, `{"message":"missing programid query parameter"}`, http.StatusBadRequest)
 				return
 			}
 
 			instanceID := r.URL.Query().Get("instanceid")
 			if instanceID == "" {
+				slog.Debug("No instanceid query parameter")
 				http.Error(w, `{"message":"missing instanceid query parameter"}`, http.StatusBadRequest)
 				return
 			}
 
-			setActiveProgramInstance(*username, activityID, programID, instanceID, w)
+			activateProgramInstance(*username, activityID, programID, instanceID, w)
 
 			return
 		} else if r.Method == http.MethodGet {
-			getActiveProgramInstance(*username, activityID, w)
+			getActiveProgramInstances(*username, activityID, w)
 
 			return
 		} else if r.Method == http.MethodDelete {
-			deactivateProgramInstance(*username, activityID, w)
+			instanceID := r.URL.Query().Get("instanceid")
+			if instanceID == "" {
+				slog.Debug("No instanceid query parameter")
+				http.Error(w, `{"message":"missing instanceid query parameter"}`, http.StatusBadRequest)
+				return
+			}
+			deactivateProgramInstance(*username, activityID, instanceID, w)
 
 			return
 		}
@@ -135,11 +142,13 @@ func ActivitiesApi(w http.ResponseWriter, r *http.Request) {
 func listActivities(username string, w http.ResponseWriter) {
 	activities, err := workoutlog.ActivityManager.GetActivityNames(username)
 	if err != nil {
+		slog.Error(err.Error())
 		http.Error(w, internalServerError, http.StatusInternalServerError)
 	}
 
 	body, err := json.Marshal(activities)
 	if err != nil {
+		slog.Error(err.Error())
 		http.Error(w, internalServerError, http.StatusInternalServerError)
 	}
 
@@ -154,7 +163,7 @@ func newActivity(username string, w http.ResponseWriter, r *http.Request) {
 	}
 	var activity *workoutlog.Activity = &workoutlog.Activity{}
 	if err := json.NewDecoder(r.Body).Decode(activity); err != nil {
-		log.Error(err)
+		slog.Error(err.Error())
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -163,6 +172,7 @@ func newActivity(username string, w http.ResponseWriter, r *http.Request) {
 	activity, err = workoutlog.ActivityManager.NewActivity(username, activity.Name)
 	if err != nil {
 		if errors.Is(err, workoutlog.ErrActivityNameTaken) {
+			slog.Debug(err.Error())
 			http.Error(w, `{"message":"name is not unique"}`, http.StatusBadRequest)
 			return
 		}
@@ -172,6 +182,7 @@ func newActivity(username string, w http.ResponseWriter, r *http.Request) {
 
 	body, err := json.Marshal(activity)
 	if err != nil {
+		slog.Error(err.Error())
 		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
@@ -185,12 +196,14 @@ func listExercises(username, activityID string, w http.ResponseWriter) {
 	activity := workoutlog.Activity{ID: activityID}
 	err := activity.GetActivityExercises(username)
 	if err != nil {
+		slog.Error(err.Error())
 		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
 
 	body, err := json.Marshal(activity.ExerciseIDs)
 	if err != nil {
+		slog.Error(err.Error())
 		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
@@ -206,13 +219,14 @@ func updateExercises(username string, w http.ResponseWriter, r *http.Request) {
 	}
 	var activity *workoutlog.Activity = &workoutlog.Activity{}
 	if err := json.NewDecoder(r.Body).Decode(activity); err != nil {
-		log.Error(err)
+		slog.Debug("Malformed request body")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	err := workoutlog.ActivityManager.UpdateActivityExercises(username, *activity)
 	if err != nil {
+		slog.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -222,18 +236,19 @@ func updateExercises(username string, w http.ResponseWriter, r *http.Request) {
 // only supports renaming right now
 func updateActivity(username string, w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
+		slog.Debug("No request body")
 		w.WriteHeader(http.StatusBadRequest)
 	}
 	var activity *workoutlog.Activity = &workoutlog.Activity{}
 	if err := json.NewDecoder(r.Body).Decode(activity); err != nil {
-		log.Error(err)
+		slog.Debug(err.Error())
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	if activity.Name != "" {
 		err := workoutlog.ActivityManager.RenameActivity(username, *activity)
-		//errTaken := workoutlog.ErrActivityNameTaken
 		if err != nil {
+			slog.Debug(err.Error())
 			if errors.Is(err, workoutlog.ErrActivityNameTaken) {
 				http.Error(w, `{"message":"name is not unique"}`, http.StatusBadRequest)
 				return

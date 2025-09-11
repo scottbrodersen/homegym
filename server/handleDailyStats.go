@@ -39,30 +39,35 @@ func DailyStatsApi(w http.ResponseWriter, r *http.Request) {
 func addDailyStats(username string, w http.ResponseWriter, r *http.Request) {
 
 	if r.Body == nil {
+		slog.Debug("No request body")
 		http.Error(w, `{"message": "request body is required"}`, http.StatusBadRequest)
 		return
 	}
 
 	err := r.ParseForm()
 	if err != nil {
+		slog.Debug("Could not parse URL parameters")
 		http.Error(w, `{"message": "could not parse URL query parameters"}`, http.StatusBadRequest)
 		return
 	}
 
 	dateStr := r.Form.Get("date")
 	if dateStr == "" {
+		slog.Debug("No date parameter")
 		http.Error(w, `{"message": "no date parameter"}`, http.StatusBadRequest)
 		return
 	}
 
 	date, err := strconv.Atoi(dateStr)
 	if err != nil {
+		slog.Debug("Bad date parameter")
 		http.Error(w, `{"message": "bad date parameter"}`, http.StatusBadRequest)
 		return
 	}
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
+		slog.Debug("Error reading request body")
 		http.Error(w, `{"message": "error reading request body"}`, http.StatusBadRequest)
 		return
 	}
@@ -84,6 +89,7 @@ func addDailyStats(username string, w http.ResponseWriter, r *http.Request) {
 func getDailyStats(username string, w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
+		slog.Debug("Could not parse URL query parameters")
 		http.Error(w, `{"message": "could not parse URL query parameters"}`, http.StatusBadRequest)
 		return
 	}
@@ -93,6 +99,7 @@ func getDailyStats(username string, w http.ResponseWriter, r *http.Request) {
 	if start != "" {
 		startDate, err = strconv.Atoi(start)
 		if err != nil {
+			slog.Debug("Bad start value")
 			http.Error(w, `{"message": "bad start value"}`, http.StatusBadRequest)
 			return
 		}
@@ -102,6 +109,7 @@ func getDailyStats(username string, w http.ResponseWriter, r *http.Request) {
 	if end != "" {
 		endDate, err = strconv.Atoi(end)
 		if err != nil {
+			slog.Debug("Bad end value")
 			http.Error(w, `{"message": "bad end value"}`, http.StatusBadRequest)
 			return
 		}
@@ -112,6 +120,7 @@ func getDailyStats(username string, w http.ResponseWriter, r *http.Request) {
 	if pageSize != "" {
 		page, err = stringToInt(pageSize)
 		if err != nil {
+			slog.Debug("Bad pagesize value")
 			http.Error(w, `{"message": "bad pagesize value"}`, http.StatusBadRequest)
 			return
 		}

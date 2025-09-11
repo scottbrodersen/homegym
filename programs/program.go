@@ -4,18 +4,19 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/scottbrodersen/homegym/dal"
 )
 
-// ProgramInstance contains details of the performance of a program.
+// ProgramInstance contains details of the actuation of a program.
 // Program is a copy of the program that is performed. The ID field is overridden.
 // ProgramID is the ID of the program that is performed
 // StartDate is the planned epoch time of the first workout in the program
 // Events maps program workouts to eventIDs. The key of the Events map is the sequential index of the program workouts.
 // The embedded Program enables the program to be tailored without affecting the original program.
-// Note that the active program instance is tracked in the database and not in the struct.
+// Note that active program instances are tracked in the database and not in the struct.
 type ProgramInstance struct {
 	Program
 	ID        string         `json:"id"`
@@ -179,9 +180,11 @@ type ProgramAdmin interface {
 	AddProgramInstance(userID string, instance *ProgramInstance) error
 	UpdateProgramInstance(userID string, instance ProgramInstance) (*ProgramInstance, error)
 	GetProgramInstancesPage(userID, programID, previousProgramInstanceID string, pageSize int) ([]ProgramInstance, error)
-	SetActiveProgramInstance(userID, activityID, programID, instanceID string) error
-	GetActiveProgramInstance(userID, activityID string) (*ProgramInstance, error)
-	DeactivateProgramInstance(userID, activityID string) error
+	//SetActiveProgramInstance(userID, activityID, programID, instanceID string) error
+	//GetActiveProgramInstance(userID, activityID string) (*ProgramInstance, error)
+	ActivateProgramInstance(userID, activityID, programID, instanceID string) error
+	GetActiveProgramInstancesPage(userID, ActivityID, previousActiveInstanceID string, pageSize int) ([]ProgramInstance, error)
+	DeactivateProgramInstance(userID, activityID, instanceID string) error
 }
 
 type ProgramUtil struct{}
@@ -327,6 +330,11 @@ func (pu ProgramUtil) AddProgramInstance(userID string, instance *ProgramInstanc
 		return fmt.Errorf("failed to add program: %w", err)
 	}
 
+	// Activate the instance immediately
+	if err := dal.DB.ActivateProgramInstance(userID, instance.ActivityID, instance.ProgramID, instance.ID); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -352,8 +360,16 @@ func (pu ProgramUtil) UpdateProgramInstance(userID string, instance ProgramInsta
 	return &instance, nil
 }
 
-func (pu ProgramUtil) DeactivateProgramInstance(userID, activityID string) error {
-	if err := dal.DB.DeactivateProgramInstance(userID, activityID); err != nil {
+func (pu ProgramUtil) ActivateProgramInstance(userID, activityID, programID, instanceID string) error {
+	if err := dal.DB.ActivateProgramInstance(userID, activityID, programID, instanceID); err != nil {
+		return fmt.Errorf("failed to activate program: %w", err)
+	}
+
+	return nil
+}
+
+func (pu ProgramUtil) DeactivateProgramInstance(userID, activityID, instanceID string) error {
+	if err := dal.DB.DeactivateProgramInstance(userID, activityID, instanceID); err != nil {
 		return fmt.Errorf("failed to deactivate program instance: %w", err)
 	}
 	return nil
@@ -418,31 +434,73 @@ func (pu ProgramUtil) GetProgramInstancesPage(userID, programID, previousProgram
 
 // SetActiveProgramInstance stores the ID of the active program instance for an activity.
 // The existing active instance ID is overwritten.
-func (pu ProgramUtil) SetActiveProgramInstance(userID, activityID, programID, instanceID string) error {
-	if err := dal.DB.SetActiveProgramInstance(userID, activityID, programID, instanceID); err != nil {
-		return err
+// func (pu ProgramUtil) SetActiveProgramInstance(userID, activityID, programID, instanceID string) error {
+// 	if err := dal.DB.SetActiveProgramInstance(userID, activityID, programID, instanceID); err != nil {
+// 		return err
+// 	}
+
+// 	return nil
+// }
+
+// func (pu ProgramUtil) GetActiveProgramInstance(userID, activityID string) (*ProgramInstance, error) {
+// 	instanceBytes, err := dal.DB.GetActiveProgramInstance(userID, activityID)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("failed to get active program instance: %w", err)
+// 	}
+
+// 	if instanceBytes == nil {
+// 		// no active instance
+// 		return nil, nil
+// 	}
+
+// 	instance := new(ProgramInstance)
+
+// 	// TODO: unmarshal here, then marshal in handler. really?
+// 	if err := json.Unmarshal(instanceBytes, instance); err != nil {
+// 		return nil, fmt.Errorf("failed to parse program instance: %w", err)
+// 	}
+
+// 	return instance, nil
+// }
+
+func (pu ProgramUtil) GetActiveProgramInstancesPage(userID, ActivityID, previousActiveInstanceID string, pageSize int) ([]ProgramInstance, error) {
+	numToGet := pageSize
+	if numToGet > 100 {
+		numToGet = 100
 	}
 
-	return nil
-}
-
-func (pu ProgramUtil) GetActiveProgramInstance(userID, activityID string) (*ProgramInstance, error) {
-	instanceBytes, err := dal.DB.GetActiveProgramInstance(userID, activityID)
+	// get active instance IDs
+	instanceIDsByte, err := dal.DB.GetActiveProgramInstancePage(userID, ActivityID, previousActiveInstanceID, numToGet)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get active program instance: %w", err)
+		return nil, fmt.Errorf("failed to get active program instances: %w", err)
 	}
 
-	if instanceBytes == nil {
-		// no active instance
+	if len(instanceIDsByte) == 0 {
 		return nil, nil
 	}
 
-	instance := new(ProgramInstance)
+	//instances := []string{}
+	instances := []ProgramInstance{}
 
-	// TODO: unmarshal here, then marshal in handler. really?
-	if err := json.Unmarshal(instanceBytes, instance); err != nil {
-		return nil, fmt.Errorf("failed to parse program instance: %w", err)
+	for _, p := range instanceIDsByte {
+		//for each programID:instanceID pair, get the program instance and add it to a list
+		ids := strings.Split(string(string(p)), ":")
+		instanceBytes, err := dal.DB.GetProgramInstancePage(userID, ids[0], ids[1], 1)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get program instance")
+		}
+
+		if len(instanceBytes) == 0 {
+			return nil, nil
+		}
+		instance := new(ProgramInstance)
+		err = json.Unmarshal(instanceBytes[0], instance)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse program instance: %w", err)
+		}
+		instances = append(instances, *instance)
+
 	}
 
-	return instance, nil
+	return instances, nil
 }

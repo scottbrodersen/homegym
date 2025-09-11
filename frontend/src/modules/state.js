@@ -2,6 +2,7 @@ import { reactive, computed } from 'vue';
 import { pageSize } from './utils';
 
 /*
+events be like:
   {
     "id": "6ef6125f-1708-4977-8dad-598bfff2a3a4",
     "activityID": "49adfe46-854f-425e-9782-a1d9a5255e43",
@@ -169,8 +170,11 @@ export const programsStore = reactive({
 export const programInstanceStore = reactive({
   // key is the programID, value is a map of (programInstanceID, programInstance)
   programInstances: new Map(),
-  // key is the activityID, value is an object with fields programID, instanceID
+  // key is the activityID, value is an array of objects with fields programID, instanceID
   activeInstances: new Map(),
+  // key is the activityID, value is an object with fields programID, instanceID
+  // One current instance per activity is allowed
+  currentInstances: new Map(),
 
   add(instance) {
     if (this.programInstances.get(instance.programID)) {
@@ -225,36 +229,72 @@ export const programInstanceStore = reactive({
     return undefined;
   },
 
+  // Stores the programID and instanceID of the active instance for an activityID
   // An instance value of null indicates no active instance
-  setActive(activityID, instance) {
+  setCurrent(activityID, instance) {
     if (instance && Object.keys(instance).length > 0) {
-      this.activeInstances.set(activityID, {
+      this.currentInstances.set(activityID, {
         programID: instance.programID,
         instanceID: instance.id,
       });
 
-      this.add(instance);
+      //this.add(instance);
     } else {
-      this.activeInstances.set(activityID, null);
+      this.currentInstances.set(activityID, null);
+    }
+  },
+
+  getCurrent(activityID) {
+    if (activityID && this.currentInstances.has(activityID)) {
+      const currentIDs = this.currentInstances.get(activityID);
+      if (currentIDs) {
+        const current = this.programInstances
+          .get(currentIDs.programID)
+          .get(currentIDs.instanceID);
+
+        return current;
+      }
+    }
+    return null;
+  },
+
+  // Called after the set of active instances are fetched from the server
+  addAllActive(activityID, instances) {
+    if (instances && instances.length > 0 && instances[0] != null) {
+      let instancesToAdd = [];
+      for (const inst of instances) {
+        instancesToAdd.push({ programID: inst.programID, instanceID: inst.id });
+      }
+      this.activeInstances.set(activityID, instancesToAdd);
+    } else {
+      this.activeInstances.set(activityID, []);
     }
   },
 
   getActive(activityID) {
+    const active = [];
     let programID;
     let instanceID;
-    if (this.activeInstances.has(activityID)) {
+    if (
+      this.activeInstances.has(activityID) &&
+      this.activeInstances.get(activityID)
+    ) {
       const mapping = this.activeInstances.get(activityID);
-      if (mapping) {
-        programID = mapping.programID;
-        instanceID = mapping.instanceID;
-        return this.get(instanceID, programID);
+      for (const inst of mapping) {
+        // key is the activityID, value is an object with fields programID, instanceID
+        programID = inst.programID;
+        instanceID = inst.instanceID;
+        active.push(this.get(instanceID, programID));
       }
-      return null;
+      return active;
     }
   },
 
   removeActive(activityID) {
     this.activeInstances.set(activityID, null);
+    if (this.currentInstances.get(activityID)) {
+      this.currentInstances.set(activityID, null);
+    }
   },
 });
 

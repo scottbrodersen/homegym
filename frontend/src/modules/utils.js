@@ -20,11 +20,15 @@ import EditValueModal from '../components/EditValueModal.vue';
 import ProgramModal from '../components/ProgramModal.vue';
 
 const pageSize = () => {
+  const defaultPage = 8;
   try {
     const availableHeight = window.innerHeight - 220 - 36;
-    return Math.floor((availableHeight - 48 - 50 - 40 - 30) / 42);
+    page = Math.floor((availableHeight - 48 - 50 - 40 - 30) / 42);
+    if (page < 1) {
+      return defaultPage;
+    }
   } catch (e) {
-    return 8;
+    return defaultPage;
   }
 };
 const fetchPageSize = 100;
@@ -230,7 +234,7 @@ const fetchProgramInstances = async (programID, activityID) => {
     if (instancePage.length < pageSize()) {
       done = true;
     } else {
-      lastInstance = instancePage[instancePage.length].id;
+      lastInstance = instancePage[instancePage.length - 1].id;
     }
   }
 };
@@ -260,7 +264,9 @@ const fetchProgramInstancePage = async (
   return instancePage;
 };
 
-const fetchActiveProgramInstance = async (activityID) => {
+//handles an array of returned values
+//todo: 404 should indicate the activityID was not found instead of no instances found for the activity
+const fetchActiveProgramInstances = async (activityID) => {
   const url = `/homegym/api/activities/${activityID}/programs/instances/active/`;
   const resp = await fetch(url, {
     method: 'GET',
@@ -270,13 +276,16 @@ const fetchActiveProgramInstance = async (activityID) => {
   if (resp.status == 401) {
     throw new ErrNotLoggedIn('unauthorized fetch of active program instance');
   } else if (resp.status == 404) {
-    programInstanceStore.setActive(activityID, null);
+    // No active instances so set current to null
+    //programInstanceStore.setCurrent(activityID, null);
     return;
   }
 
-  const instance = await resp.json();
-
-  programInstanceStore.setActive(activityID, instance);
+  const instances = await resp.json();
+  // bug: result is array of string json instead of array of objects
+  if (instances) {
+    programInstanceStore.addAllActive(activityID, instances);
+  }
 };
 
 const fetchActivities = async () => {
@@ -668,23 +677,20 @@ const updateProgramInstance = async (instance) => {
   }
 
   // New instances are set as active
-  if (!isNewInstance) {
-    programInstanceStore.setActive(rawInstance.activityID, rawInstance);
-  } else {
+  if (isNewInstance) {
     programInstanceStore.add(rawInstance);
   }
   return rawInstance.id;
 };
 
-const deactivateProgramInstance = async (activityID) => {
-  const url = `/homegym/api/activities/${activityID}/programs/instances/active/`;
+//deactivate a specific program instance by id
+const deactivateProgramInstance = async (activityID, instanceID) => {
+  const url = `/homegym/api/activities/${activityID}/programs/instances/active?instanceid=${instanceID}`;
 
   const headers = new Headers();
-  //headers.set('content-type', 'application/json');
 
   const options = {
     method: 'DELETE',
-    //body: JSON.stringify(rawInstance),
     headers: headers,
   };
 
@@ -944,7 +950,7 @@ export {
   fetchActivities,
   fetchPrograms,
   fetchProgramInstances,
-  fetchActiveProgramInstance,
+  fetchActiveProgramInstances,
   fetchEventPage,
   fetchEvents,
   fetchExerciseTypes,

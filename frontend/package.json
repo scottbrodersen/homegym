@@ -11,28 +11,28 @@
     "debug": "vitest --test-timeout 10000000"
   },
   "dependencies": {
-    "@quasar/extras": "^1.16.17",
-    "quasar": "^2.18.1",
-    "vue": "^3.5.13",
-    "vue-router": "^4.5.0",
-    "chart.js": "^4.4.3",
-    "date-fns": "^v3.6.0",
+    "@quasar/extras": "^1.17.0",
+    "quasar": "^2.18.2",
+    "vue": "^3.5.21",
+    "vue-router": "^4.5.1",
+    "chart.js": "^4.5.0",
+    "date-fns": "^v4.1.0",
     "chartjs-adapter-date-fns": "^v3.0.0",
     "chartjs-plugin-datalabels": "^v2.2.0"
   },
   "devDependencies": {
-    "@quasar/quasar-app-extension-testing-unit-vitest": "^1.0.0",
-    "@quasar/vite-plugin": "^1.9.0",
-    "@vitejs/plugin-vue": "^5.2.3",
-    "@vitest/browser": "^3.1.1",
+    "@quasar/quasar-app-extension-testing-unit-vitest": "^1.1.0",
+    "@quasar/vite-plugin": "^1.10.0",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "@vitest/browser": "^3.2.4",
     "@vue/test-utils": "^2.4.6",
-    "cross-fetch": "^4.0.0",
-    "jsdom": "^24.1.0",
-    "msw": "^2.3.1",
-    "sass": "^1.86.3",
-    "vite": "^6.2.5",
+    "cross-fetch": "^4.1.0",
+    "jsdom": "^26.1.0",
+    "msw": "^2.11.1",
+    "sass": "^1.92.1",
+    "vite": "^7.1.5",
     "vite-plugin-vue-devtools": "^7.7.2",
-    "vitest": "^3.1.1",
-    "webdriverio": "^8.39.0"
+    "vitest": "^3.2.4",
+    "webdriverio": "^9.12.5"
   }
 }
