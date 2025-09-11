@@ -5,10 +5,9 @@ package server
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
-
-	log "github.com/sirupsen/logrus"
 
 	"github.com/scottbrodersen/homegym/auth"
 	"github.com/scottbrodersen/homegym/dal"
@@ -80,7 +79,6 @@ func init() {
 
 	// least specific path -- resolves to static public assets
 	publicMux.Handle("/homegym/", http.StripPrefix("/homegym", GymFileServer(public.HtmlEFS)))
-	log.SetLevel(log.DebugLevel)
 
 	// first-level subtrees -- routed to secureGateway for authentication
 	publicMux.Handle("/homegym/api/", secureGateway)

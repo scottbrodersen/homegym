@@ -4,10 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"log/slog"
 	"net/http"
 	"strings"
-
-	log "github.com/sirupsen/logrus"
 
 	"github.com/scottbrodersen/homegym/auth"
 	"github.com/scottbrodersen/homegym/workoutlog"
@@ -28,6 +27,7 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	// GET means we received a form submission
 	if r.Method == http.MethodGet {
 		if err := r.ParseForm(); err != nil {
+			slog.Debug("Error parsing credentials", "error", err.Error())
 			http.Error(w, "could not parse credentials", http.StatusBadRequest)
 			return
 		}
@@ -36,6 +36,7 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 		credentials.Password = r.FormValue("password")
 
 		if credentials.Username == "" || credentials.Password == "" {
+			slog.Debug("Either the user name or password was missing")
 			http.Error(w, "You must provide both a user name and a password", http.StatusBadRequest)
 			return
 		}
@@ -47,10 +48,11 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	token, sessionID, err := authorizer.IssueToken(credentials.Username, credentials.Password)
 	if err != nil {
 		if errors.Is(err, auth.ErrUnauthorized) {
+			slog.Debug(err.Error())
 			http.Error(w, "Authentication failed", http.StatusUnauthorized)
 			return
 		}
-		log.Error(err)
+		slog.Error(err.Error())
 		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
@@ -81,12 +83,13 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 
 func HandleSignup(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
+		slog.Debug("Request is not a POST")
 		http.Error(w, "request must be a POST", http.StatusMethodNotAllowed)
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
-		log.Error(err)
+		slog.Debug(err.Error())
 		http.Error(w, "could not parse user info", http.StatusBadRequest)
 		return
 	}
@@ -96,6 +99,7 @@ func HandleSignup(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 
 	if username == "" || password == "" || email == "" {
+		slog.Debug("Either the user name, password, or email are missing")
 		http.Error(w, "missing required field values", http.StatusBadRequest)
 		return
 	}
@@ -105,7 +109,7 @@ func HandleSignup(w http.ResponseWriter, r *http.Request) {
 	_, err := workoutlog.FrontDesk.NewUser(username, role, email, password)
 
 	if err != nil {
-		log.Error(err)
+		slog.Error(err.Error())
 		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
@@ -126,6 +130,7 @@ func HandleSignup(w http.ResponseWriter, r *http.Request) {
 func readPostedBody(w http.ResponseWriter, r *http.Request, maxBytes int64) creds {
 	if ct := r.Header.Get("Content-Type"); ct != "" {
 		if strings.ToLower(ct) != "application/json" {
+			slog.Debug("Content-type header is not application/json")
 			http.Error(w, "Content-Type header is not application/json", http.StatusBadRequest)
 		}
 	}
@@ -154,13 +159,15 @@ func readPostedBody(w http.ResponseWriter, r *http.Request, maxBytes int64) cred
 			fallthrough
 
 		case errors.Is(err, io.EOF):
+			slog.Debug(err.Error())
 			http.Error(w, err.Error(), http.StatusBadRequest)
 
 		case err.Error() == "http: request body too large":
+			slog.Debug(err.Error())
 			http.Error(w, err.Error(), http.StatusRequestEntityTooLarge)
 
 		default:
-			log.Print(err.Error())
+			slog.Error(err.Error())
 			http.Error(w, internalServerError, http.StatusInternalServerError)
 		}
 	}

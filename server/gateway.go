@@ -2,10 +2,9 @@ package server
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 	"strings"
-
-	log "github.com/sirupsen/logrus"
 )
 
 type gateway struct {
@@ -17,8 +16,7 @@ func newGateway(h http.Handler) *gateway {
 }
 
 func (g *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	log.SetLevel(log.DebugLevel)
-	log.Debug("authorizing request for ", r.URL.String())
+	slog.Debug("authorizing request", "url", r.URL.String())
 	if strings.HasPrefix(r.URL.Path, homePath) && r.Method != http.MethodGet {
 		http.Error(w, "need to GET the page", http.StatusMethodNotAllowed)
 		return
@@ -26,15 +24,15 @@ func (g *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	sessionIDCookie, err := r.Cookie(cookieSession)
 	if err != nil {
-		log.Debug("session cookie not found")
-		http.Redirect(w, r, "/homegym/login/", http.StatusFound)
+		slog.Debug("session cookie not found")
+		http.Redirect(w, r, "/homegym/login/", http.StatusUnauthorized)
 		return
 	}
 
 	tokenCookie, err := r.Cookie(cookieToken)
 	if err != nil {
-		log.Debug("token not found")
-		http.Redirect(w, r, "/homegym/login/", http.StatusFound)
+		slog.Debug("token not found")
+		http.Redirect(w, r, "/homegym/login/", http.StatusUnauthorized)
 		return
 	}
 	sessionID := strings.TrimSpace(sessionIDCookie.Value)
@@ -45,9 +43,9 @@ func (g *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "not authorized", http.StatusUnauthorized)
 		return
 	}
-	log.Debug("authorized for ", r.URL.String())
+	slog.Debug("authorized ", "url", r.URL.String())
 
-	// redirect to home page and set internal routing cookie
+	// redirect to home page and et internal routing cookie
 	for _, path := range internalRoutes {
 		if strings.HasPrefix(r.URL.Path, path) {
 			routingCookie := http.Cookie{
@@ -82,7 +80,7 @@ func (g *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	claims, err := authorizer.TokenClaims(token)
 
 	if err != nil {
-		log.Error(err.Error())
+		slog.Error(err.Error())
 		http.Error(w, internalServerError, http.StatusInternalServerError)
 	}
 

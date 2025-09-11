@@ -2,19 +2,18 @@ package server
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
 	"regexp"
-
-	"github.com/sirupsen/logrus"
 )
 
 type RequestLogger struct {
 	handler http.Handler
-	log     *logrus.Logger
+	log     *slog.Logger
 }
 
 func NewRequestLogger(h http.Handler) *RequestLogger {
-	logger := logrus.New()
+	logger := slog.Default()
 	return &RequestLogger{handler: h, log: logger}
 }
 
@@ -22,7 +21,7 @@ func NewRequestLogger(h http.Handler) *RequestLogger {
 func (rl *RequestLogger) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fields := map[string]interface{}{"requested": r.RequestURI, "cookies": r.Header.Values("Cookie"), "remote": r.RemoteAddr}
 	scrubPII(fields, scrubPassword, scrubCookies)
-	rl.log.WithFields(logrus.Fields(fields)).Info("Handling request")
+	rl.log.Info("Handling request", "fields", fields)
 
 	rl.handler.ServeHTTP(w, r)
 }

@@ -16,7 +16,7 @@ __debug*
 *.old
 
 # test results
-.vite/vitest/results.json
+.vite/**/results.json
 
 # mac
 **/.DS_Store

@@ -1,6 +1,6 @@
 <script setup>
   // UI for the OrderedList class
-  import { QBtn } from 'quasar';
+  import { QBtn, QMenu, QList, QItem, QIcon } from 'quasar';
   import * as styles from '../style.module.css';
   import { OrderedList } from '../modules/utils';
 

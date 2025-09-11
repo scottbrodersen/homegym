@@ -29,7 +29,11 @@
   import ProgramWorkoutSegment from './ProgramWorkoutSegment.vue';
   import * as utils from '../modules/utils';
 
-  const props = defineProps({ activityID: String, instanceID: String });
+  const props = defineProps({
+    activityID: String,
+    instanceID: String,
+    hideCompleted: Boolean,
+  });
   const emit = defineEmits(['done']);
 
   const instance = ref();

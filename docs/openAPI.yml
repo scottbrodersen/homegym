@@ -90,13 +90,8 @@ paths:
         200:
           description: OK
 
-  /api/events/{date}/{id}/exercises:
+  /api/events/{id}/exercises:
     parameters:
-      - name: date
-        in: path
-        required: true
-        schema:
-          type: integer
       - name: id
         in: path
         required: true
@@ -105,7 +100,7 @@ paths:
     post:
       security:
         - token: []
-      description: Add or update an exercise instance to an event.
+      description: Add or update an exercise instance for an event.
       tags:
         - events
       requestBody:
@@ -114,6 +109,45 @@ paths:
         '201':
           $ref: '#/components/responses/201'
 
+  /api/events/metrics:
+    parameters:
+      - name: type
+        in: query
+        required: true
+        description: The ID of the exercise type for which metrics are calculated.
+        schema:
+          type: string
+      - name: start
+        in: query
+        required: true
+        description: The start date of the range of events, in seconds since epoch.
+        schema:
+          type: string
+      - name: end
+        in: query
+        required: true
+        description: The end date of the range of events, in seconds since epoch.
+        schema:
+          type: string
+    get:
+      security:
+        - token: []
+      description: Returns an array of exercise metrics for the events that occurred within a date range.
+      tags:
+        - events
+      responses:
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+        '403':
+          $ref: '#/components/responses/403'
+        '200':
+          description: OK
+          content:
+            json/application:
+              schema:
+                $ref: '#/components/schemas/metrics'
   /api/activities:
     get:
       security:
@@ -286,7 +320,7 @@ paths:
     get:
       security:
         - token: []
-      description: returns a program
+      description: Returns a program.
       tags:
         - programs
       responses:
@@ -331,7 +365,7 @@ paths:
     get:
       security:
         - token: []
-      description: returns a page of program instances
+      description: Returns a page of program instances.
       tags:
         - programInstances
       parameters:
@@ -387,17 +421,11 @@ paths:
         required: true
         schema:
           type: string
-      - name: instanceid
-        description: |
-          The ID of the program instance.
-        in: query
-        required: true
-        schema:
-          type: string
+
     get:
       security:
         - token: []
-      description: returns the active program instance for a program
+      description: Returns the active program instances for a program.
       tags:
         - programInstances
       responses:
@@ -410,13 +438,37 @@ paths:
     post:
       security:
         - token: []
-      description: Sets the active program instance for an activity.
+      description: Activates a program instance for an activity.
       tags:
         - programInstances
       parameters:
         - name: programid
           description: |
             The ID of the program.
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: instanceid
+          description: |
+            The ID of the program instance.
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/200'
+    delete:
+      security:
+        - token: []
+      description: Deactivates an active program instance for an activity.
+      tags:
+        - programInstances
+      parameters:
+        - name: instanceid
+          description: |
+            The ID of the program instance.
           in: query
           required: true
           schema:
@@ -478,6 +530,68 @@ paths:
         '200':
           $ref: '#/components/responses/200'
 
+  /api/dailystats:
+    get:
+      security:
+        - token: []
+      description: Gets daily stats over a range of dates.
+      tags:
+        - dailyStats
+      parameters:
+        - name: start
+          description: |
+            The date of the first set of stats to get. To get stats from the beginning of time,
+            do not include.
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: end
+          description: |
+            The date of the last set of stats to get. To get stats up to now, do not include.
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: pagesize
+          description: |
+            The number of stat sets to include in each page. To get stats for
+            a single page, set to 1. Default value and maximum value is 3000.
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            json/application:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/dailystats'
+    post:
+      security:
+        - token: []
+      description: Stores daily stats for a date.
+      tags:
+        - dailyStats
+      parameters:
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: |
+          A daily stats object. All fields are optional. Only the fields that are included are updated.
+        content:
+          json/application:
+            schema:
+              $ref: '#/components/schemas/dailystats'
+      responses:
+        '200':
+          $ref: '#/components/responses/200'
 components:
   schemas:
     activity:
@@ -718,6 +832,77 @@ components:
         - programID
         - title
         - activityID
+    metrics:
+      type: object
+      properties:
+        dates:
+          description: An array of dates (seconds since epoch) that represent the dates of the events for which metrics are calculated.
+          type: array
+          items:
+            type: integer
+        volume:
+          description: An array of volume values. Each value corresponds with the dates item of the same index.
+          type: array
+          items:
+            type: number
+        load:
+          description: An array of load values. Each value corresponds with the dates item of the same index.
+          type: array
+          items:
+            type: number
+      required:
+        - dates
+        - volume
+        - load
+    dailystats:
+      type: object
+      properties:
+        date:
+          type: integer
+          description: The date stamp of the daily stats, in seconds since epoch.
+        bg:
+          type: number
+          description: Blood glucose reading.
+        bp:
+          type: array
+          items:
+            type: integer
+          description: An array of size two that contains the systolic (index 0) and diastolic (index 1) values of the blood pressure.
+        sleep:
+          type: number
+          description: The hours of sleep.
+        food:
+          type: object
+          description: Details about food intake.
+          properties:
+            protein:
+              type: integer
+              description: Number of protein calories.
+            carbs:
+              type: integer
+              description: Number of carb calories.
+            fat:
+              type: integer
+              description: Number of fat calories.
+            fiber:
+              type: integer
+              description: Grams of fiber.
+            description:
+              type: string
+              description: A description of the food eaten.
+        bodyweight:
+          type: integer
+          description: Body weight measured that day.
+        mood:
+          type: integer
+          description: The mood rating for that day.
+        stress:
+          type: integer
+          description: The stress rating for that day.
+        energy:
+          type: integer
+          description: The energy rating for that day.
+
   securitySchemes:
     token:
       type: http
@@ -751,4 +936,33 @@ components:
             type: object
             properties:
               id:
+                type: string
+    '400':
+      description: Bad Request
+      content:
+        json/application:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+    '403':
+      description: Forbidden
+    '404':
+      description: Not Found
+      content:
+        json/application:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+    '500':
+      description: Internal Server Error
+      content:
+        json/application:
+          schema:
+            type: object
+            properties:
+              message:
                 type: string

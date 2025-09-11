@@ -2,15 +2,16 @@ package main
 
 import (
 	"flag"
+	"log/slog"
 	"os"
 
 	"path/filepath"
 
-	"github.com/scottbrodersen/homegym/auth"
-	"github.com/scottbrodersen/homegym/server"
-	log "github.com/sirupsen/logrus"
+	"log"
 
+	"github.com/scottbrodersen/homegym/auth"
 	"github.com/scottbrodersen/homegym/dal"
+	"github.com/scottbrodersen/homegym/server"
 )
 
 const (
@@ -19,6 +20,8 @@ const (
 )
 
 func main() {
+	var currentLogLevel = slog.SetLogLoggerLevel(slog.LevelInfo)
+	defer slog.SetLogLoggerLevel(currentLogLevel)
 
 	pathFlag := flag.String("path", "", "path to the homegym database")
 	testModeFlag := flag.Bool("testmode", false, "run in test mode")
@@ -43,7 +46,7 @@ func main() {
 	if dbPath == "" {
 		log.Fatal("Database path not configured")
 	}
-	log.Debug("using database at path ", dbPath)
+	slog.Debug("using database", "path", dbPath)
 
 	db, err := dal.InitClient(dbPath)
 	if err != nil {
@@ -69,8 +72,8 @@ func main() {
 
 	if dbPath == testDBPath {
 		if err := AddData(); err != nil {
-			log.WithError(err).Warn("error adding data")
-			//dal.DB.Iter8er()
+			slog.Warn("error adding data.", "error", err.Error())
+			dal.DB.Iter8er()
 		}
 	}
 

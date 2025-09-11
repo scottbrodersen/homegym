@@ -32,7 +32,7 @@
   activityStore.getAll().forEach((activity) => {
     activityIDs.value.push(activity.id);
 
-    if (programInstanceStore.getActive(activity.id)) {
+    if (programInstanceStore.getCurrent(activity.id)) {
       showAddWorkout.value = false;
     }
   });
@@ -41,11 +41,13 @@
 <template>
   <div :class="[styles.vert]">
     <div v-for="id in activityIDs" :key="id">
-      <ProgramDash
-        id="program-dash"
-        :activityID="id"
-        :class="[styles.pgmDash]"
-      />
+      <div v-if="id">
+        <ProgramDash
+          id="program-dash"
+          :activityID="id"
+          :class="[styles.pgmDash]"
+        />
+      </div>
     </div>
 
     <EventsGrid :eventID="selectedEvent" />

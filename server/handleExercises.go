@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"regexp"
 
 	"github.com/scottbrodersen/homegym/workoutlog"
-	log "github.com/sirupsen/logrus"
 )
 
 type returnedID = struct {
@@ -20,6 +20,7 @@ func ExerciseTypesApi(w http.ResponseWriter, r *http.Request) {
 
 	username, _, err := whoIsIt(r.Context())
 	if err != nil {
+		slog.Debug(err.Error())
 		http.Error(w, fmt.Sprintf("{\"message\": \"%s\"}", err.Error()), http.StatusForbidden)
 		return
 	}
@@ -50,12 +51,13 @@ func ExerciseTypesApi(w http.ResponseWriter, r *http.Request) {
 func newExerciseType(username string, w http.ResponseWriter, r *http.Request) {
 
 	if r.Body == nil {
+		slog.Debug("No request body")
 		http.Error(w, `{"message": "request body is required"}`, http.StatusBadRequest)
 		return
 	}
 	var et *workoutlog.ExerciseType = &workoutlog.ExerciseType{}
 	if err := json.NewDecoder(r.Body).Decode(et); err != nil {
-		log.Error(err)
+		slog.Debug(err.Error())
 		http.Error(w, `{"message": "problem with request body"}`, http.StatusBadRequest)
 		return
 	}
@@ -65,10 +67,13 @@ func newExerciseType(username string, w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		nu := workoutlog.ErrNameNotUnique
 		if errors.Is(err, nu) {
+			slog.Debug(err.Error())
 			http.Error(w, "name is not unique", http.StatusBadRequest)
 		} else if errors.As(err, &workoutlog.ErrInvalidExercise{}) {
+			slog.Debug(err.Error())
 			http.Error(w, fmt.Sprintf("{\"message\": \"%s\"}", err.Error()), http.StatusBadRequest)
 		} else {
+			slog.Error(err.Error())
 			http.Error(w, internalServerError, http.StatusInternalServerError)
 		}
 		return
@@ -77,6 +82,7 @@ func newExerciseType(username string, w http.ResponseWriter, r *http.Request) {
 	body := returnedID{ID: *id}
 	bodyJson, err := json.Marshal(body)
 	if err != nil {
+		slog.Error(err.Error())
 		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
@@ -89,16 +95,18 @@ func newExerciseType(username string, w http.ResponseWriter, r *http.Request) {
 func updateExerciseType(username, typeID string, w http.ResponseWriter, r *http.Request) {
 
 	if r.Body == nil {
+		slog.Debug("No request body")
 		http.Error(w, `"message": "request body is required"`, http.StatusBadRequest)
 		return
 	}
 	var updated *workoutlog.ExerciseType = &workoutlog.ExerciseType{}
 	if err := json.NewDecoder(r.Body).Decode(updated); err != nil {
-		log.Error(err)
+		slog.Debug(err.Error())
 		http.Error(w, `"message": "problem with request body"`, http.StatusBadRequest)
 		return
 	}
 	if updated.ID != typeID {
+		slog.Debug("typeID in path does not match typeID in body")
 		http.Error(w, `"message": "typeID mismatch"`, http.StatusBadRequest)
 		return
 	}
@@ -108,10 +116,12 @@ func updateExerciseType(username, typeID string, w http.ResponseWriter, r *http.
 	if err != nil {
 		nu := workoutlog.ErrNameNotUnique
 		if errors.Is(err, nu) {
+			slog.Debug(err.Error())
 			http.Error(w, `"message": "name is not unique"`, http.StatusBadRequest)
 		} else if errors.As(err, &workoutlog.ErrInvalidExercise{}) {
 			http.Error(w, fmt.Sprintf("{\"message\": \"%s\"}", err.Error()), http.StatusBadRequest)
 		} else {
+			slog.Error(err.Error())
 			http.Error(w, internalServerError, http.StatusInternalServerError)
 		}
 		return
@@ -125,11 +135,13 @@ func updateExerciseType(username, typeID string, w http.ResponseWriter, r *http.
 func listExerciseTypes(username string, w http.ResponseWriter) {
 	types, err := workoutlog.ExerciseManager.GetExerciseTypes(username)
 	if err != nil {
+		slog.Error(err.Error())
 		http.Error(w, internalServerError, http.StatusInternalServerError)
 	}
 
 	body, err := json.Marshal(types)
 	if err != nil {
+		slog.Error(err.Error())
 		http.Error(w, `{"message": "failed to get exercise types"}`, http.StatusInternalServerError)
 	}
 
