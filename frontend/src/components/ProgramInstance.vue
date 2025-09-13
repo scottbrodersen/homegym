@@ -39,7 +39,7 @@
   const instance = ref();
   const coords = ref();
   const linkEventDialog = ref({ show: false, eventID: '', events: undefined });
-
+  const isCurrentProgramInstance = ref(false);
   let today;
 
   let baseline = ''; // use to detect diff
@@ -66,6 +66,10 @@
         : '';
 
       today = programUtils.getTodayIndex(instance.value);
+
+      isCurrentProgramInstance.value =
+        programInstanceStore.getCurrent(props.activityID).id ==
+        props.instanceID;
     }
   };
 
@@ -257,6 +261,18 @@
 </script>
 <template>
   <div v-if="instance" :class="[styles.pgmInstance]">
+    <div v-if="isCurrentProgramInstance" :class="[styles.centered]">
+      <q-btn
+        label="Complete the program (early)"
+        @click="
+          () => {
+            utils.deactivateProgramInstance(props.activityID, props.instanceID);
+          }
+        "
+        dark
+        outline
+      />
+    </div>
     <ProgramCalendar
       :instance="instance"
       :coords="coords"
