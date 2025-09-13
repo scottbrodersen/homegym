@@ -3,7 +3,6 @@
   import { QDate } from 'quasar';
   import * as dateUtils from '../modules/dateUtils';
   import * as programUtils from '../modules/programUtils';
-  import ProgramMap from './ProgramMap.vue';
 
   const props = defineProps({
     coords: Object,
@@ -11,12 +10,26 @@
   });
   const emit = defineEmits(['dayIndex']);
 
-  const nonRestDays = programUtils.getNonRestDates(props.instance);
-  const formattedNonRestDays = formatForQuasar(nonRestDays);
+  let nonRestDays = [];
+  let formattedNonRestDays = [];
 
-  const workoutDates = programUtils.getInstanceWorkoutDates(props.instance);
-  const formattedWorkoutDates = formatForQuasar(workoutDates);
-  const date = ref(dateUtils.formatDate(dateUtils.dateFromSeconds()));
+  let workoutDates = [];
+  let formattedWorkoutDates = [];
+
+  const date = ref();
+
+  const init = () => {
+    nonRestDays = programUtils.getNonRestDates(props.instance);
+    formattedNonRestDays = formatForQuasar(nonRestDays);
+
+    workoutDates = programUtils.getInstanceWorkoutDates(props.instance);
+    formattedWorkoutDates = formatForQuasar(workoutDates);
+
+    date.value = dateUtils.formatDate(
+      dateUtils.dateFromSeconds(props.instance.startDate)
+    );
+  };
+
   let dayIndex;
 
   const emitDayIndex = (date) => {
@@ -37,15 +50,22 @@
   watch(
     () => props.coords,
     (newCoords) => {
-      // if (needSync()) {
       date.value = dateUtils.formatDate(
         programUtils.getWorkoutDate(props.instance, newCoords)
       );
-      //    }
     },
     { deep: true }
   );
+
+  watch(
+    () => props.instance,
+    (newInstance) => {
+      init();
+    }
+  );
+
   onMounted(() => {
+    init();
     emitDayIndex(date.value);
   });
 
@@ -58,6 +78,7 @@
 </script>
 <template>
   <div>
+    {{ date }}
     <q-date
       v-model="date"
       :events="formattedNonRestDays"
