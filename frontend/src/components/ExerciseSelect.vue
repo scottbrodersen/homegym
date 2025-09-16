@@ -1,4 +1,13 @@
 <script setup>
+  /**
+   * A drop down list of exercises for an activity.
+   *
+   * Props:
+   *  activityID is the ID of the activity
+   *  exerciseID is the ID of the pre-selected exercise. Provide no value if no exercise is pre-selected.
+   *
+   * Emits the ID of the selected exercise.
+   */
   import { computed, onBeforeMount, ref, watch } from 'vue';
   import { activityStore, exerciseTypeStore } from '../modules/state.js';
   import { QSelect } from 'quasar';

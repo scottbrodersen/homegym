@@ -1,4 +1,7 @@
 <script setup>
+  /**
+   * A hamburger-style drop-down menu that enables users to enter and view daily statistics for today.
+   */
   import * as dailyStatsUtils from '../modules/dailyStatsUtils';
   import * as styles from '../style.module.css';
   import * as state from '../modules/state';

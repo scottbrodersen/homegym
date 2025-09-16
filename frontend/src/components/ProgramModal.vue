@@ -1,4 +1,13 @@
 <script setup>
+  /**
+   * A dialog for editing a program.
+   *
+   * Provides the following values to child components:
+   *  state of EDIT (the edit/read-only state of a component)
+   *  activity is the ID of the activity with which the program is associated
+   *
+   * The dialog output is the program object.
+   */
   import { provide, ref } from 'vue';
   import * as styles from '../style.module.css';
   import {

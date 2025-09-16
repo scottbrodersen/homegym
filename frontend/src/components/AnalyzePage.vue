@@ -1,4 +1,12 @@
 <script setup>
+  /**
+   * Displays data for the metrics that we track:
+   *  - exercise volume
+   *  - daily health markers
+   *  - food intake and blood glucose
+   *
+   * Exercise volume can be filtered by exercise type and date range.
+   */
   import { onMounted, ref } from 'vue';
   import * as utils from '../modules/utils';
   import * as dateUtils from '../modules/dateUtils';
@@ -16,9 +24,15 @@
   let exerciseTypes = [];
 
   let rawMetrics = { dates: [], load: [], volume: [] };
+  // chart data for exercise metrics
   const metrics = ref({});
+  // chart data for daily stats
   const dailyStats = ref([]);
 
+  /**
+   * Sets the start date of the charted time period.
+   * @param newStartDate The start date in seconds since epoch.
+   */
   const updateStartDate = (newStartDate) => {
     if (newStartDate > endDate.value) {
       utils.openConfirmModal('Start date must occur before end date');
@@ -28,6 +42,10 @@
     getMetrics();
   };
 
+  /**
+   * Sets the end date of the charted time period.
+   * @param newEndDate The end date in seconds since epoch.
+   */
   const updateEndDate = (newEndDate) => {
     if (newEndDate < startDate.value) {
       utils.openConfirmModal('End date must occur after start date');
@@ -47,6 +65,9 @@
   Chart.defaults.scales.time.time.unit = 'day';
   Chart.defaults.scales.time.time.tooltipFormat = 'MMM d, yyyy';
 
+  /**
+   * Creates a graph of total load/volume and total load over time for a set of performed exercises
+   */
   const exerciseChart = () => {
     const lvRatioData = Array();
     const loadData = Array();
@@ -72,6 +93,9 @@
     );
   };
 
+  /**
+   * Creates a graph of daily stats (e.g. sleep, mood, etc) over time
+   */
   const dailyStatsChart = () => {
     const dayBuckets = dailyStatsUtils.toDayBuckets(dailyStats.value);
     dailyStatsUtils.getDailyChart(
@@ -82,6 +106,9 @@
     );
   };
 
+  /**
+   * Creates a graph of time series data (i.e. measurements that can occur multiple times in a day such as blood pressure, food intake, etc)
+   */
   const timeSeriesChart = async () => {
     const datasets = dailyStatsUtils.getTimeSeriesDataSets(dailyStats.value);
     const eventDataset = await analyzeUtils.getTimeSeriesData(
@@ -99,11 +126,19 @@
     );
   };
 
+  /**
+   * Sets the exercise types for which metrics are graphed.
+   * @param types An array of exercise type IDs.
+   */
   const setExerciseTypes = (types) => {
     exerciseTypes = types;
     getMetrics(true);
   };
 
+  /**
+   * Retrieves exercise metrics from the server and creates the exercise metrics, daily stats, and time series charts.
+   * @param {boolean} updatedTypes True if the chart is updated due to a change in the exercise filter.
+   */
   const getMetrics = async (updatedTypes = false) => {
     resetMetrics();
     try {

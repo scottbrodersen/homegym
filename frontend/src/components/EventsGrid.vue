@@ -1,4 +1,12 @@
 <script async setup>
+  /**
+   * A table of workout events.
+   * Each row shows a high-level summary of the event.
+   * Each row can be expanded to show the event details.
+   *
+   * Props:
+   *  eventID is the ID of the event to expand in the table.
+   */
   import {
     eventStore,
     activityStore,

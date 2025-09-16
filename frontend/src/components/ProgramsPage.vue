@@ -1,4 +1,21 @@
 <script setup>
+  /**
+   * Enables a user to select a program or program instance for an activity.
+   * Displays the selected item.
+   *
+   * Props:
+   *  activityID is the activity with which the program is associated
+   *  programID (optional) is the ID of the program that is pre-selected
+   *  instanceID (optional) is the ID of the program instance that is pre-selected
+   *
+   * Either programID or instanceID can be provided, but not both.
+   *
+   * Provides the following values to child components:
+   *  editProgramTitle is true when the edit button is clicked for a program title.
+   *  editInstanceTitle is true when the edit button is clicked for a program instance title.
+   *  newProgram is true when a new program is being created
+   *  state indicates whether to display the program or instance in read-only or edit mode.
+   */
   import { activityStore } from '../modules/state';
   import {
     authPromptAsync,

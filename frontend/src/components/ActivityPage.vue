@@ -1,4 +1,9 @@
 <script setup>
+  /**
+   * Displays a list of activities and their associated exercises.
+   * Enables creating and renaming activities.
+   * Enables adding/removing exercises for an activity.
+   */
   import { activityStore, exerciseTypeStore } from '../modules/state';
   import { computed, reactive, ref, toRaw } from 'vue';
   import {

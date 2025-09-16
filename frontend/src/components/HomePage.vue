@@ -1,4 +1,9 @@
 <script setup>
+  /**
+   * The home page of the app.
+   * Shows the dashboard for the current program instance and a table of workout events that have been performed.
+   * The event that is viewed in the dashboard is highlighted in the table.
+   */
   import ProgramDash from './ProgramDash.vue';
   import EventsGrid from './EventsGrid.vue';
   import { activityStore, programInstanceStore } from '../modules/state';

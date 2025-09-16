@@ -1,4 +1,14 @@
 <script setup>
+  /**
+   * A dialog for inputting a daily statistic data item.
+   * The dialog supports all types of daily stats but only one is input at a time.
+   *
+   * Props:
+   *  statName is the name of the stat that is being input
+   *  stats is an object that represents an existing value to edit.
+   *
+   *  The stats object has properties for all types of daily stats, however only one has a non-zero value.
+   */
   import {
     useDialogPluginComponent,
     QBtn,
@@ -42,26 +52,26 @@
       return stats.value;
     },
     (newStat) => {
-      if (props.statName == 'bg') {
+      if (props.statName == dailyStatsUtils.BLOODGLUCOSE) {
         disableSave.value =
           typeof dailyStatsUtils.bgValidator(newStat.bg) == 'string';
-      } else if (props.statName == 'bp') {
+      } else if (props.statName == dailyStatsUtils.BLOODPRESSURE) {
         disableSave.value =
           typeof dailyStatsUtils.systolicValidator(newStat.bp[0]) == 'string' ||
           typeof dailyStatsUtils.diastolicValidator(newStat.bp[1]) == 'string';
-      } else if (props.statName == 'bodyweight') {
+      } else if (props.statName == dailyStatsUtils.BODYWEIGHT) {
         disableSave.value =
           typeof dailyStatsUtils.bodyWeightValidator(newStat.bodyweight) ==
           'string';
-      } else if (props.statName == 'sleep') {
+      } else if (props.statName == dailyStatsUtils.SLEEP) {
         disableSave.value =
           typeof dailyStatsUtils.sleepValidator(newStat.sleep) == 'string';
-      } else if (props.statName == 'food') {
+      } else if (props.statName == dailyStatsUtils.FOOD) {
         disableSave.value =
           typeof dailyStatsUtils.foodDescriptionValidator(
             newStat.food.description
           ) == 'string';
-      } else if (props.statName == 'spirit') {
+      } else if (props.statName == dailyStatsUtils.SPIRIT) {
         disableSave.value = false;
       }
     },

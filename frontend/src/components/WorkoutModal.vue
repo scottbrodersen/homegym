@@ -1,4 +1,14 @@
 <script setup>
+  /**
+   * Dialog for editing the workout of a program instance.
+   *
+   * Props:
+   *  instance is the program instance to which the workout belongs.
+   *  coords is the 3x1 array of coordinates that indicates where the workout occurs within the structure of the instance.
+   *    E.g. [0,1,2] denotes the workout in the 3rd day of the 2nd microcycle in the 1st block.
+   *
+   *  Returns the workout object.
+   */
   import { provide, ref, watch } from 'vue';
   import { useDialogPluginComponent, QCard, QDialog } from 'quasar';
   import * as utils from '../modules/utils';
@@ -39,7 +49,6 @@
   );
 
   const updateSegments = (action, index) => {
-    console.log(`action: ${action} index: ${index}`);
     segments.update(action, index);
   };
 </script>

@@ -1,4 +1,15 @@
 <script setup>
+  /**
+   * A dialog for expressing the volume of a performed exercise.
+   *
+   * Props:
+   *  exerciseTypeID is the ID of the exercise
+   *  intensity (optional) is the intensity to display (e.g. weight or perceived exertion)
+   *  segmentIndex is a 0-based index that denotes the place in a list of performed exercises.
+   *  volume (optional) is the volume performed. Each item in the array represents a set.
+   *
+   * Emits the performance object.
+   */
   import { ref, toRaw } from 'vue';
   import {
     useDialogPluginComponent,

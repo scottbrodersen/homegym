@@ -2,7 +2,15 @@
   import { inject, onMounted, watch } from 'vue';
   import { QBtn } from 'quasar';
   import * as styles from '../style.module.css';
-
+  /**
+   * Indexed icons that represent items in a carousel.
+   * The current item (i.e. the selected item) is injected.
+   * Distinguishes a 'home' item by its index.
+   *
+   * Props:
+   *  items: an array of css class names. Each item represents a navigation target. The css class name controls the appearance.
+   *  homeItem: the index of the item to show as the home item.
+   */
   const props = defineProps({ items: Array, homeItem: Number });
   // items is an array of css class names
 

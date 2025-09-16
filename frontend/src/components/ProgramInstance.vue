@@ -1,4 +1,14 @@
 <script setup>
+  /**
+   * Provides a view of a program instance.
+   * Includes a calendar and workout details.
+   * Allows editing of program instances.
+   * Enables users to link an existing event with a workout.
+   *
+   * Props:
+   *  activityID is the activity with which the program instance is associated.
+   *  instanceID is the ID of the program instance.
+   */
   import { inject, provide, ref, watch } from 'vue';
   import ProgramBlock2 from './ProgramBlock2.vue';
   import { programInstanceStore, programsStore } from './../modules/state';
@@ -6,6 +16,9 @@
   import {
     QBtn,
     QDialog,
+    QCard,
+    QCardActions,
+    QCardSection,
     QIcon,
     QItem,
     QItemSection,
@@ -32,11 +45,13 @@
   const props = defineProps({
     activityID: String,
     instanceID: String,
-    hideCompleted: Boolean,
   });
-  const emit = defineEmits(['done']);
 
   const instance = ref();
+  /*
+  Coords is a 3x1 array that holds the coordinates of the workout for a date.
+  E.g. [0,1,2] denotes the workout in the 3rd day of the 2nd microcycle in the 1st block.
+  */
   const coords = ref();
   const linkEventDialog = ref({ show: false, eventID: '', events: undefined });
   const isCurrentProgramInstance = ref(false);
@@ -176,6 +191,7 @@
     return false;
   };
 
+  // Associates an event with a workout
   const linkEvent = async (coords) => {
     if (coords === true) {
       instance.value.events[linkEventDialog.value.index] =
@@ -237,7 +253,6 @@
     programUtils
       .newWorkoutModal(instance.value, coords)
       .then(async (workout) => {
-        console.log('workout value: ' + workout);
         if (workout) {
           instance.value.blocks[coords[0]].microCycles[coords[1]].workouts[
             coords[2]

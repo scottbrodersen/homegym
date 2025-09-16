@@ -26,6 +26,7 @@ type ProgramInstance struct {
 	Events    map[int]string `json:"events"`
 }
 
+// An ErrInvalidProgram generates an error for use when a program is invalid.
 type ErrInvalidProgram struct {
 	Message string
 }
@@ -54,6 +55,8 @@ func (pi ProgramInstance) validate() error {
 	return nil
 }
 
+// A WorkoutSegment stores the details of a planned workout for a program.
+// It validates that all fields contain a value.
 type WorkoutSegment struct {
 	ExerciseTypeID string `json:"exerciseTypeID"`
 	Prescription   string `json:"prescription"`
@@ -71,6 +74,9 @@ func (ws WorkoutSegment) validate() error {
 	return nil
 }
 
+// A Workout stores the details of a planned workout.
+// It validates that it has a title.
+// All other fields are optional.
 type Workout struct {
 	Title       string           `json:"title"`
 	Segments    []WorkoutSegment `json:"segments"`
@@ -83,17 +89,12 @@ func (w Workout) validate() error {
 		return fmt.Errorf("missing title")
 	}
 
-	// if !w.RestDay {
-	// 	for _, s := range w.Segments {
-	// 		if err := s.validate(); err != nil {
-	// 			return fmt.Errorf("invalid segment: %w", err)
-	// 		}
-	// 	}
-	// }
-
 	return nil
 }
 
+// A MicroCycle contains a series of planned workouts.
+// It ensures that it contains a title and a span.
+// It also ensures that the number of workouts equals the span.
 type MicroCycle struct {
 	Title       string    `json:"title"`
 	Span        int       `json:"span"`
@@ -109,6 +110,7 @@ func (mc MicroCycle) validate() error {
 		return fmt.Errorf("missing span")
 	}
 
+	//TODO: test for too many workouts?
 	if len(mc.Workouts) < mc.Span {
 		return fmt.Errorf("not enough workouts")
 	}
@@ -121,6 +123,8 @@ func (mc MicroCycle) validate() error {
 	return nil
 }
 
+// A Block contains a series of program microcycles.
+// It ensures that the title field is not empty.
 type Block struct {
 	Title       string       `json:"title"`
 	MicroCycles []MicroCycle `json:"microCycles,omitempty"`
@@ -173,6 +177,7 @@ func (p Program) validate() error {
 	return nil
 }
 
+// The ProgramAdmin type defines routines for interacting with programs in the database.
 type ProgramAdmin interface {
 	AddProgram(userID string, program Program) (*string, error)
 	UpdateProgram(userID string, program Program) error
@@ -180,17 +185,18 @@ type ProgramAdmin interface {
 	AddProgramInstance(userID string, instance *ProgramInstance) error
 	UpdateProgramInstance(userID string, instance ProgramInstance) (*ProgramInstance, error)
 	GetProgramInstancesPage(userID, programID, previousProgramInstanceID string, pageSize int) ([]ProgramInstance, error)
-	//SetActiveProgramInstance(userID, activityID, programID, instanceID string) error
-	//GetActiveProgramInstance(userID, activityID string) (*ProgramInstance, error)
 	ActivateProgramInstance(userID, activityID, programID, instanceID string) error
 	GetActiveProgramInstancesPage(userID, ActivityID, previousActiveInstanceID string, pageSize int) ([]ProgramInstance, error)
 	DeactivateProgramInstance(userID, activityID, instanceID string) error
 }
 
+// A ProgramUtil implements the ProgramAdmin interface.
 type ProgramUtil struct{}
 
 var ProgramManager ProgramAdmin = ProgramUtil{}
 
+// AddProgram adds a new program to the database.
+// It generates a UUID for the program and returns a pointer to the value.
 func (pu ProgramUtil) AddProgram(userID string, program Program) (*string, error) {
 	if program.ID != "" {
 		return nil, fmt.Errorf("new programs cannot have an ID")
@@ -224,6 +230,8 @@ func (pu ProgramUtil) AddProgram(userID string, program Program) (*string, error
 	return &program.ID, nil
 }
 
+// UpdateProgram updates a program on the database.
+// If the program is not yet stored an error is returned.
 func (pu ProgramUtil) UpdateProgram(userID string, program Program) error {
 	if err := program.validate(); err != nil {
 		return err
@@ -261,6 +269,9 @@ func (pu ProgramUtil) UpdateProgram(userID string, program Program) error {
 	return nil
 }
 
+// GetProgramsPageForActivity returns a page of programs from the database.
+// The ID of the last program of the previous page indicates the starting point for the new page.
+// The default and maximum page size is 100.
 func (pu ProgramUtil) GetProgramsPageForActivity(userID, activityID, previousProgramID string, pageSize int) ([]Program, error) {
 	numToGet := pageSize
 	if numToGet > 100 {
@@ -290,6 +301,10 @@ func (pu ProgramUtil) GetProgramsPageForActivity(userID, activityID, previousPro
 	return programs, nil
 }
 
+// Adds a new program instance to the database.
+// Generates a UUID and adds it to the struct via the provided pointer.
+// Immediately activates the instance.
+// Returns an error when the program that it actuates is not in the database.
 func (pu ProgramUtil) AddProgramInstance(userID string, instance *ProgramInstance) error {
 	if instance.ID != "" {
 		return fmt.Errorf("new program instances cannot have an ID")
@@ -338,6 +353,9 @@ func (pu ProgramUtil) AddProgramInstance(userID string, instance *ProgramInstanc
 	return nil
 }
 
+// UpdateProgramInstance updates a program instance on the database.
+// A pointer to the instance is returned.
+// An error is returned when the instance is not already in the database.
 func (pu ProgramUtil) UpdateProgramInstance(userID string, instance ProgramInstance) (*ProgramInstance, error) {
 	if err := instance.validate(); err != nil {
 		return nil, err
@@ -360,6 +378,7 @@ func (pu ProgramUtil) UpdateProgramInstance(userID string, instance ProgramInsta
 	return &instance, nil
 }
 
+// ActivateProgramInstance generates a flag to indicate that the instance is active.
 func (pu ProgramUtil) ActivateProgramInstance(userID, activityID, programID, instanceID string) error {
 	if err := dal.DB.ActivateProgramInstance(userID, activityID, programID, instanceID); err != nil {
 		return fmt.Errorf("failed to activate program: %w", err)
@@ -368,6 +387,7 @@ func (pu ProgramUtil) ActivateProgramInstance(userID, activityID, programID, ins
 	return nil
 }
 
+// DeactivateProgramInstance deletes the flag that indicates that the instance is active.
 func (pu ProgramUtil) DeactivateProgramInstance(userID, activityID, instanceID string) error {
 	if err := dal.DB.DeactivateProgramInstance(userID, activityID, instanceID); err != nil {
 		return fmt.Errorf("failed to deactivate program instance: %w", err)
@@ -404,6 +424,9 @@ func sanitizeEvents(events map[int]string) error {
 	return nil
 }
 
+// GetProgramInstancesPage returns a page of program instances from the database.
+// The ID of the last instance of the previous page indicates the starting point for the new page.
+// The default and maximum page size is 100.
 func (pu ProgramUtil) GetProgramInstancesPage(userID, programID, previousProgramInstanceID string, pageSize int) ([]ProgramInstance, error) {
 	numToGet := pageSize
 	if numToGet > 100 {
@@ -432,37 +455,9 @@ func (pu ProgramUtil) GetProgramInstancesPage(userID, programID, previousProgram
 	return instances, nil
 }
 
-// SetActiveProgramInstance stores the ID of the active program instance for an activity.
-// The existing active instance ID is overwritten.
-// func (pu ProgramUtil) SetActiveProgramInstance(userID, activityID, programID, instanceID string) error {
-// 	if err := dal.DB.SetActiveProgramInstance(userID, activityID, programID, instanceID); err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }
-
-// func (pu ProgramUtil) GetActiveProgramInstance(userID, activityID string) (*ProgramInstance, error) {
-// 	instanceBytes, err := dal.DB.GetActiveProgramInstance(userID, activityID)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("failed to get active program instance: %w", err)
-// 	}
-
-// 	if instanceBytes == nil {
-// 		// no active instance
-// 		return nil, nil
-// 	}
-
-// 	instance := new(ProgramInstance)
-
-// 	// TODO: unmarshal here, then marshal in handler. really?
-// 	if err := json.Unmarshal(instanceBytes, instance); err != nil {
-// 		return nil, fmt.Errorf("failed to parse program instance: %w", err)
-// 	}
-
-// 	return instance, nil
-// }
-
+// GetActiveProgramInstancesPage returns a slice of active program instances from the database.
+// The ID of the last instance of the previous page indicates the starting point for the new page.
+// The default and maximum page size is 100.
 func (pu ProgramUtil) GetActiveProgramInstancesPage(userID, ActivityID, previousActiveInstanceID string, pageSize int) ([]ProgramInstance, error) {
 	numToGet := pageSize
 	if numToGet > 100 {

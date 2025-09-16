@@ -10,6 +10,7 @@ const (
 	bioKey = "bio"
 )
 
+// AddBioStats stores daily statistics for a user.
 func (c *DBClient) AddBioStats(userID string, date int64, stats []byte) error {
 	prefix := []string{userKey, userID, bioKey, fmt.Sprint(date)}
 
@@ -22,6 +23,9 @@ func (c *DBClient) AddBioStats(userID string, date int64, stats []byte) error {
 	return nil
 }
 
+// GetBioStatsPage gets a page of daily statistics for a user.
+// To get stats for a specific day set pageSize to 1.
+// The date is used to determine the first item to include.
 func (c *DBClient) GetBioStatsPage(userID string, startDate int64, pageSize int) ([][]byte, error) {
 	prefix := []string{userKey, userID, bioKey}
 	var startKey []byte = nil

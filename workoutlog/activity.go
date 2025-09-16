@@ -12,6 +12,7 @@ var ErrActivityNameTaken error = errors.New("activity name not unique")
 var ErrNotFound error = errors.New("not found")
 var ActivityManager ActivityAdmin = &ActivityMaker{}
 
+// The Activity type defines routines for interacting with activities in the database.
 type ActivityAdmin interface {
 	NewActivity(userID, name string) (*Activity, error)
 	GetActivityNames(userID string) ([]*Activity, error)
@@ -19,14 +20,20 @@ type ActivityAdmin interface {
 	UpdateActivityExercises(userID string, updated Activity) error
 }
 
+// The ActivityMaker type implements ActivityAdmin
 type ActivityMaker struct{}
 
+// The Activity type contains the properties of an activity.
+// It can read the associated exercise IDs from the database.
 type Activity struct {
 	ID          string   `json:"id"`
 	Name        string   `json:"name"`
 	ExerciseIDs []string `json:"exercises"`
 }
 
+// NewActivity creates an activity in the database.
+// It generates a UUID for the activity.
+// It creates an Activity struct and returns a pointer to it.
 func (am *ActivityMaker) NewActivity(userID, name string) (*Activity, error) {
 	activityNames, err := am.GetActivityNames(userID)
 	if err != nil {
@@ -49,6 +56,8 @@ func (am *ActivityMaker) NewActivity(userID, name string) (*Activity, error) {
 	return &activity, nil
 }
 
+// GetActivityNames returns a slice of pointers to Activity objects.
+// The Activity objects contain only the ID and Name fields.
 func (am *ActivityMaker) GetActivityNames(userID string) ([]*Activity, error) {
 	names, err := dal.DB.GetActivityNames(userID)
 	if err != nil {
@@ -68,6 +77,7 @@ func (am *ActivityMaker) GetActivityNames(userID string) ([]*Activity, error) {
 	return activities, nil
 }
 
+// GetActivityExercises reads the exercise IDs for the Activity.
 func (a *Activity) GetActivityExercises(userID string) error {
 	activity, err := getActivity(userID, a.ID)
 	if err != nil {
@@ -103,6 +113,8 @@ func getActivity(userID, activityID string) (*Activity, error) {
 	return &a, nil
 }
 
+// RenameActivity updates an activity with a new name.
+// The activity must already exist in the database.
 func (am *ActivityMaker) RenameActivity(userID string, a Activity) error {
 	// check that the new name is not already used
 	activityNames, err := am.GetActivityNames(userID)
@@ -123,6 +135,8 @@ func (am *ActivityMaker) RenameActivity(userID string, a Activity) error {
 	return nil
 }
 
+// AddExerciseToActivity creates an association between the activity an an exercise type.
+// The activity and exercise must have already been created in the database.
 func (a *Activity) AddExerciseToActivity(userID, exerciseID string) error {
 	if userID == "" {
 		return fmt.Errorf("userID must not be empty")
@@ -163,6 +177,8 @@ func (a *Activity) AddExerciseToActivity(userID, exerciseID string) error {
 	return nil
 }
 
+// UpdateActivityExercises updates the associations between an activity and exercise types.
+// The stored associations are made to match those of the provided Activity.
 func (am *ActivityMaker) UpdateActivityExercises(userID string, updated Activity) error {
 	activity, err := getActivity(userID, updated.ID)
 	if err != nil {

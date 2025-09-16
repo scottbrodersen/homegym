@@ -15,8 +15,7 @@ func (ec ErrInvalidExercise) Error() string {
 	return fmt.Sprintf("invalid exercise: %s", ec.Message)
 }
 
-// Defines an exercise
-// Factory for ExerciseInstance
+// An ExerciseType defines an exercise and is a factory for ExerciseInstance structs.
 // Translates instances between the user interface and the db
 // Composition indicates that an exercise is composed of other exercises. Limited to Count types.
 type ExerciseType struct {
@@ -52,7 +51,11 @@ type ExerciseSegment struct {
 // 1 is restricted to the value 1 (for counts)
 // 2 is restricted to either 1 or 0 (success/failure)
 var volumeConstraints []int = []int{0, 1, 2}
+
+// valid volume types
 var volumeTypes []string = []string{"count", "distance", "time"}
+
+// valid intensity types
 var intensityTypes []string = []string{"weight", "hrZone", "rpe", "percentOfMax", "bodyweight", "pace"}
 
 func (e ExerciseType) CreateInstance() ExerciseInstance {
@@ -199,6 +202,7 @@ func (e ExerciseType) validate() error {
 	return nil
 }
 
+// CalculateMetrics returns the load and volume that was performed for an exercise instance.
 func (et ExerciseType) CalculateMetrics(ei *ExerciseInstance) (load, volume float32) {
 	load = 0
 	volume = 0

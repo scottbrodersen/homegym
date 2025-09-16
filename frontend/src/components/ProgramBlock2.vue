@@ -1,5 +1,13 @@
 <script setup>
-  import { inject } from 'vue';
+  /**
+   * Displays the properties of a block of a program instance.
+   * Enables editing of the properties.
+   *
+   * Props:
+   *  block is the block object with properties title and description.
+   *
+   * Emits the edited block.
+   */
   import { QBtn } from 'quasar';
   import * as styles from '../style.module.css';
   import { openEditValueModal } from '../modules/utils';

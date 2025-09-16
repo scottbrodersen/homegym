@@ -1,4 +1,14 @@
 <script setup>
+  /**
+   * Displays the volume of a performed exercise as a series of reps.
+   *
+   * Props:
+   *  reps is an array of 1's and 0's representing successful (1) and failed (0) reps
+   *  volumeConstraint indicates how to interpret the reps:
+   *    2: binary reps (pass/fail)
+   *    1: The literal value of reps
+   *    0: The sum of the numbers in reps
+   */
   import { defineProps, computed } from 'vue';
   import * as styles from '../style.module.css';
   import BinaryRep from './BinaryRep.vue';

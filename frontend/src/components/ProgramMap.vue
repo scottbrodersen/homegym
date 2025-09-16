@@ -1,4 +1,16 @@
 <script setup>
+  /**
+   * Provides a visual representation of the blocks, microcycles, and workouts of a program.
+   * Establishes the coordinates (coords) of the workouts
+   *
+   * Coords is a 3x1 array that holds the coordinates of the workout for a date.
+   * E.g. [0,1,2] denotes the workout in the 3rd day of the 2nd microcycle in the 1st block.
+   *
+   * Props:
+   *  blocks is an array of program block objects.
+   *
+   * When a workout is clicked, the workout coordinates are emitted.
+   */
   import * as styles from '../style.module.css';
   import { ref } from 'vue';
   import { QBtn } from 'quasar';

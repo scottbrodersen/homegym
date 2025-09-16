@@ -1,4 +1,11 @@
 <script setup>
+  /**
+   * A generic dialog for editing one or more values.
+   * Props:
+   *  values is an array of {label, value} objects, where label is the text to display and value is the value.
+   *
+   * Emits an array similar to that of the values props, but with the new values.
+   */
   import {
     useDialogPluginComponent,
     QInput,
@@ -14,7 +21,6 @@
   const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
     useDialogPluginComponent();
 
-  // an array of {label, value} objects
   const props = defineProps({ values: Array });
 
   const newValues = ref(new Array());

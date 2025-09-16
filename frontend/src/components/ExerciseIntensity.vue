@@ -1,4 +1,14 @@
 <script setup>
+  /**
+   * Enables users to input or view the intensity of an exercise instance.
+   *
+   * Props:
+   *  intensity: The intensity value. No value for new instances.
+   *  type: The type of exercise, for determining how to interpret the intensity.
+   *  writable: True enables editing the value.
+   *
+   * Emits the intensity value when it changes.
+   */
   import { unitsState } from '../modules/state.js';
   import * as styles from '../style.module.css';
   import { ref } from 'vue';

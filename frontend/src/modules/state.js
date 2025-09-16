@@ -2,7 +2,7 @@ import { reactive, computed } from 'vue';
 import { pageSize } from './utils';
 
 /*
-events be like:
+workout events be like:
   {
     "id": "6ef6125f-1708-4977-8dad-598bfff2a3a4",
     "activityID": "49adfe46-854f-425e-9782-a1d9a5255e43",
