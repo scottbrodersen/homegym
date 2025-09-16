@@ -17,6 +17,9 @@ type creds struct {
 	Password string `json:"password"`
 }
 
+// HandleLogin handles log in requests.
+// Generates a JWT and returns it in a cookie.
+// Generates a session ID and returns it in a cookie.
 func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet && r.Method != http.MethodPost {
 		http.Error(w, "use GET to log in", http.StatusMethodNotAllowed)
@@ -81,6 +84,9 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// HandleSignup handles requests to create a new user account.
+// Returns a cookie that contains the path to the login page.
+// Redirects to the login page.
 func HandleSignup(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		slog.Debug("Request is not a POST")

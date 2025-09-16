@@ -1,4 +1,11 @@
 <script setup>
+  /**
+   * Displays metadata about the current program instance.
+   * Hosts the WorkoutAgent to show workout details.
+   *
+   * Props:
+   *  activityID is the activity associated with the program upon which the instance is based.
+   */
   import { provide, ref } from 'vue';
   import { programInstanceStore } from '../modules/state';
   import * as styles from '../style.module.css';
@@ -6,14 +13,22 @@
   import { getProgramInstanceStatus } from '../modules/programUtils';
   import { useRouter } from 'vue-router';
   import * as utils from '../modules/utils';
-  const router = useRouter();
+  import { QBtn } from 'quasar';
 
+  const router = useRouter();
   const percentComplete = ref(null);
   const adherence = ref(null);
+  /*
+  Coords is a 3x1 array that holds the coordinates of the workout for a date.
+  E.g. [0,1,2] denotes the workout in the 3rd day of the 2nd microcycle in the 1st block.
+  */
   const coords = ref(null);
+  // The index of the selected workout
   const dayIndex = ref(null);
 
   const props = defineProps({ activityID: String });
+
+  // the program instance that is currently being executed
   const currentInstance = ref(
     props.activityID ? programInstanceStore.getCurrent(props.activityID) : null
   );
@@ -27,7 +42,6 @@
   const currentInstanceStatus = currentInstance.value
     ? getProgramInstanceStatus(currentInstance.value.id)
     : null;
-  console.log('current instance status: ' + currentInstanceStatus);
 
   if (currentInstanceStatus) {
     percentComplete.value = currentInstanceStatus.percentComplete;

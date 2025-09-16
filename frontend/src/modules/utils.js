@@ -19,6 +19,10 @@ import { toRaw, isRef, isReactive, isProxy, unref } from 'vue';
 import EditValueModal from '../components/EditValueModal.vue';
 import ProgramModal from '../components/ProgramModal.vue';
 
+/**
+ * Determines the number of rows of events to include on the home page.
+ * @returns
+ */
 const pageSize = () => {
   const defaultPage = 8;
   try {
@@ -31,8 +35,11 @@ const pageSize = () => {
     return defaultPage;
   }
 };
+
+// Page size when retrieving paged data from the back end.
 const fetchPageSize = 100;
 
+// Names of the types of intensities used to describe exercise performances.
 const intensityTypes = [
   'weight',
   'bodyweight',
@@ -43,6 +50,13 @@ const intensityTypes = [
   'pace',
 ];
 
+/**
+ * Returns an object of string and function properties for interpreting/handling values of intensities.
+ * The intensity type determines how the object interprets/handles the values.
+ * Note that intensity types are stored in the same format in the backend, regardless of type.
+ * @param {*} intensityType The name of the intensity type.
+ * @returns
+ */
 const intensityProps = (intensityType) => {
   if (intensityType == 'hrZone') {
     return {
@@ -115,8 +129,15 @@ const intensityProps = (intensityType) => {
   }
 };
 
+// Names of the types of volume used to describe exercise performances.
 const volumeTypes = ['count', 'time', 'distance'];
 
+/**
+ * Retrieves a page of workout events from the back end.
+ * @param {String} eventID (Optional) The ID of the last event ID included in the previous page. No value for the first page.
+ * @param {Number} date (Optional) The earliest date of the events to include in the page, in ms since epoch.
+ * @returns An array of event objects.
+ */
 const fetchEventPage = async (eventID = '', date = null) => {
   const startTime = date ? date : Math.floor(Date.now() / 1000);
   const params = new URLSearchParams();
@@ -140,6 +161,14 @@ const fetchEventPage = async (eventID = '', date = null) => {
   return eventPage;
 };
 
+/**
+ * Retrieves workout events from the back end that occurred during a specific period of time.
+ * Note that on the backend, events are stored in order of ID.
+ * @param {String} eventID (Optional) If you are appending events to a list that you previously retrieved, the ID of the last-retrieved event.
+ * @param {Number} startDate (Optional) The beginning of the period of time, in seconds since epoch. No value retrieves the earliest events.
+ * @param {Number} endDate (Optional) The end of the period of time, in seconds since epoch. No value retrieves the latest events.
+ * @returns
+ */
 const fetchEvents = async (eventID, startDate, endDate) => {
   let events = new Array();
   let done = false;
@@ -181,6 +210,11 @@ const fetchEvents = async (eventID, startDate, endDate) => {
   return events;
 };
 
+/**
+ * Retrieves the programs from the back end for an activity.
+ * Saves the results in the program store.
+ * @param {String} activityID The ID of the activity.
+ */
 const fetchPrograms = async (activityID) => {
   let done = false;
   let lastProgram = '';
@@ -200,6 +234,12 @@ const fetchPrograms = async (activityID) => {
   }
 };
 
+/**
+ * Retrieves a page of programs from the back end for an activity.
+ * @param {String} programID The ID of the last program from the previous page. No value for the first page.
+ * @param {String} activityID The ID of the activity.
+ * @returns An array of program objects.
+ */
 const fetchProgramPage = async (programID, activityID) => {
   const params = new URLSearchParams();
 
@@ -239,6 +279,13 @@ const fetchProgramInstances = async (programID, activityID) => {
   }
 };
 
+/**
+ * Retrieves a page of program instances from the back end for a program of an activity.
+ * @param {String} programInstsanceID The ID of the last program instance from the previous page. No value for the first page.
+ * @param {String} programID The ID of the program that the instance is based on.
+ * @param {String} activityID The ID of the activity.
+ * @returns An array of program instance objects.
+ */
 const fetchProgramInstancePage = async (
   programInstanceID,
   programID,
@@ -264,8 +311,12 @@ const fetchProgramInstancePage = async (
   return instancePage;
 };
 
-//handles an array of returned values
-//todo: 404 should indicate the activityID was not found instead of no instances found for the activity
+/**
+ * Retrieves the program instances for all programs of an activity.
+ * Stores the results in the program instance store.
+ * todo: 404 should indicate the activityID was not found instead of no instances found for the activity
+ * @param {*} activityID The ID of the activity
+ */
 const fetchActiveProgramInstances = async (activityID) => {
   const url = `/homegym/api/activities/${activityID}/programs/instances/active/`;
   const resp = await fetch(url, {
@@ -288,6 +339,10 @@ const fetchActiveProgramInstances = async (activityID) => {
   }
 };
 
+/**
+ * Retrieves all activities from the back end.
+ * Stores the results in the activity store.
+ */
 const fetchActivities = async () => {
   const resp = await fetch('/homegym/api/activities/', {
     method: 'GET',
@@ -305,6 +360,10 @@ const fetchActivities = async () => {
   });
 };
 
+/**
+ * Retrieves all exercise types from the back end.
+ * Stores results in the exercise types store.
+ */
 const fetchExerciseTypes = async () => {
   const resp = await fetch('/homegym/api/exercises/', {
     method: 'GET',
@@ -321,6 +380,11 @@ const fetchExerciseTypes = async () => {
   });
 };
 
+/**
+ * Retrieves the exercise types that are associated with an activity.
+ * Stores the results in the activity store.
+ * @param {String} activityID The ID of the activity.
+ */
 const fetchActivityExercises = async (activityID) => {
   const resp = await fetch(`/homegym/api/activities/${activityID}/exercises/`, {
     method: 'GET',
@@ -336,6 +400,11 @@ const fetchActivityExercises = async (activityID) => {
   activity.exercises = exercises;
 };
 
+/**
+ * Opens a dialog for logging in.
+ * To be used when a fetch is sent to the back end and the authentication token is expired.
+ * @returns
+ */
 const authPromptAsync = () => {
   return new Promise((resolve, reject) => {
     if (!loginModalState.isOpen) {
@@ -355,6 +424,16 @@ const authPromptAsync = () => {
   });
 };
 
+/**
+ * Opens a dialog that displays a message and enables the user to edit a value.
+ * Both the message and value to edit are provided by the caller.
+ * @param {Object} valueObjects An object with properties label and value, eg.
+ *            {
+ *             label: 'Program Title',
+ *             value: program.value.title,
+ *             }
+ * @returns The changed value.
+ */
 const openEditValueModal = (valueObjects) => {
   return new Promise((resolve, reject) => {
     Dialog.create({
@@ -373,6 +452,9 @@ const openEditValueModal = (valueObjects) => {
   });
 };
 
+/**
+ * A dialog for creating an activity.
+ */
 const newActivityPrompt = () => {
   Dialog.create({
     component: NewActivityModal,
@@ -382,6 +464,15 @@ const newActivityPrompt = () => {
     .onDismiss(() => {});
 };
 
+/**
+ * A dialog for expressing the volume of a performed exercise.
+ * Optionally executes a function that uses the resulting exercise instance as a parameter.
+ * @param {*} exerciseTypeID The ID of the exercise
+ * @param {*} intensity  (Optional) The intensity to display (e.g. weight, perceived exertion, etc)
+ * @param {*} segmentIndex A 0-based index that denotes the place in a list of performed exercises.
+ * @param {*} volume The volume performed. Each item in the array represents a set.
+ * @param {*} callback (Optional) The function to execute.
+ */
 const openVolumeModal = (
   exerciseTypeID,
   intensity,
@@ -405,7 +496,12 @@ const openVolumeModal = (
     .onDismiss(() => {});
 };
 
-const newProgramModal = (activityID, callback) => {
+/**
+ * A dialog that creates a program.
+ * @param {String} activityID The ID of the activity with which the program is associated.
+ * @returns The program object.
+ */
+const newProgramModal = (activityID) => {
   return new Promise((resolve, reject) => {
     Dialog.create({
       component: NewProgramModal,
@@ -421,6 +517,12 @@ const newProgramModal = (activityID, callback) => {
   });
 };
 
+/**
+ * A dialog that creates a program instance.
+ * @param {String} activityID The ID of the activity with which the program instance is associated.
+ * @param {String} programID The ID of the program that is being instantiated.
+ * @param {Function} callback A function to call after the instance is created. Takes an instance object as an argument.
+ */
 const newProgramInstanceModal = (activityID, programID, callback) => {
   Dialog.create({
     component: ProgramInstanceModal,
@@ -433,6 +535,11 @@ const newProgramInstanceModal = (activityID, programID, callback) => {
     .onDismiss(() => {});
 };
 
+/**
+ * A dialog for editing the properties of a program.
+ * @param {Object} program The program object
+ * @returns The editing program object.
+ */
 const editProgramModal = (program) => {
   return new Promise((resolve, reject) => {
     Dialog.create({
@@ -451,6 +558,12 @@ const editProgramModal = (program) => {
   });
 };
 
+/**
+ * A dialog for defining or editing the composition of an exercise. A composite exercise is derived from 2 or more other exercises, such as a clean and jerk.
+ * @param {String} exerciseTypeID The ID of the composite exercise.
+ * @param {Object} composition (Optional) A map where the keys are the exercise ID's and the values are the number of reps that are performed of that exercise. Provide no value when first defining the composition.
+ * @param {Function} callback A function that takes the edited composition as an argument.
+ */
 const openCompositionModal = (exerciseTypeID, composition, callback) => {
   Dialog.create({
     component: CompositionModal,
@@ -462,6 +575,12 @@ const openCompositionModal = (exerciseTypeID, composition, callback) => {
     .onCancel(() => {});
 };
 
+/**
+ * A dialog that sets or edits, for an exercise, the ID of an exercise upon which it is based. For example, a clean deadlift is a variation of a deadlift.
+ * @param {String} exerciseTypeID The ID of the exercise that is a variation of another exercise.
+ * @param {String} basisID (Optional) The ID of the exercise that is the basis. Provide a value when editing an existing variation.
+ * @param {Function} callback A function to execute after the variation is defined. The function takes the variation ID as an argument.
+ */
 const openVariationModal = (exerciseTypeID, basisID, callback) => {
   Dialog.create({
     component: VariationModal,
@@ -473,6 +592,11 @@ const openVariationModal = (exerciseTypeID, basisID, callback) => {
     .onCancel(() => {});
 };
 
+/**
+ * A generic dialog for confirming a change.
+ * @param {String} message A message to display on the dialog that indicates the change that is being confirmed.
+ * @returns A boolean that is true when the change is confirmed and false when the change is cancelled.
+ */
 const openConfirmModal = (message) => {
   return new Promise((resolve, reject) => {
     Dialog.create({
@@ -488,6 +612,11 @@ const openConfirmModal = (message) => {
   });
 };
 
+/**
+ * Authenticates with the back end using a user name and password.
+ * @param {String} id The user name.
+ * @param {String} pwd The password.
+ */
 const login = async (id, pwd) => {
   const url = '/homegym/login';
   const body = `{"username": "${id}", "password": "${pwd}"}`;
@@ -509,6 +638,15 @@ const login = async (id, pwd) => {
   }
 };
 
+/**
+ * Stores a new exercise type on the back end. Stores the exercise type in the exercise type store.
+ * @param {String} name The name of the exercise type.
+ * @param {String} intensityType The name of the intensity that the exercise uses. Valid values are defined in the intensityTypes constant.
+ * @param {String} VolumeType The name of the type of volume that the exercise uses. Valid values are defined in the volumeTypes constant.
+ * @param {Number} volumeConstraint A number that indicates how to interpret volume values. See the VolumeReps component for more information.
+ * @param {String} basisID The ID of the exercise that forms the basis of this exercise type.
+ * @returns The ID of the new exercise type.
+ */
 const addExerciseType = async (
   name,
   intensityType,
@@ -554,6 +692,11 @@ const addExerciseType = async (
   return respBody.id;
 };
 
+/**
+ * Updates an exercise type on the back end. Stores the exercise type in the exercise type store.
+ * @param {Object} exerciseType The exerciseType object.
+ * @returns
+ */
 const updateExerciseType = async (exerciseType) => {
   const url = `/homegym/api/exercises/${exerciseType.id}`;
 
@@ -581,6 +724,10 @@ const updateExerciseType = async (exerciseType) => {
   return;
 };
 
+/**
+ * Updates the list of exercises that are associated with an activity. Stores the updated activity in the activity store.
+ * @param {Object} activity The activity object that contains the changed list of exercises.
+ */
 const updateActivityExercises = async (activity) => {
   const url = `/homegym/api/activities/${activity.id}/exercises/`;
 
@@ -605,6 +752,12 @@ const updateActivityExercises = async (activity) => {
   activityStore.add(activity);
 };
 
+/**
+ * Adds or updates a program on the back end. Stores the program in the program store.
+ * When the program object has an ID, the existing program is updated. No ID stores a new program.
+ * @param {Object} program The program object.
+ * @returns The program ID.
+ */
 const updateProgram = async (program) => {
   if (!program.activityID) {
     throw new Error('missing activity ID');
@@ -639,6 +792,12 @@ const updateProgram = async (program) => {
   return program.id;
 };
 
+/**
+ * Adds or updates a program instance on the back end. Stores the instance in the program instance store.
+ * When the instance object has an ID, the existing program instance is updated. No ID stores a new program instance.
+ * @param {Object} instance The program instance object.
+ * @returns The program instance ID.
+ */
 const updateProgramInstance = async (instance) => {
   const rawInstance = deepToRaw(instance);
   if (!rawInstance.activityID) {
@@ -683,7 +842,11 @@ const updateProgramInstance = async (instance) => {
   return rawInstance.id;
 };
 
-//deactivate a specific program instance by id
+/**
+ * Deactivates a specific program instance by ID. Called when the instance is completed.
+ * @param {String} activityID The ID of the activity with which the instance is associated.
+ * @param {String} instanceID The ID of the instance.
+ */
 const deactivateProgramInstance = async (activityID, instanceID) => {
   const url = `/homegym/api/activities/${activityID}/programs/instances/active?instanceid=${instanceID}`;
 
@@ -706,6 +869,12 @@ const deactivateProgramInstance = async (activityID, instanceID) => {
 };
 
 // event param has no id if it is new
+/**
+ * Adds or updates a workout event on the backend. When the event object contains an ID, the existing event is updated. No ID creates a new event.
+ * @param {String} url The URL of the REST operation.
+ * @param {Object} event The event object.
+ * @returns The event object.
+ */
 const storeEvent = async (url, event) => {
   const headers = new Headers();
 
@@ -734,6 +903,11 @@ const storeEvent = async (url, event) => {
   return event;
 };
 
+/**
+ * Deletes an event from the back end.
+ * @param {Object} event The event object.
+ * @returns
+ */
 const deleteEvent = async (event) => {
   const url = `/homegym/api/events/${event.date}/${event.id}/`;
 
@@ -764,6 +938,11 @@ const deleteEvent = async (event) => {
   return;
 };
 
+/**
+ * Displays a toast notification in the UI to indicate a successful or failed operation.
+ * @param {String} message The message to display on the toast
+ * @param {String} type A value of 'positive' for a success, and any other value for a failure.
+ */
 const toast = (message, type) => {
   const color = type == 'positive' ? 'green' : 'red';
   const icon = type == 'positive' ? 'checkmark' : 'error';
@@ -783,6 +962,9 @@ const states = {
   NEW: 2,
 };
 
+/**
+ * An error to use when a certain value is not unique.
+ */
 class ErrNotUnique extends Error {
   constructor(message) {
     super(message);
@@ -790,6 +972,9 @@ class ErrNotUnique extends Error {
   }
 }
 
+/**
+ * The error to throw when a back end operation is called but authentication fails.
+ */
 class ErrNotLoggedIn extends Error {
   constructor(message) {
     super(message);
@@ -916,6 +1101,7 @@ const getCookieValue = (name) => {
   }
 };
 
+//todo: use when logout is implemented
 const deleteCookie = (name) => {
   const regex = new RegExp(`(^| )${name}=([^;]+)`);
   const match = document.cookie.match(regex);

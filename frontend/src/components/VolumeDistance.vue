@@ -1,4 +1,13 @@
 <script setup>
+  /**
+   * Displays a distance-based value for exercise volume in read-only or edit mode.
+   *
+   * Props:
+   *  writable is True for edit mode, false for read-only
+   *  distance (optional) is the value to display, in km
+   *
+   * Emits the distance in meters
+   */
   import { defineProps, ref } from 'vue';
   import * as styles from '../style.module.css';
 

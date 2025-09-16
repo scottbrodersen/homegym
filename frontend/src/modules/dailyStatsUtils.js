@@ -9,19 +9,30 @@ import 'date-fns';
 import { getRelativePosition } from 'chart.js/helpers';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
+export const BLOODGLUCOSE = 'bg';
+export const BLOODPRESSURE = 'bp';
+export const BODYWEIGHT = 'bodyweight';
+export const FOOD = 'food';
+export const SLEEP = 'sleep';
+export const MOOD = 'mood';
+export const STRESS = 'stress';
+export const ENERGY = 'energy';
+export const SPIRIT = 'spirit';
+
 export const statNames = [
-  'bg',
-  'bp',
-  'bodyweight',
-  'food',
-  'sleep',
-  'mood',
-  'stress',
-  'energy',
+  BLOODGLUCOSE,
+  BLOODPRESSURE,
+  BODYWEIGHT,
+  FOOD,
+  SLEEP,
+  MOOD,
+  STRESS,
+  ENERGY,
 ];
 
-export const spiritGroup = ['mood', 'stress', 'energy'];
+export const spiritGroup = [MOOD, STRESS, ENERGY];
 
+// Labels and units to use in the UI for daily stats
 export const labels = {
   bg: ['Blood Glucose', 'mmol/L'],
   bp: ['Blood Pressure', 'Systolic', 'Diastolic', 'mm Hg'],
@@ -34,6 +45,10 @@ export const labels = {
   spirit: ['Mood, Stress, Energy', '/5'],
 };
 
+/**
+ * Generates an object of zero daily stats
+ * @returns An object that has as properties the various daily stats we collect, all with zero values.
+ */
 export const emptyStats = () => {
   return {
     date: 0,
@@ -54,6 +69,12 @@ export const emptyStats = () => {
   };
 };
 
+/**
+ * Opens the DailyStatsModal dialog for editing a daily stat value
+ * @param {string} statName The name of the daily stat.
+ * @param {*} stats (Optional) The value of the stat.
+ * @returns The stats from the dialog.
+ */
 export const openDailyStatsModal = (statName, stats) => {
   return new Promise((resolve, reject) => {
     Dialog.create({
@@ -70,6 +91,7 @@ export const openDailyStatsModal = (statName, stats) => {
   });
 };
 
+// Regular expressions for validating daily stats values
 const bgRegex = new RegExp('^\\d{1,2}([.]\\d)?$');
 const systolicRegex = new RegExp('^1\\d{2}$');
 const diastolicRegex = new RegExp('^\\d{2,3}$');
@@ -79,6 +101,11 @@ const descriptionRegex = new RegExp('^[\\da-zA-Z -"\',@%$&]{5,256}$');
 const nutrientRegex = new RegExp(`^\\d{0,3}$`);
 const scaleOfFiveRegex = new RegExp(`^[1-5]$`);
 
+/**
+ * Generates a function for validating values against a regular expression.
+ * @param {RegExp} regex The regular expression.
+ * @returns A function that takes a value to validate. Returns true when valid, otherwise false.
+ */
 const fieldValidatorFactory = (regex) => {
   return (val) => {
     const result = regex.test(val) || 'Invalid value.';
@@ -86,6 +113,7 @@ const fieldValidatorFactory = (regex) => {
   };
 };
 
+// Create validator functions for each type of daily stat
 export const bgValidator = fieldValidatorFactory(bgRegex);
 export const systolicValidator = fieldValidatorFactory(systolicRegex);
 export const diastolicValidator = fieldValidatorFactory(diastolicRegex);
@@ -95,6 +123,10 @@ export const foodDescriptionValidator = fieldValidatorFactory(descriptionRegex);
 export const foodNutrientValidator = fieldValidatorFactory(nutrientRegex);
 export const scaleOfFiveValidator = fieldValidatorFactory(scaleOfFiveRegex);
 
+/**
+ * Stores a daily stat value to the back end.
+ * @param {Object} stat An object that contains the date of the stat and a value for the stat. See emptyStats() for the object structure.
+ */
 export const saveDailyStat = async (stat) => {
   const url = `/homegym/api/dailystats/?date=${stat.date}`;
 
@@ -121,6 +153,13 @@ export const saveDailyStat = async (stat) => {
   }
 };
 
+/**
+ * Retrieves a page of daily stats from the backend.
+ * @param {number} startDate (Optional) The start date of the page. No value starts the page at the first daily stat.
+ * @param {number} endDate (Optional) The end date of the page. No value fills the page.
+ * @param {number} pageSize (Optional) The number of items in the page.
+ * @returns An array of dailyStats objects.
+ */
 const fetchDailyStatsPage = async (startDate, endDate, pageSize) => {
   let url = `/homegym/api/dailystats/`;
   const qParams = [];
@@ -150,6 +189,13 @@ const fetchDailyStatsPage = async (startDate, endDate, pageSize) => {
   return stats;
 };
 
+/**
+ * Retrieves all daily stats from the back end over a period of time. In the background, stats are retrieved in pages.
+ * @param {number} startDate (Optional) The start date of the page. No value starts the page at the first daily stat.
+ * @param {number} endDate (Optional) The end date of the page. No value fills the page.
+ * @param {number} pageSize (Optional) The number of items in the page.
+ * @returns An array of stats retrieved for the defined period of time.
+ */
 export const fetchDailyStats = async (startDate, endDate, pageSize) => {
   let done = false;
   let stats = [];
@@ -168,6 +214,11 @@ export const fetchDailyStats = async (startDate, endDate, pageSize) => {
   return stats;
 };
 
+/**
+ * Amalgamates a series of disparate daily stat objects into single objects, grouped date.
+ * @param {[Object]} dailyStats An array of dailyStat objects that contain only one property value
+ * @returns An array of objects, one for each day that a stat was collected, containing all stats for that day.
+ */
 export const toDayBuckets = (dailyStats) => {
   const dayBuckets = {};
 
@@ -211,6 +262,14 @@ export const toDayBuckets = (dailyStats) => {
   return dayBuckets;
 };
 
+/**
+ * Generates a chart for daily stats.
+ * @param {String} element The id of the HTML element in which the chart is inserted.
+ * @param {Number} startDate The first date of the charted data, in seconds since epoch.
+ * @param {Number} endDate The last date of the charted data, in seconds since epoch.
+ * @param {[Object]} dataset An array of dailyStats objects, one object for each day that a stat was collected, each object containing all stats for that day.
+ * @returns The Chart object.
+ */
 export const getDailyChart = (element, startDate, endDate, dataset) => {
   const existing = Chart.getChart(element);
   if (existing) {
@@ -291,6 +350,12 @@ export const getDailyChart = (element, startDate, endDate, dataset) => {
   });
 };
 
+/**
+ * Amalgamates a series of disparate time series stat objects into single objects, grouped date.
+ * Time series stats are those that can occur multiple times a day.
+ * @param {[Object]} dailyStats An array of dailyStats objects.
+ * @returns An object that contains a property for each time series stat. Each property is an array of data formatted for graphing.
+ */
 export const getTimeSeriesDataSets = (dailyStats) => {
   const bgData = new Array();
   const foodData = new Array();
@@ -345,6 +410,14 @@ export const getTimeSeriesDataSets = (dailyStats) => {
   return { bg: bgData, bp: bpData, food: foodData };
 };
 
+/**
+ * Generates a chart for time series stats.
+ * @param {String} element The id of the HTML element in which the chart is inserted.
+ * @param {Number} startDate The first date of the charted data, in seconds since epoch.
+ * @param {Number} endDate The last date of the charted data, in seconds since epoch.
+ * @param {[Object]} datasetsObj An array of Objects that contains the data to chart.
+ * @returns The new Chart object.
+ */
 export const getTimeSeriesChart = (
   element,
   startDate,

@@ -21,6 +21,8 @@ const (
 var squatID string = ""
 var snatchID string = ""
 
+// AddData populates the database with test data.
+// Not to be used in production!
 func AddData() error {
 
 	testDate := time.Now().Unix()

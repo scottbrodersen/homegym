@@ -7,6 +7,7 @@ import (
 	"strings"
 )
 
+// GymFileServer handles requests for static assets.
 func GymFileServer(embeddedFS fs.FS) http.HandlerFunc {
 	fs := http.FileServer(http.FS(embeddedFS))
 	return func(w http.ResponseWriter, r *http.Request) {

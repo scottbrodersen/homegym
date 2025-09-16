@@ -1,4 +1,12 @@
 <script setup>
+  /**
+   * Displays the properties of a program workout in read-only or edit mode.
+   *
+   * Props:
+   *  workout is the workout object to display.
+   *
+   * The injected state value indicates whether to display in read-only or edit mode.
+   */
   import { inject, watch } from 'vue';
   import ProgramWorkoutSegment from './ProgramWorkoutSegment.vue';
   import * as styles from '../style.module.css';
@@ -8,7 +16,6 @@
 
   const { state } = inject('state');
   const props = defineProps({ workout: Object });
-  const emit = defineEmits(['update']);
 
   if (!props.workout.segments) {
     props.workout.segments = [{}];

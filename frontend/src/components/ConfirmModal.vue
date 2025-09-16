@@ -1,4 +1,10 @@
 <script setup>
+  /**
+   * A No/OK dialog for general use.
+   *
+   * Props:
+   *  message: The text to display on the dialog.
+   */
   import {
     useDialogPluginComponent,
     QBtn,

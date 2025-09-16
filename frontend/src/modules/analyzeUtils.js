@@ -1,3 +1,6 @@
+/**
+ * Functions for interacting with metrics.
+ */
 import * as utils from '../modules/utils';
 import * as dateUtils from '../modules/dateUtils';
 import * as state from '../modules/state';
@@ -9,9 +12,9 @@ import 'date-fns';
 /**
  * Fetches exercise metrics from the server.
  *
- * @param {} startDate
- * @param {*} endDate
- * @param {*} exercises Array of exercise IDs. Empty value aborts the call.
+ * @param {integer} startDate The first day of the time period for which metrics are fetched.
+ * @param {integer} endDate The final day of the time period.
+ * @param {[string]} exercises Array of exercise IDs. Empty value aborts the call.
  * @returns An object with fields date, load, and volume.
  */
 export const fetchMetrics = async (startDate, endDate, exercises) => {
@@ -52,6 +55,13 @@ export const fetchMetrics = async (startDate, endDate, exercises) => {
   return metrics;
 };
 
+/**
+ * Fetches time series data from the server over a period of time. Time series events are those that can occur multiple times during a day.
+ * Examples are blood pressure readings and food intake.
+ * @param {number} startDate The start date of the period of time, in seconds since epoch.
+ * @param {number} endDate The end date of the period of time, in seconds since epoch.
+ * @returns The time series data formatted for graphing.
+ */
 export const getTimeSeriesData = async (startDate, endDate) => {
   const timeSeries = new Array();
 
@@ -107,7 +117,10 @@ export const getTimeSeriesData = async (startDate, endDate) => {
 };
 
 /**
- * Amalgamates raw metrics into daily metrics.
+ * Amalgamates raw metrics into daily totals.
+ * @param {[Object]} metrics is an array of objects with properties of date, volume, and load that pertain to the performance of an exercise.
+ * @returns An object with properties dates (array of dates), lvRatio (an array of load/volume ratios), and load (an array of load values).
+ *  The arrays can be interpreted as stacks in that the related items in each array have the same index.
  */
 export const getDailyTotals = (metrics) => {
   const dailyTotals = new Map();
@@ -142,6 +155,16 @@ export const getDailyTotals = (metrics) => {
   return dailyMetricStacks;
 };
 
+/**
+ * Generates a chart of exercise metrics
+ * @param {*} element The id of the HTML element in which to insert the chart.
+ * @param {*} startDate The start date of the charted data.
+ * @param {*} endDate The end date of the charted data.
+ * @param {[string]} dates The labels for the x-axis.
+ * @param {[number]} lvRatioData The load/volume ratios to chart.
+ * @param {[number]} loadData The load values to chart
+ * @returns
+ */
 export const getVolumeChart = (
   element,
   startDate,

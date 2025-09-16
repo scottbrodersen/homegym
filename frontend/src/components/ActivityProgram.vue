@@ -1,4 +1,12 @@
 <script setup>
+  /**
+   * Displays a program including the blocks, microcycles, and workouts.
+   * Enables editing of the program.
+   *
+   * Props:
+   *  activityID: The ID of an activity to preselect.
+   *  programID: The ID of a program to preselect.
+   */
   import { inject, onMounted, provide, ref, watch } from 'vue';
   import ProgramBlock from './ProgramBlock.vue';
   import * as utils from '../modules/utils';
@@ -26,6 +34,10 @@
   const defaultMicroCycleTitle = 'MicroCycle';
 
   let baseline = ''; // use to detect diff
+  /*
+  Coords is a 3x1 array that holds the coordinates of the workout for a date.
+  E.g. [0,1,2] denotes the workout in the 3rd day of the 2nd microcycle in the 1st block.
+  */
   const coords = ref([0, 0, 0]);
 
   // Stores the stringified program as a baseline for detecting change

@@ -1,4 +1,14 @@
 <script setup>
+  /**
+   * A calendar that flags the days on which a workout occurs for a program instance.
+   *
+   * Props:
+   *  Coords is a 3x1 array that holds the coordinates of the workout for a date.
+   *      E.g. [0,1,2] denotes the workout in the 3rd day of the 2nd microcycle in the 1st block.
+   *  instance is a program instance object.
+   *
+   * Emits the index of the workout that occurs on the selected date.
+   */
   import { onMounted, ref, watch } from 'vue';
   import { QDate } from 'quasar';
   import * as dateUtils from '../modules/dateUtils';

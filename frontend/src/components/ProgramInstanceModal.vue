@@ -1,4 +1,13 @@
 <script setup>
+  /**
+   * A dialog for configuring a new program instance.
+   *
+   * Props:
+   * activityID is the ID of the activity with which the instance is associated.
+   * programID is the ID of the program upon which the instance is based.
+   *
+   * The dialog output is a program instance object with no value for the id property.
+   */
   import {
     useDialogPluginComponent,
     QCard,

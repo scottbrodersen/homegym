@@ -1,3 +1,7 @@
+// Package dailystats provides access to daily statistics on the database.
+// The funcs are meant to be called by the server.
+// Generally, payloads to be stored are handled as JSON strings
+// which are generated and consumable by the server client.
 package dailystats
 
 import (
@@ -8,6 +12,7 @@ import (
 	"github.com/scottbrodersen/homegym/dal"
 )
 
+// A DailyStats stores statistics that a user tracks every day.
 type DailyStats struct {
 	Date          int64   `json:"date"`
 	BloodGlucose  float32 `json:"bg,omitempty"`
@@ -28,6 +33,7 @@ type Food struct {
 	Description string `json:"description,omitempty"`
 }
 
+// An ErrInvalidStats generates an error for when a daily stat is invalid.
 type ErrInvalidStats struct {
 	Message string
 }
@@ -36,15 +42,19 @@ func (e ErrInvalidStats) Error() string {
 	return fmt.Sprintf("invalid stats: %s", e.Message)
 }
 
+// The DailyStatsAdmin interface defines the utility funcs for daily stats.
 type DailyStatsAdmin interface {
 	AddStats(userID string, date int64, statsJSON []byte) error
 	GetBioStatsPage(userID string, startDate, endDate int64, pageSize int) ([]byte, error)
 }
 
+// A DailyStatsUtil implements DailyStatsAdmin.
 type DailyStatsUtil struct{}
 
 var DailyStatsManager DailyStatsAdmin = DailyStatsUtil{}
 
+// AddStats stores a set of daily stats for a specific date in the database.
+// The provided JSON data is validated before being stored.
 func (dsu DailyStatsUtil) AddStats(userID string, date int64, statsJSON []byte) error {
 
 	stats := DailyStats{}
@@ -66,6 +76,8 @@ func (dsu DailyStatsUtil) AddStats(userID string, date int64, statsJSON []byte) 
 	return nil
 }
 
+// GetBioStatsPage retrieves a page of daily stats from the database.
+// The page size is limited, and defaults to, 3000.
 func (dsu DailyStatsUtil) GetBioStatsPage(userID string, startDate, endDate int64, pageSize int) ([]byte, error) {
 	if pageSize == 0 || pageSize > 3000 {
 		pageSize = 3000 // stat instances

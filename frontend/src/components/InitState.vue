@@ -1,4 +1,7 @@
 <script async setup>
+  /**
+   * Fetches data needed from the backend and displays the home page.
+   */
   import {
     authPromptAsync,
     fetchActivities,

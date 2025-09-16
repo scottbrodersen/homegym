@@ -1,13 +1,18 @@
 <script setup>
+  /**
+   * Displays a date and optionally time and allows the user to change them.
+   * Presents a calendar modal and optionally a time modal.
+   * Emits the selected date and time.
+   *
+   * Props:
+   *  dateValue: The date to display, in seconds since Epoch. Omit for now.
+   *  hideTime: True disables setting the time.
+   */
   import { ref, computed } from 'vue';
   import * as styles from '../style.module.css';
   import { QTime, QInput, QPopupProxy, QDate, QBtn } from 'quasar';
   import * as dateUtils from '../modules/dateUtils';
 
-  /**
-   * @props {Number} dateValue - seconds since Epoch. Omit for now.
-   * @props {Boolean} hideTime - set to true to disable setting the time
-   */
   const props = defineProps({ dateValue: Number, hideTime: Boolean });
   const emit = defineEmits(['update']);
 

@@ -21,6 +21,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// A Session represents the state of a user session.
 type Session struct {
 	UserID    string
 	SessionID string
@@ -29,21 +30,22 @@ type Session struct {
 
 type Role string
 
-type CryptoKey struct {
-	Key     *rsa.PrivateKey
-	Retired bool
-}
+// type CryptoKey struct {
+// 	Key     *rsa.PrivateKey
+// 	Retired bool
+// }
 
 var Admin Role = "admin"
 var User Role = "user"
 
-// Time of daily key rotation in format "hh:mm:ss".
+// keyRotationTime is the default time of daily key rotation in format "hh:mm:ss".
 var keyRotationTime = "10:00:00"    // default, UTC
 var secondsToDelayKeyDeletion = 600 // 10 mins
 const tokenLifeInSeconds = 1800     // 30 mins
 const sessionLifeInMinutes = 1440   // 24 hours
 
-// Set the time of the daily key rotation.
+// SetKeyRotationTime schedules the time of the daily key rotation.
+// The time argument is expressed as hh:mm:ss
 func SetKeyRotationTime(rotationTime string) error {
 	rx := regexp.MustCompile("^[0-9]{2}:[0-9]{2}:[0-9]{2}$")
 	if !rx.Match([]byte(rotationTime)) {
@@ -52,11 +54,12 @@ func SetKeyRotationTime(rotationTime string) error {
 		slog.Info("using default rotation time.")
 		return err
 	}
-	slog.Info("key rotation time set to: ", rotationTime)
+	slog.Info(fmt.Sprintf("key rotation time set to: %s", rotationTime))
 	keyRotationTime = rotationTime
 	return nil
 }
 
+// A KeyUsage defines the different uses of keys.
 type KeyUsage struct {
 	Token  string
 	Pepper string
@@ -81,7 +84,7 @@ func InitiateKeyRotation(keyType string) error {
 			rotateKey(KeyTypes.Token)
 		}
 	}
-	// initiate daily rotation
+
 	slog.Info("initiating daily key rotation.")
 	dailyKeyRotation(keyType)
 
@@ -226,10 +229,16 @@ func byteSliceToRSAKey(byteKey []byte) (*rsa.PrivateKey, error) {
 }
 
 /* PASSWORDS */
+
+// A hashPasswordVersion returns the name of a password version.
 type hashPasswordVersion func(string) (string, error)
+
+// A validatePasswordVersion validates a password.
+// An error is returned when validation fails.
 type validatePasswordVersion func(string, string) error
 
-// Version determines the hashing and validation functions to use
+// A PasswordUtil hashes and validates passwords.
+// Version determines the version of the hashing and validation functions used.
 type PasswordUtil struct {
 	Version string
 }
@@ -240,22 +249,28 @@ var (
 	errPwdWrong = "bad credentials"
 )
 
-// keep old function versions when adding a new one to use with old credentials
+// hashFunctions maps password version names to a hashing functions.
+// Add new versions as needed.
+// keep old function versions to use with non-updated credential versions
 var hashFunctions map[string]hashPasswordVersion = map[string]hashPasswordVersion{
 	"v1":   hashPasswordVersion1,
 	"mock": hashPasswordMock,
 }
+
+// validateFunctions maps password version names to password validation functions.
 var validateFunctions map[string]validatePasswordVersion = map[string]validatePasswordVersion{
 	"v1":   validatePasswordVersion1,
 	"mock": validatePasswordMock,
 }
 
-// LatestVersion returns the current version of hashing and validation functions that we're using
-// This version should be used with new credentials
+// LatestVersion returns the current version of hashing and validation functions that we're using.
+// This version should be used with new credentials.
 func LatestVersion() string {
 	return "v1"
 }
 
+// Hash returns the hash of a password.
+// Uses the hashing version that the PasswordUtil contains
 func (p *PasswordUtil) Hash(pwd string) (string, error) {
 	if hashFunc, ok := hashFunctions[p.Version]; ok {
 		return hashFunc(pwd)
@@ -263,6 +278,8 @@ func (p *PasswordUtil) Hash(pwd string) (string, error) {
 	return "", fmt.Errorf("invalid version")
 }
 
+// ValidatePassword validates a password.
+// Uses the validation version that the PasswordUtil contains.
 func (p *PasswordUtil) ValidatePassword(pwd string, hash string) error {
 	if validateFunc, ok := validateFunctions[p.Version]; ok {
 		return validateFunc(pwd, hash)
@@ -270,6 +287,7 @@ func (p *PasswordUtil) ValidatePassword(pwd string, hash string) error {
 	return fmt.Errorf("invalid version")
 }
 
+// The password hashing function for v1.
 func hashPasswordVersion1(pwd string) (string, error) {
 	minPwdLength := 10
 	maxPwdLength := 72 //bytes
@@ -287,6 +305,7 @@ func hashPasswordVersion1(pwd string) (string, error) {
 	return string(hash), nil
 }
 
+// The password validation function for v1.
 func validatePasswordVersion1(pwd string, hash string) error {
 	if err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(pwd)); err != nil {
 		return fmt.Errorf(errPwdWrong)
@@ -310,6 +329,7 @@ func validatePasswordMock(pwd, hash string) error {
 
 /* TOKENS */
 
+// An Authorizer issues and validates tokens.
 type Authorizer struct {
 	tokenTTL   int
 	sessionTTL int
@@ -336,14 +356,18 @@ const (
 
 var ErrUnauthorized error = errors.New("authentication failed")
 
+// A Claims validates token claims.
 type Claims struct {
 	jwt.RegisteredClaims
 	GymClaims
 }
+
+// A GymClaims contains custom token claims.
 type GymClaims struct {
 	Role string
 }
 
+// Valid validates the claims in a token.
 func (c *Claims) Valid() error {
 	if c.Issuer != issuer {
 		slog.Debug(fmt.Sprintf("token claim contained invalid issuer: %s", c.Issuer))
@@ -359,7 +383,7 @@ func tokenExpiryTime() *jwt.NumericDate {
 // IssueToken authenticates user credentials.
 // Creates a token.
 // Stores the session.
-// Returns the token string and sessionID
+// Returns the token string and sessionID.
 func (a Authorizer) IssueToken(username string, pwd string) (*string, *string, error) {
 	_, pwdHash, pwdHashVersion, role, err := dal.DB.ReadUser(username)
 	if err != nil {
@@ -478,7 +502,7 @@ func (a Authorizer) ValidateToken(tokenString, sessionID string) (*string, error
 	return &tokenStr, nil
 }
 
-// TokenClaims returns the claims in a JWT
+// TokenClaims returns the claims in a JWT.
 func (a Authorizer) TokenClaims(tokenString string) (Claims, error) {
 	parser := jwt.NewParser()
 	var c Claims = Claims{}

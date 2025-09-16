@@ -1,5 +1,4 @@
 // Package server implements the HTTP server for Homegym.
-
 package server
 
 import (
@@ -60,9 +59,8 @@ var authorizer requestAuthorizer = auth.NewAuthorizer()
 // Once authenticated, the middleware passes the request to the secured mux.
 // Routes to the login page and signup page are unauthenticated.
 func init() {
-	// Routes accessible after authentication by secureGateway
+	// Routes that are accessible after authentication by secureGateway
 	secureMux = http.NewServeMux()
-
 	secureMux.HandleFunc("/homegym/api/activities/", ActivitiesApi)
 	secureMux.HandleFunc("/homegym/api/exercises/", ExerciseTypesApi)
 	secureMux.HandleFunc("/homegym/api/events/", EventsApi)
@@ -71,7 +69,7 @@ func init() {
 	secureMux.Handle("/homegym/home/dist/", http.StripPrefix("/homegym/home", secureFileServer))
 	//secureMux.Handle("/homegym/home/assets/", http.StripPrefix("/homegym/home", secureFileServer))
 
-	// middleware that authenticates before relaying to secure mux
+	// middleware that authenticates requests before relaying them to secure mux
 	secureGateway = newGateway(secureMux)
 
 	// handler for requests to http server
@@ -120,8 +118,10 @@ var DefaultShutdown shutdownAction = func(err error) {
 	log.Fatal(err)
 }
 
+// A GymContextKey is a key for a value stored in the context.
 type GymContextKey string
 
+// GymContextValue returns the value for a key from the context.
 func GymContextValue(ctx context.Context, k GymContextKey) string {
 	if v := ctx.Value(k); v != nil {
 		return v.(string)

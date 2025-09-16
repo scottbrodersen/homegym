@@ -1,4 +1,14 @@
 <script setup>
+  /**
+   * Provides a selection of exercises for specifying which exercise is the basis for the current exercise.
+   * For example, a clean deadlift is a variation of a deadlift.
+   *
+   * Props:
+   *  exerciseID is the ID of the exercise that is being configured
+   *  basisID (optional) is the ID of the exercise upon which the configured exercise is based.
+   *
+   * Emits the ID of the selected basis exercise.
+   */
   import {
     useDialogPluginComponent,
     QOptionGroup,

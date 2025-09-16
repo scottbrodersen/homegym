@@ -1,5 +1,9 @@
 <script setup>
-  // UI for the OrderedList class
+  /**
+   * A hamburger-style drop down menu of the operations that the OrderedList class defines.
+   *
+   * Emits the selected operation.
+   */
   import { QBtn, QMenu, QList, QItem, QIcon } from 'quasar';
   import * as styles from '../style.module.css';
   import { OrderedList } from '../modules/utils';

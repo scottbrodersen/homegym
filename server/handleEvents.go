@@ -19,6 +19,7 @@ type metrics struct {
 	Load   []float32 `json:"load"`
 }
 
+// EventsAi handles requests for events.
 func EventsApi(w http.ResponseWriter, r *http.Request) {
 	rootPath := "/homegym/api/events/"
 
@@ -29,12 +30,13 @@ func EventsApi(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// path to all events
 	rxpRootPath := regexp.MustCompile(fmt.Sprintf("^%s$", rootPath))
-	//  /api/events/{date}/{id}/
+	//  path to an event
 	rxpEventPath := regexp.MustCompile(fmt.Sprintf("^%s(\\d+)/([a-zA-Z0-9-]+)/?$", rootPath))
-	//  /api/events/{id}/exercises
+	//  path to the exercise instnaces of an event
 	rxpExercisesPath := regexp.MustCompile(fmt.Sprintf("^%s(\\d+)/([a-zA-Z0-9-]+)/exercises/?$", rootPath))
-	//  /api/events/metrics?type=blah&start=blah&end=blah
+	//  path to metrics for a range of events e.g. /api/events/metrics?type=blah&start=blah&end=blah
 	rxpMetrics := regexp.MustCompile(fmt.Sprintf("^%smetrics(\\?[a-z]+=[a-zA-Z0-9-]+((&[a-z]+=[a-zA-Z0-9-]+)*)?)?$", rootPath))
 
 	slog.Debug("parsing path", "path", r.URL.Path)

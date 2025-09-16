@@ -1,5 +1,11 @@
 <script setup>
-  import { inject, watch } from 'vue';
+  /**
+   * Displays a program instance microcycle.
+   * Enables users to edit the microcycle.
+   *
+   * Props:
+   *  microcycle: A program instance microcycle object.
+   */
   import * as styles from '../style.module.css';
   import { openEditValueModal } from '../modules/utils.js';
 

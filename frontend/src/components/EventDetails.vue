@@ -1,4 +1,11 @@
 <script setup>
+  /**
+   * Displays the details of a workout event.
+   * Enables editing the event.
+   *
+   * Props:
+   *  eventId is the ID of the event to display.
+   */
   import ExerciseInstance from './ExerciseInstance.vue';
   import * as styles from '../style.module.css';
   import EventMeta from './EventMeta.vue';

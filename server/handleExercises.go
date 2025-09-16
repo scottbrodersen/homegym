@@ -15,6 +15,7 @@ type returnedID = struct {
 	ID string `json:"id"`
 }
 
+// Handles requests for exercise types.
 func ExerciseTypesApi(w http.ResponseWriter, r *http.Request) {
 	rootpath := "/homegym/api/exercises/"
 
