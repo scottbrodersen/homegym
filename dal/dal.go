@@ -1,3 +1,4 @@
+// Package dal implements functions for interacting with the database.
 package dal
 
 import (
@@ -15,6 +16,7 @@ import (
 	badger "github.com/dgraph-io/badger/v4"
 )
 
+// Dstore defines all the functions that interact with the database.
 type Dstore interface {
 	AddActivity(userID, activityID, activityName string) error
 	ReadActivity(userID, activityID string) (*string, []string, error)
@@ -92,6 +94,7 @@ const (
 	tokenCryptoKeyKey = "tokenkey"
 )
 
+// A DBClient implements the Dstore interface for a Badger database.
 type DBClient struct {
 	db   *badger.DB
 	path string
@@ -99,7 +102,7 @@ type DBClient struct {
 
 var DB Dstore
 
-// Opens the database, creating it if necessary, and returns a client.
+// InitClient opens the database, creating it if necessary, and returns a client.
 func InitClient(path string) (*DBClient, error) {
 	dalClient := &DBClient{path: path}
 	db, err := badger.Open(badger.DefaultOptions(path))
@@ -117,7 +120,7 @@ func (c *DBClient) Destroy() {
 	c.db.Close()
 }
 
-// Adds items that represent a user
+// NewUser adds an item that represents a user.
 func (c *DBClient) NewUser(id, email, pwdHash, pwdHashVersion, role string) error {
 	prefix := []string{userKey, id}
 	idKey := key(append(prefix, "id"))
@@ -142,6 +145,7 @@ func (c *DBClient) NewUser(id, email, pwdHash, pwdHashVersion, role string) erro
 	return nil
 }
 
+// ReadUser returns the details of a user.
 func (c *DBClient) ReadUser(id string) (*string, *string, *string, *string, error) {
 	// return values
 	var email, pwdHash, pwdHashVersion, role string
@@ -171,6 +175,7 @@ func (c *DBClient) ReadUser(id string) (*string, *string, *string, *string, erro
 	return &email, &pwdHash, &pwdHashVersion, &role, nil
 }
 
+// UpdateUserProfile updates properties of a user.
 func (c *DBClient) UpdateUserProfile(id, email string) error {
 	prefix := []string{userKey, id}
 
@@ -183,6 +188,8 @@ func (c *DBClient) UpdateUserProfile(id, email string) error {
 	return nil
 }
 
+// UpdateUserPassword updates the stored password hash.
+// The pwdVersion indicates which hashing function was used.
 func (c *DBClient) UpdateUserPassword(id, pwdHash, pwdVersion string) error {
 	prefix := []string{userKey, id}
 
@@ -196,6 +203,7 @@ func (c *DBClient) UpdateUserPassword(id, pwdHash, pwdVersion string) error {
 	return nil
 }
 
+// ChangeUserRole sets the role for a user.
 func (c *DBClient) ChangeUserRole(id, role string) error {
 	prefix := []string{userKey, id}
 
@@ -208,6 +216,7 @@ func (c *DBClient) ChangeUserRole(id, role string) error {
 	return nil
 }
 
+// UpdatePwdVersion stores the password version to use for authenticating a user.
 // TODO: restrict to admin
 func (c *DBClient) UpdatePwdVersion(userID, version string) error {
 	prefix := []string{userKey, userID}
@@ -221,7 +230,7 @@ func (c *DBClient) UpdatePwdVersion(userID, version string) error {
 	return nil
 }
 
-// Adds items that represent a user's activity.
+// AddActivity adds items that represent a user's activity.
 // Use [AddExercise] to add exercises to the activity.
 func (c *DBClient) AddActivity(userID, activityID, activityName string) error {
 	prefix := []string{userKey, userID, activityKey, activityID, nameKey}
@@ -236,6 +245,7 @@ func (c *DBClient) AddActivity(userID, activityID, activityName string) error {
 	return nil
 }
 
+// UpdateActivity changes the name of an activity.
 func (c *DBClient) UpdateActivity(userID, activityID, activityName string) error {
 	activityEntry := badger.NewEntry(key([]string{userKey, userID, activityKey, activityID, nameKey}), []byte(activityName))
 	if err := writeUpdates(c, []*badger.Entry{activityEntry}); err != nil {
@@ -245,7 +255,7 @@ func (c *DBClient) UpdateActivity(userID, activityID, activityName string) error
 	return nil
 }
 
-// Returns a map with keys activity IDs and values activity names.
+// GetActivityNames returns a map with keys activity IDs and values activity names.
 func (c *DBClient) GetActivityNames(userID string) (map[string]string, error) {
 	prefix := []string{userKey, userID, activityKey}
 	activityEntries, err := readKeyPrefix(c, keyPrefix(prefix))
@@ -265,7 +275,7 @@ func (c *DBClient) GetActivityNames(userID string) (map[string]string, error) {
 	return activities, nil
 }
 
-// Returns the activity name and a slice of exercise IDs
+// ReadActivity returns the activity name and a slice of the associated exercise IDs.
 func (c *DBClient) ReadActivity(userID, activityID string) (*string, []string, error) {
 	prefix := []string{userKey, userID, activityKey, activityID}
 	activityEntries, err := readKeyPrefix(c, keyPrefix(prefix))
@@ -293,6 +303,7 @@ func (c *DBClient) ReadActivity(userID, activityID string) (*string, []string, e
 	return &name, exerciseIDs, nil
 }
 
+// AddExerciseToActivity stores the ID of an exercise for an activity.
 func (c *DBClient) AddExerciseToActivity(userID, activityID, exerciseID string) error {
 	prefix := []string{userKey, userID, activityKey, activityID, exerciseKey, exerciseID}
 
@@ -306,6 +317,7 @@ func (c *DBClient) AddExerciseToActivity(userID, activityID, exerciseID string) 
 	return nil
 }
 
+// UpdateActivityExercises adds and removes exercises for an activity.
 func (c *DBClient) UpdateActivityExercises(userID, activityID string, exIDsToAdd, exIDsToDelete []string) error {
 	prefix := []string{userKey, userID, activityKey, activityID, exerciseKey}
 	updates := []*badger.Entry{}
@@ -327,6 +339,7 @@ func (c *DBClient) UpdateActivityExercises(userID, activityID string, exIDsToAdd
 	return nil
 }
 
+// AddExercise stores an exercise definition.
 func (c *DBClient) AddExercise(userID, exerciseID string, exercise []byte) error {
 	prefix := []string{userKey, userID, exerciseKey, exerciseID, typeKey}
 
@@ -345,7 +358,7 @@ func (c *DBClient) UpdateExercise(userID, exerciseID string, exercise []byte) er
 	return c.AddExercise(userID, exerciseID, exercise)
 }
 
-// GetExercise returns an exercise type
+// GetExercise returns an exercise type for a user.
 func (c *DBClient) GetExercise(userID, exerciseID string) ([]byte, error) {
 	prefix := []string{userKey, userID, exerciseKey, exerciseID, typeKey}
 	exerciseEntry, err := readItem(c, key(prefix))
@@ -359,7 +372,7 @@ func (c *DBClient) GetExercise(userID, exerciseID string) ([]byte, error) {
 	return exerciseEntry.Value, nil
 }
 
-// GetExercises returns a slice of exercise types
+// GetExercises returns a slice of exercise types for a user.
 func (c *DBClient) GetExercises(userID string) ([][]byte, error) {
 	prefix := []string{userKey, userID, exerciseKey}
 	exerciseEntries, err := readKeyPrefix(c, keyPrefix(prefix))
@@ -383,6 +396,7 @@ func (c *DBClient) GetExercises(userID string) ([][]byte, error) {
 	return types, nil
 }
 
+// AddEvent stores a workout event for a user.
 func (c *DBClient) AddEvent(userID, eventID, activityID string, date int64, event []byte, exerciseIDs map[int]string, exerciseInstances map[int][]byte) error {
 	eventPrefix := []string{userKey, userID, eventKey, fmt.Sprint(date), idKey, eventID, activityKey, activityID}
 	// user:{id}#event:{date}#id:{id}#activity:{activityID}
@@ -479,7 +493,7 @@ func (c *DBClient) GetEventExercises(userID, eventID string) ([][]byte, error) {
 }
 
 // GetEvent retrieves an event from the database.
-// Does not include the exercises
+// Does not include the exercises.
 // If the event is not found nil is returned.
 func (c *DBClient) GetEvent(userID, eventID string, eventDate int64) ([]byte, error) {
 	prefix := []string{userKey, userID, eventKey, fmt.Sprint(eventDate), idKey, eventID, activityKey}
@@ -555,6 +569,7 @@ func (c *DBClient) DeleteEvent(userID, eventID, activityID string, date int64) e
 	return deleteItems(c, deletes)
 }
 
+// GetKeys retrieves the active and retired crypto keys of a specified type.
 func (c *DBClient) GetKeys(usage string) (active, retired map[string][]byte, err error) {
 	prefix := fmt.Sprintf("%s:", keyByCryptoUsage(usage))
 	keyEntries, err := readKeyPrefix(c, []byte(prefix))
@@ -608,6 +623,7 @@ func (c *DBClient) RotateKeys(newKey []byte, keyID, usage string) error {
 	return nil
 }
 
+// DeleteKey removes a crypto key.
 func (c *DBClient) DeleteKey(keyID, usage string) error {
 	keyPrefix := []string{keyByCryptoUsage(usage), keyID}
 	keys := [][]byte{key(keyPrefix)}
@@ -666,6 +682,7 @@ func (c *DBClient) GetSession(sessionID string) (*string, *int64, error) {
 	return &username, expiry, nil
 }
 
+// DeleteSession deletes a user session by ID.
 func (c *DBClient) DeleteSession(sessionID string) error {
 	username, _, err := c.GetSession(sessionID)
 	if err != nil {
@@ -682,7 +699,7 @@ func (c *DBClient) DeleteSession(sessionID string) error {
 	return nil
 }
 
-// Returns a map of session IDs (keys) and expiry times.
+// GetSessionExpiries returns a map of session IDs (keys) and expiry times.
 func (c *DBClient) GetSessionExpiries() (map[string]int64, error) {
 	prefix := []byte(sessionKey)
 	entries, err := readKeyPrefix(c, prefix)
@@ -747,6 +764,8 @@ func readItem(c *DBClient, key []byte) (*badger.Entry, error) {
 	return entry, nil
 }
 
+// Iter8er prints the entire contents of the database.
+// Useful for testing.
 func (c *DBClient) Iter8er() {
 	c.db.View(func(txn *badger.Txn) error {
 		opts := badger.DefaultIteratorOptions

@@ -13,6 +13,7 @@ func collectGarbage(db *badger.DB) error {
 	return db.RunValueLogGC(0.5)
 }
 
+// InitHourlyGC schedules hourly garbage collection on the database.
 func InitHourlyGC(db DBClient) {
 	_, m, s := time.Now().Clock()
 	secondsUntil := 3600 - m*60 - s
@@ -58,6 +59,7 @@ func backup(db *badger.DB, filePath string) error {
 	return nil
 }
 
+// InitDailyBackup schedules a daily backup of the database.
 func InitDailyBackup(db DBClient, filePath string) {
 	h, m, s := time.Now().Clock()
 	secondsUntil := 24*60*60 - h*60*60 - m*60 - s

@@ -1,8 +1,22 @@
 <script setup>
+  /**
+   * Displays details about today's workout.
+   * Enables the user to perform or cancel today's workout
+   * Enables the user to select a different workout to view.
+   *
+   * Props:
+   *  activityID is the ID of the activity associated with the program instance that is being performed.
+   *  workoutCoords are the coordinates of the workout to display in a 3x1 array
+   *    E.g. [0,1,2] denotes the workout in the 3rd day of the 2nd microcycle in the 1st block.
+   *  dayIndex is the 0-based index of the day that the workout falls on.
+   *
+   *
+   */
+
   import WorkoutStatus from './WorkoutStatus.vue';
   import { inject, provide, ref, watch } from 'vue';
   import { programInstanceStore } from '../modules/state';
-  import { QCarousel, QCarouselSlide } from 'quasar';
+  import { QCarousel, QCarouselSlide, QBtn } from 'quasar';
   import { updateProgramInstance } from './../modules/utils';
   import * as styles from '../style.module.css';
   import { useRouter } from 'vue-router';

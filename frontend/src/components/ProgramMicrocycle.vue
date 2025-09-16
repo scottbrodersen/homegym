@@ -1,4 +1,13 @@
 <script setup>
+/**
+ * Displays a program microcycle in read-only or edit mode.
+ *
+ * Props:
+ *  microcycle: A program microcycle object.
+ *
+ * Injected:
+ *  state indicates whether to present the block in read-only or edit mode.
+ */
   import { inject } from 'vue';
   import * as styles from '../style.module.css';
   import {  states } from '../modules/utils.js';

@@ -1,4 +1,15 @@
 <script async setup>
+  /**
+   * Displays an exercise segment of a program workout in read-only or edit mode.
+   * The component is one in a list of components. A menu is provided for executing list-related actions.
+   *
+   * Props:
+   *  segment is the segment object
+   *
+   * The injected state value determines whether read-only or edit mode is used.
+   *
+   * Emits the list-related action that is selected.
+   */
   import { exerciseTypeStore } from '../modules/state';
   import * as styles from '../style.module.css';
   import { inject, Suspense } from 'vue';

@@ -1,4 +1,7 @@
 <script setup>
+  /**
+   * The top navigation bar.
+   */
   import { reactive, ref, watch } from 'vue';
   import { useRouter, useRoute } from 'vue-router';
   import {

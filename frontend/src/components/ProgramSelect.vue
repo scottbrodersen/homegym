@@ -1,4 +1,15 @@
 <script async setup>
+  /**
+   * A drop down list of programs and program instances.
+   * Distinguishes between current, active, and completed program instances.
+   *
+   * Props:
+   *  activityID: The ID of the activity for which programs are listed
+   *  programID: The ID of the program to pre-select
+   *  hideCompleted: Controls whether to display program instances that occurred in the past
+   *
+   * Emits the selected program or program instance object.
+   */
   import { programsStore, programInstanceStore } from '../modules/state';
   import { onBeforeMount, ref, watch } from 'vue';
   import * as styles from '../style.module.css';

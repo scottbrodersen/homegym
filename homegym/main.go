@@ -1,3 +1,22 @@
+/*
+homegym initializes a database client and starts the Home Gym server.
+The program runs in test mode or production mode according to a flag.
+When in test mode, the path to the database is provided as a flag.
+In production mode, the path is obtained from the HOMEGYM_DB_PATH environment variable.
+
+Usage:
+
+	homegym -testmode true|false [-path path]
+
+The flags are:
+
+	-testmode
+		Set to true to run in test mode and false otherwise.
+		When true, you must provide a path.
+		When false, the path must be stored in the environment variable.
+	-path
+		For testmode, the relative path to the database.
+*/
 package main
 
 import (
@@ -77,6 +96,6 @@ func main() {
 		}
 	}
 
+	// StartUnsafe for dev purposes only!
 	server.StartUnsafe(server.DefaultShutdown, port)
-
 }

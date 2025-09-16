@@ -1,4 +1,7 @@
 <script setup>
+  /**
+   * Dialog for logging in.
+   */
   import {
     useDialogPluginComponent,
     QDialog,

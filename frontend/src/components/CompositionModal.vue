@@ -1,4 +1,9 @@
 <script setup>
+  /**
+   * A dialog that enables a user to select the exercises on which a certain exercise is based.
+   * Useful for tracking volume of the base exercises.
+   * E.g. a clean can be defined as the combination of a deadlift and a squat.
+   */
   import {
     useDialogPluginComponent,
     QBtn,

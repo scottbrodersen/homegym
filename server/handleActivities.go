@@ -11,6 +11,7 @@ import (
 	"github.com/scottbrodersen/homegym/workoutlog"
 )
 
+// ActivitiesAPI handles requests for activities and activity programs.
 func ActivitiesApi(w http.ResponseWriter, r *http.Request) {
 	rootpath := "/homegym/api/activities/"
 
@@ -20,13 +21,21 @@ func ActivitiesApi(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// path to all activities
 	rxpRootPath := regexp.MustCompile(fmt.Sprintf("^%s$", rootpath))
+	// path to the exercise types of an activity
 	rxpExercises := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]+)/exercises/?$", rootpath))
+	// path to an activity
 	rxpActivity := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]+)/?$", rootpath))
+	// path to the programs of an activity
 	rxpPrograms := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]+)/programs/?$", rootpath))
+	// path to an activity program
 	rxpProgramsID := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]+)/programs/([a-zA-Z0-9-]+)/?$", rootpath))
+	// path to the instances of a program
 	rxpProgramInstances := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]+)/programs/([a-zA-Z0-9-]+)/instances/?$", rootpath))
+	// path to a program instance
 	rxpProgramInstancesID := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]+)/programs/([a-zA-Z0-9-]+)/instances/([a-zA-Z0-9-]{7,})/?$", rootpath))
+	// path to the active program instances
 	rxpProgramInstancesActive := regexp.MustCompile(fmt.Sprintf("^%s([a-zA-Z0-9-]+)/programs/instances/active/?$", rootpath))
 
 	if rxpRootPath.MatchString(r.URL.Path) {

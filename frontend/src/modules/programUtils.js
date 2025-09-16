@@ -4,8 +4,14 @@ import * as utils from './utils';
 import { Dialog } from 'quasar';
 import WorkoutModal from '../components/WorkoutModal.vue';
 
+// Valid values for a workout status
 export const workoutStatuses = { FUTURE: 0, MISSED: 1, DONE: 2 };
 
+/**
+ * Associates the name of a colour style with each workout status value.
+ * @param {String} status A workoutStatuses value.
+ * @returns A String that stores the name of the colour style.
+ */
 export const getColorStyle = (status) => {
   if (status == workoutStatuses.FUTURE) {
     return 'futureWorkout';
@@ -15,6 +21,14 @@ export const getColorStyle = (status) => {
   return 'missedWorkout';
 };
 
+/**
+ * Determines the status of a workout event based on the properties of the event.
+ * @param {Striing} eventID The ID of the event. No ID indicates the event has not occurred.
+ * @param {Number} workoutIndex The index of the workout in the context of its program instance.
+ * @param {Number} todayIndex The index of the current date in the context of the program instance.
+ * @param {Boolean} isRestDay A value of true indicates that the event is a rest day, false otherwise.
+ * @returns A workoutStatuses value.
+ */
 export const getWorkoutStatus = (
   eventID,
   workoutIndex,
@@ -34,6 +48,11 @@ export const getWorkoutStatus = (
   }
 };
 
+/**
+ * Determines the name and colour of an icon to associate with a workoutStatuses value.
+ * @param {*} workoutStatus
+ * @returns An object with properties name (the icon name) and colour (the icon colour).
+ */
 export const getStatusIcons = (workoutStatus) => {
   if (workoutStatus == workoutStatuses.DONE) {
     return { name: 'check_circle', colour: 'green' };
@@ -45,7 +64,11 @@ export const getStatusIcons = (workoutStatus) => {
   return { name: 'yard', colour: 'yellow' };
 };
 
-// Returns the planned workouts of the active instance
+/**
+ * Returns the planned workouts of the current program instance for an activity.
+ * @param {String} activityID The ID of the activity.
+ * @returns An array of workout objects in order of occurrence.
+ */
 export const getWorkouts = (activityID) => {
   const currentInstance = programInstanceStore.getCurrent(activityID);
 
@@ -61,7 +84,11 @@ export const getWorkouts = (activityID) => {
   return workouts;
 };
 
-// Returns the dates of all planned non-rest day workouts
+/**
+ * Returns the dates of all planned non-rest day workouts for a program instance.
+ * @param {Object} instance The program instance.
+ * @returns An array of date values formatted for use with the Quasar QCalendar components.
+ */
 export const getNonRestDates = (instance) => {
   const dates = new Array();
 
@@ -85,6 +112,11 @@ export const getNonRestDates = (instance) => {
   return dates;
 };
 
+/**
+ * Retrieves all of the workout dates for a program instance.
+ * @param {Object} instance The program instance object.
+ * @returns An array of dates in order of occurrence, formatted for use with the Quasar QCalender component.
+ */
 export const getInstanceWorkoutDates = (instance) => {
   let startDate = dateUtils.dateFromSeconds(instance.startDate);
   const numDays = getProgramLength(instance);
@@ -99,6 +131,12 @@ export const getInstanceWorkoutDates = (instance) => {
   return dates;
 };
 
+/**
+ * Determines the date of a planned workout.
+ * @param {Object} instance The program instance that the workout belongs to.
+ * @param {[Number]} coords The coordinates of the workout, as [block_index, microcycle_index, workout_index].
+ * @returns The workout date.
+ */
 export const getWorkoutDate = (instance, coords) => {
   const dayIndex = getDayIndex(instance, coords);
   const workoutDate = dateUtils.dateFromSeconds(instance.startDate);
@@ -106,6 +144,12 @@ export const getWorkoutDate = (instance, coords) => {
   return workoutDate;
 };
 
+/**
+ * Determines the workout events that occurred on a date.
+ * @param {String} activityID
+ * @param {Number} date The workout date, in milliseconds since epoch.
+ * @returns An array of event objects.
+ */
 const getEventsForDate = async (activityID, date) => {
   const eventsForDate = new Array();
 
@@ -139,11 +183,23 @@ const getEventsForDate = async (activityID, date) => {
   return eventsForDate;
 };
 
+/**
+ * Determines the workout events that occurred on a day of a program instance.
+ * @param {Object} instance The program instance.
+ * @param {[Number]} coords The coordinates of the workout day, as [block_index, microcycle_index, workout_index].
+ * @returns An array of event objects.
+ */
 export const getEventsOnWorkoutDay = async (instance, coords) => {
   const workoutDate = getWorkoutDate(instance, coords);
   return await getEventsForDate(instance.activityID, workoutDate);
 };
 
+/**
+ * Determines the index of a day in a program or program instance.
+ * @param {Object} program The program or program instance.
+ * @param {[Number]} coords The coordinates of the day, as [block_index, microcycle_index, workout_index].
+ * @returns The index (0-based) of the coordinates.
+ */
 export const getDayIndex = (program, coords) => {
   let day = 0;
   // add days for previous  blocks
@@ -165,6 +221,11 @@ export const getDayIndex = (program, coords) => {
   return day;
 };
 
+/**
+ * Determines the index of the day at the time of execution within a program instance.
+ * @param {Object} instance The program instance.
+ * @returns The index (0-based) of now.
+ */
 export const getTodayIndex = (instance) => {
   const now = new Date().valueOf();
 
@@ -174,6 +235,12 @@ export const getTodayIndex = (instance) => {
   return Math.floor((now - startDate.valueOf()) / 1000 / 60 / 60 / 24);
 };
 
+/**
+ * Determines the coordinates for a day of a program or program instance
+ * @param {Object} program The program or program instance.
+ * @param {Number} programDayIndex The index of the day.
+ * @returns The coordinates of the day, as [block_index, microcycle_index, workout_index].
+ */
 export const getWorkoutCoords = (program, programDayIndex) => {
   let blockIndex;
   let microCycleIndex;
@@ -205,6 +272,11 @@ export const getWorkoutCoords = (program, programDayIndex) => {
   return [blockIndex, microCycleIndex, workoutIndex];
 };
 
+/**
+ * Determines the number of days in a program.
+ * @param {Object} program The program.
+ * @returns The number of days in the program.
+ */
 export const getProgramLength = (program) => {
   let progLength = 0;
   program.blocks.forEach((block) => {
@@ -216,9 +288,22 @@ export const getProgramLength = (program) => {
   return progLength;
 };
 
+/**
+ * Determines various status metrics for a program instance.
+ * @param {String} instanceID The ID of the program instance.
+ * @returns An object with properties percentComplete (the percentage of workout days that are in the past),
+ *  adherence (the percentage of planned workouts that have been performed so far),
+    coords (the coordinates of today's workout)
+    and dayIndex (the index of today's workout).
+ */
 export const getProgramInstanceStatus = (instanceID) => {
   let percentComplete = 0;
   let adherence = 0;
+
+  /*
+  Coords is a 3x1 array that holds the coordinates of the workout for a date.
+  E.g. [0,1,2] denotes the workout in the 3rd day of the 2nd microcycle in the 1st block.
+  */
   let coords = [];
 
   const instance = programInstanceStore.get(instanceID);
@@ -275,16 +360,31 @@ export const getProgramInstanceStatus = (instanceID) => {
   };
 };
 
+/**
+ * Determines whether a value is not null.
+ * @param {*} val The value.
+ * @returns True if not null, otherwise false.
+ */
 export const requiredFieldValidator = (val) => {
   const result = (val && val.length > 0) || 'Required value.';
   return result;
 };
 
+/**
+ * Determines whether the length of a value exceeds 255 characters.
+ * @param {String} val The value.
+ * @returns True when the value is less than 255 characters, otherwise false.
+ */
 export const maxFieldValidator = (val) => {
   const result = (val ? val.length < 256 : true) || 'Max 255 characters.';
   return result;
 };
 
+/**
+ * Validates a program
+ * @param {Object} program The program.
+ * @returns True when the program is valid, otherwise false.
+ */
 export const programValidator = (program) => {
   let noProps = true;
   for (const prop in program) {
@@ -334,6 +434,11 @@ export const programValidator = (program) => {
   return true;
 };
 
+/**
+ * Validates a workout event.
+ * @param {Object} workout The workout.
+ * @returns True when the workout is valid, otherwise false.
+ */
 export const workoutValidator = (workout) => {
   if (
     !(
@@ -371,14 +476,20 @@ export const workoutValidator = (workout) => {
   return true;
 };
 
+/**
+ * A dialog for entering the details of a workout event.
+ * @param {Object} instance The program instance to which the workout belongs.
+ * @param {[Number]} coords The coordinates of the workout that is being performed, as [block_index, microcycle_index, workout_index].
+ * @returns The workout event object.
+ */
 export const newWorkoutModal = (instance, coords) => {
   return new Promise((resolve, reject) => {
     Dialog.create({
       component: WorkoutModal,
       componentProps: { instance: instance, coords: coords },
     })
-      .onOk((workout) => {
-        resolve(workout);
+      .onOk((event) => {
+        resolve(event);
       })
       .onCancel(() => {
         resolve();
@@ -387,8 +498,11 @@ export const newWorkoutModal = (instance, coords) => {
   });
 };
 
-// Finds the current active workout instance based on date
-// Earliest start date is active
+/**
+ * Finds the current active program instance based on date. The instance with the earliest start date is current.
+ * @param {String} activityID The activity with which the instances are associated.
+ * @returns The current program instance.
+ */
 export const selectCurrentProgramInstance = (activityID) => {
   let active = null;
 
@@ -414,8 +528,6 @@ export const selectCurrentProgramInstance = (activityID) => {
         active = instances[i];
       }
     }
-
-    console.log('active program: ' + active);
   }
   return active;
 };

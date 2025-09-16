@@ -1,4 +1,12 @@
 <script>
+  /**
+   * Displays the metadata of a workout event.
+   *
+   * Props:
+   * An object that contains the values of each metadata item.
+   *
+   * Emits updated values of the values.
+   */
   export const labels = {
     mood: 'Mood',
     energy: 'Energy',

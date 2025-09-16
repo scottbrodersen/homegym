@@ -1,4 +1,9 @@
 <script setup>
+  /**
+   * Dialog for defining the structure of a program.
+   * Defines the title, the number of blocks and microcycles, and the number of days in a
+   * microcycle.
+   */
   import { useDialogPluginComponent, QCard, QDialog, QInput } from 'quasar';
   import { activityStore } from '../modules/state.js';
   import { computed, ref } from 'vue';

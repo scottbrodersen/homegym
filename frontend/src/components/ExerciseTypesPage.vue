@@ -1,4 +1,10 @@
 <script setup>
+  /**
+   * Displays a list of activities.
+   * Selecting the activity reveals the exercise types that are associated with it.
+   * Exercise types can be added or removed for an activity.
+   * New activities can be created and existing ones can be renamed.
+   */
   import { exerciseTypeStore } from '../modules/state';
   import {
     authPromptAsync,
@@ -17,7 +23,6 @@
   import { computed, ref, onBeforeMount } from 'vue';
   import {
     QBtn,
-    QBtnDropdown,
     QList,
     QItem,
     QItemSection,

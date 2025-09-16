@@ -1,4 +1,7 @@
 <script setup>
+  /**
+   * Dialog for creating activities.
+   */
   import {
     useDialogPluginComponent,
     QForm,

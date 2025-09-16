@@ -1,4 +1,15 @@
 <script async setup>
+  /**
+   * A page for displaying, editing, and deleting an existing workout event or creating a new workout event.
+   *
+   * Props:
+   *  eventID is the ID of the existing event to display. Do not provide a value for new events.
+   *  programInstanceID is the ID of the workout in a program instance that this event fulfills
+   *  blockIndex is the index of the block of the workout. 0-based.
+   *  microCycleIndex is the index of the microcycle in the block. 0-based.
+   *  workoutIndex is the index of the workout in the microcycle. 0-based.
+   *  dayIndex is the index of the program day that the workout falls on. 0-based.
+   */
   import { ref, computed } from 'vue';
   import * as styles from '../style.module.css';
   import DatePicker from './DatePicker.vue';
@@ -139,6 +150,7 @@
     showSpinner.value = true;
 
     // Use the stored date for the URL path in case the date has been edited
+    // todo: move the URL construction to the storeEvent function
     const url = thisEvent.value.id
       ? `/homegym/api/events/${eventStore.getByID(thisEvent.value.id).date}/${
           thisEvent.value.id

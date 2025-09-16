@@ -68,23 +68,12 @@ func (c *DBClient) GetProgramPage(userID, activityID, previousProgramID string, 
 }
 
 // AddProgramInstance adds or updates a program instance.
-// Sets the instance as active when activityID is not an empty string.
 func (c *DBClient) AddProgramInstance(userID, programID, instanceID, activityID string, instance []byte) error {
 	instancePrefix := []string{userKey, userID, programKey, programID, programInstanceKey, instanceID}
 
 	instanceEntry := badger.NewEntry(key(instancePrefix), instance)
 
 	updates := []*badger.Entry{instanceEntry}
-
-	// if activityID != "" {
-
-	// 	activePrefix := []string{userKey, userID, activityKey, activityID, activeProgramKey}
-
-	// 	// value is in format {instanceID}:{programID}
-	// 	activeProgramEntry := badger.NewEntry(key(activePrefix), []byte(fmt.Sprintf("%s:%s", instanceID, programID)))
-
-	// 	updates = append(updates, activeProgramEntry)
-	// }
 
 	if err := writeUpdates(c, updates); err != nil {
 		return fmt.Errorf("failed to add program instance: %w", err)
@@ -133,20 +122,7 @@ func (c *DBClient) GetProgramInstancePage(userID, programID, previousProgramInst
 	return programInstances, nil
 }
 
-// func (c *DBClient) SetActiveProgramInstance(userID, activityID, programID, instanceID string) error {
-// 	prefix := []string{userKey, userID, activityKey, activityID, activeProgramKey}
-
-// 	// value is in format {instanceID}:{programID}
-// 	activeProgramEntry := badger.NewEntry(key(prefix), []byte(fmt.Sprintf("%s:%s", instanceID, programID)))
-// 	updates := []*badger.Entry{activeProgramEntry}
-
-// 	if err := writeUpdates(c, updates); err != nil {
-// 		return fmt.Errorf("failed to set active program: %w", err)
-// 	}
-
-// 	return nil
-// }
-
+// ActivateProgramInstance flags a program instance as active (i.e. not yet completed).
 func (c *DBClient) ActivateProgramInstance(userID, activityID, programID, instanceID string) error {
 	prefix := []string{userKey, userID, activityKey, activityID, activeProgramKey, instanceID}
 
@@ -202,34 +178,7 @@ func (c *DBClient) GetActiveProgramInstancePage(userID, activityID, previousActi
 	return activeInstances, nil
 }
 
-// func (c *DBClient) GetActiveProgramInstance(userID, activityID string) ([]byte, error) {
-
-// 	prefix := []string{userKey, userID, activityKey, activityID, activeProgramKey}
-// 	entry, err := readItem(c, key(prefix))
-
-// 	if err != nil {
-// 		return nil, fmt.Errorf("failed to read event: %w", err)
-// 	}
-
-// 	if entry == nil {
-// 		return nil, nil
-// 	}
-
-// 	ids := strings.Split(string(entry.Value), ":")
-
-// 	instancePage, err := c.GetProgramInstancePage(userID, ids[1], ids[0], 1)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("failed to read program instance: %w", err)
-// 	}
-
-// 	if len(instancePage) == 0 {
-// 		return nil, nil
-// 	}
-
-// 	return instancePage[0], nil
-
-// }
-
+// DeactivateProgramInstance removes the flag that indicates a program instance is active.
 func (c *DBClient) DeactivateProgramInstance(userID, activityID, activeInstanceID string) error {
 
 	keyPrefix := []string{userKey, userID, activityKey, activityID, activeProgramKey, activeInstanceID}

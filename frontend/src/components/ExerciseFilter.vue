@@ -1,4 +1,9 @@
 <script setup>
+  /**
+   * Enables users to select a category of exercises and then filters the list of exercises by the selection.
+   * Emits an array of the IDs of filtered exercises.
+   */
+
   import { onMounted, ref, watch } from 'vue';
   import { exerciseTypeStore } from '../modules/state.js';
   import { QOptionGroup, QSelect } from 'quasar';

@@ -1,4 +1,8 @@
 <script setup>
+  /**
+   * Captures or displays the details of the performance of an exercise.
+   * Details include the exercise performed along with volume.
+   */
   import { computed, ref, Suspense } from 'vue';
   import { exerciseTypeStore } from '../modules/state';
   import ExerciseIntensity from './ExerciseIntensity.vue';

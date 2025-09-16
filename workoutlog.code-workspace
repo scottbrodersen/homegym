@@ -7,7 +7,9 @@
       "path": "frontend"
     }
   ],
-  "settings": {},
+  "settings": {
+    "cSpell.words": ["testmode"]
+  },
   "launch": {
     "version": "0.2.0",
     "configurations": [

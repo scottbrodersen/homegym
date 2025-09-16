@@ -1,4 +1,13 @@
 <script setup>
+  /**
+   * Displays or edits the properties of a program block.
+   *
+   * Props:
+   *  block is the block object with properties title and description.
+   *
+   * Injected:
+   *  state indicates whether to present the block in read-only or edit mode.
+   */
   import { inject } from 'vue';
   import { QInput } from 'quasar';
   import * as styles from '../style.module.css';

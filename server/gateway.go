@@ -7,6 +7,7 @@ import (
 	"strings"
 )
 
+// A gateway is middleware that handles all requests that require authentication (except for initial login requests)
 type gateway struct {
 	handler http.Handler
 }
@@ -15,6 +16,7 @@ func newGateway(h http.Handler) *gateway {
 	return &gateway{handler: h}
 }
 
+// ServeHTTP validates the session and the token in the request cookies then passes the request to the handler.
 func (g *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	slog.Debug("authorizing request", "url", r.URL.String())
 	if strings.HasPrefix(r.URL.Path, homePath) && r.Method != http.MethodGet {
@@ -43,9 +45,9 @@ func (g *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "not authorized", http.StatusUnauthorized)
 		return
 	}
-	slog.Debug("authorized ", "url", r.URL.String())
+	slog.Info("authorized ", "url", r.URL.String())
 
-	// redirect to home page and et internal routing cookie
+	// redirect to home page and set internal routing cookie
 	for _, path := range internalRoutes {
 		if strings.HasPrefix(r.URL.Path, path) {
 			routingCookie := http.Cookie{

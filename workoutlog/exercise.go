@@ -13,8 +13,10 @@ import (
 
 var ErrNameNotUnique = fmt.Errorf("name is not unique")
 
+// ExerciseManager provides an implementation of ExerciseAdmin.
 var ExerciseManager ExerciseAdmin = new(exerciseManager)
 
+// The ExerciseAdmin type defines routines for interacting with exercise types in the database.
 type ExerciseAdmin interface {
 	NewExerciseType(userID, name, intensity, volume string, volConstraint int, composition map[string]int, basis string) (*string, error)
 	UpdateExerciseType(userID, exerciseID, name, intensity, volume string, volConstraint int, composition map[string]int, basis string) error
@@ -22,14 +24,19 @@ type ExerciseAdmin interface {
 	GetExerciseType(userID, exerciseID string) (*ExerciseType, error)
 }
 
+// An ExerciseFilter stores criteria for retrieving exercise types from the database.
 type ExerciseFilter struct {
 	StartDate     int64
 	EndDate       int64
 	ExerciseTypes []string
 }
 
+// An exerciseManager implements the ExerciseAdmin type.
 type exerciseManager struct{}
 
+// NewExerciseType creates a new exercise type in the database.
+// Returns a pointer to the generated ID.
+// Prevents duplicate exercise names from being used.
 func (ea *exerciseManager) NewExerciseType(userID, name, intensity, volume string, volumeConstraint int, composition map[string]int, basis string) (*string, error) {
 	id := uuid.New().String()
 
@@ -73,6 +80,8 @@ func (ea *exerciseManager) NewExerciseType(userID, name, intensity, volume strin
 	return &id, nil
 }
 
+// UpdateExerciseType updates an exercise type in the database.
+// The name must be unique and all references entities must exist in the database.
 func (ea *exerciseManager) UpdateExerciseType(userID, exerciseID, name, intensity, volume string, volConstraint int, composition map[string]int, basis string) error {
 	updated := ExerciseType{
 		ID:               exerciseID,
@@ -136,6 +145,7 @@ func (ea *exerciseManager) UpdateExerciseType(userID, exerciseID, name, intensit
 	return nil
 }
 
+// GetExerciseTypes returns an array of exercise types from the database.
 func (ea *exerciseManager) GetExerciseTypes(userID string) ([]ExerciseType, error) {
 	exercises, err := dal.DB.GetExercises(userID)
 	if err != nil {
@@ -156,6 +166,7 @@ func (ea *exerciseManager) GetExerciseTypes(userID string) ([]ExerciseType, erro
 	return exerciseTypes, nil
 }
 
+// GetExerciseType reads an exercise type from the database and return a pointer to it.
 func (ea *exerciseManager) GetExerciseType(userID, exerciseID string) (*ExerciseType, error) {
 	exerciseType := EventManager.GetCachedExerciseType(exerciseID)
 

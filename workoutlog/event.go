@@ -18,6 +18,7 @@ var DefaultPageSize = int(100)
 var EventManager EventAdmin = new(eventManager)
 var ErrInvalidEvent = fmt.Errorf("invalid event")
 
+// The EventAdmin type defines routines for interacting with workout events in the database.
 type EventAdmin interface {
 	NewEvent(userID string, event Event) (*string, error)
 	GetPageOfEvents(userID string, previousEvent Event, pageSize int) ([]Event, error)
@@ -30,6 +31,7 @@ type EventAdmin interface {
 
 type eventManager struct{}
 
+// An Event stores the properties of a workout event.
 type Event struct {
 	ID         string `json:"id"`
 	ActivityID string `json:"activityID"`
@@ -38,7 +40,8 @@ type Event struct {
 	Exercises map[int]ExerciseInstance `json:"exercises"` // key is the exercise index, ensures uniqueness
 }
 
-// zero value represents nil
+// An EventMeta stores metadata for an event.
+// A zero value represents nil (value was not recorded).
 type EventMeta struct {
 	Mood       int    `json:"mood"`
 	Motivation int    `json:"motivation"`
@@ -62,7 +65,7 @@ func (em eventManager) GetCachedExerciseType(exerciseTypeID string) *ExerciseTyp
 // NewEvent adds a new event to the database
 // The event data consists of everything but the exercises which are added subsequently in separate calls.
 // If exercises are included in the event they are ignored.
-// The event id is returned.
+// A pointer to the generated event id is returned.
 func (em eventManager) NewEvent(userID string, event Event) (*string, error) {
 	if userID == "" || event.ActivityID == "" || event.Date == 0 {
 		return nil, ErrInvalidEvent
@@ -123,6 +126,8 @@ func (em eventManager) UpdateEvent(userID string, currentDate int64, event Event
 	return nil
 }
 
+// DeleteEvent removes an event from the database.
+// The event must already exist in the database.
 func (em eventManager) DeleteEvent(userID string, event Event) error {
 	if userID == "" || event.ID == "" || event.ActivityID == "" || event.Date == 0 {
 		return ErrInvalidEvent
@@ -168,8 +173,9 @@ func prepEventExercises(userID, activityID string, exerciseInstances map[int]Exe
 	return exTypeIDs, exInstances, nil
 }
 
-// GetPageOfEvents gets a page of Event structs from the database.
-// Set previousEvent to the last event returned in the previous page. Set it to an empty struct to get the first page.
+// GetPageOfEvents returns a page of Event structs from the database.
+// Set previousEvent to the last event returned in the previous page.
+// Set previousEvent to an empty struct to get the first page.
 // The maximum page size is 100. Exceeding the maximum returns an error.
 func (em eventManager) GetPageOfEvents(userID string, previousEvent Event, pageSize int) ([]Event, error) {
 	if pageSize > 100 {
@@ -207,6 +213,9 @@ func (em eventManager) GetPageOfEvents(userID string, previousEvent Event, pageS
 	return events, nil
 }
 
+// GetEventExercises retrieves the exercise instances that were performed for an event.
+// Returns a map where the keys are the index of the instance and the value is the instance.
+// The index indicates the order in which exercises were performed.
 func (em eventManager) GetEventExercises(userID, eventID string) (map[int]ExerciseInstance, error) {
 	storedInstances, err := dal.DB.GetEventExercises(userID, eventID)
 	if err != nil {

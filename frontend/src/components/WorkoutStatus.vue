@@ -1,4 +1,13 @@
 <script setup>
+  /**
+   * Displays a summary of a workout event, including the relative timing, a title and description, and a status.
+   *
+   * Props:
+   *  eventID is the ID of the workout event
+   *  todayIndex is the 0-based index of the current day within the context of the program instance
+   *  workoutIndex is the 0-based index of the workout within the context of the program instance
+   *  workout is the workout object to display
+   */
   import { ref } from 'vue';
   import ProgramWorkoutSegment from './ProgramWorkoutSegment.vue';
   import * as styles from '../style.module.css';

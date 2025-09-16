@@ -1,4 +1,13 @@
 <script setup>
+  /**
+   * Displays the volume of a performed exercise as a time value in read-only or edit mode.
+   *
+   * Props:
+   *  writeable is true for edit mode and false for read-only
+   *  time is the number of seconds that the exercise was performed
+   *
+   * Emits the configured time in seconds.
+   */
   import * as styles from '../style.module.css';
   import { QInput } from 'quasar';
   import { ref } from 'vue';
