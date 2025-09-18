@@ -34,7 +34,7 @@ func EventsApi(w http.ResponseWriter, r *http.Request) {
 	rxpRootPath := regexp.MustCompile(fmt.Sprintf("^%s$", rootPath))
 	//  path to an event
 	rxpEventPath := regexp.MustCompile(fmt.Sprintf("^%s(\\d+)/([a-zA-Z0-9-]+)/?$", rootPath))
-	//  path to the exercise instnaces of an event
+	//  path to the exercise instances of an event
 	rxpExercisesPath := regexp.MustCompile(fmt.Sprintf("^%s(\\d+)/([a-zA-Z0-9-]+)/exercises/?$", rootPath))
 	//  path to metrics for a range of events e.g. /api/events/metrics?type=blah&start=blah&end=blah
 	rxpMetrics := regexp.MustCompile(fmt.Sprintf("^%smetrics(\\?[a-z]+=[a-zA-Z0-9-]+((&[a-z]+=[a-zA-Z0-9-]+)*)?)?$", rootPath))
@@ -168,13 +168,13 @@ func deleteEvent(username, eventID, eventDate string, w http.ResponseWriter, r *
 	}
 
 	if dateInt != event.Date {
-		slog.Debug(err.Error())
+		slog.Debug("incorrect date")
 		http.Error(w, `{"message": "incorrect date"}`, http.StatusBadRequest)
 		return
 	}
 
 	if eventID != event.ID {
-		slog.Debug(err.Error())
+		slog.Debug("incorrect ID")
 		http.Error(w, `{"message": "incorrect ID"}`, http.StatusBadRequest)
 		return
 	}
