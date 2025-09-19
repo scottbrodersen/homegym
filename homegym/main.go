@@ -97,5 +97,6 @@ func main() {
 	}
 
 	// StartUnsafe for dev purposes only!
-	server.StartUnsafe(server.DefaultShutdown, port)
+	//server.StartUnsafe(server.DefaultShutdown, port)
+	server.StartSafe(server.DefaultShutdown, port)
 }
