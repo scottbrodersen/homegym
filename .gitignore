@@ -20,3 +20,8 @@ __debug*
 
 # mac
 **/.DS_Store
+
+# SSL files
+*.crt
+*.csr
+*.key

@@ -105,8 +105,8 @@ func StartUnsafe(shutdown shutdownAction, port int) {
 	shutdown(http.ListenAndServe(fmt.Sprintf("0.0.0.0:%d", port), NewRequestLogger(publicMux)))
 }
 
-func StartSafe(shutdown shutdownAction) {
-	//shutdown(http.ListenAndServeTLS())
+func StartSafe(shutdown shutdownAction, port int) {
+	shutdown(http.ListenAndServeTLS("0.0.0.0:443", "../homegym.crt", "../homegym.key", NewRequestLogger(publicMux)))
 	isSafe = true
 }
 
