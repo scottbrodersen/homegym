@@ -50,10 +50,12 @@
 
         for (const activity of activityStore.getAll()) {
           const promises2 = [];
-          for (const program of programsStore.getByActivity(activity.id)) {
-            promises2.push(fetchProgramInstances(program.id, activity.id));
+          if (programsStore.getByActivity(activity.id)) {
+            for (const program of programsStore.getByActivity(activity.id)) {
+              promises2.push(fetchProgramInstances(program.id, activity.id));
+            }
+            await Promise.all(promises2);
           }
-          await Promise.all(promises2);
         }
 
         for (const activity of activityStore.getAll()) {
