@@ -1,0 +1,25 @@
+h1 {
+  font-size: 32px;
+  margin-bottom: 50px;
+}
+
+h2 {
+  font-size: 24px;
+  margin-top: 25px;
+}
+
+h3 {
+  font-size: 18px;
+  margin-top: 20px;
+}
+p,
+li,
+h5 {
+  font-size: 15px;
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', 'Noto Sans',
+    'Liberation Sans', Arial, sans-serif;
+}
+
+h5 {
+  font-weight: 700;
+}
