@@ -132,11 +132,8 @@ func newEvent(date int64, activity workoutlog.Activity) (*workoutlog.Event, erro
 
 func metaMaker() workoutlog.EventMeta {
 	return workoutlog.EventMeta{
-		Mood:       int(rand.Int63n(5)),
-		Motivation: int(rand.Int63n(5)),
-		Energy:     int(rand.Int63n(5)),
-		Overall:    int(rand.Int63n(5)),
-		Notes:      "random note",
+		Overall: int(rand.Int63n(5)),
+		Notes:   "random note",
 	}
 
 }

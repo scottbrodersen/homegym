@@ -43,11 +43,8 @@ type Event struct {
 // An EventMeta stores metadata for an event.
 // A zero value represents nil (value was not recorded).
 type EventMeta struct {
-	Mood       int    `json:"mood"`
-	Motivation int    `json:"motivation"`
-	Energy     int    `json:"energy"`
-	Overall    int    `json:"overall"`
-	Notes      string `json:"notes"`
+	Overall int    `json:"overall"`
+	Notes   string `json:"notes"`
 }
 
 var exerciseTypeCache sync.Map = sync.Map{}

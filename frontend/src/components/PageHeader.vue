@@ -66,10 +66,11 @@
   const labels = reactive({
     home: 'Home',
     event: 'Event',
-    activities: 'Activity',
+    activities: 'Activities',
     analyze: 'Analyze',
     exTypes: 'Exercises',
     programs: 'Program',
+    activity: 'Activity',
   });
 
   window.addEventListener('popstate', (event) => {
@@ -107,7 +108,7 @@
         :class="{ active: active.activities }"
         :unelevated="active.activities"
         :glossy="!active.activities"
-        :label="labels.activities"
+        :label="labels.activity"
         square
       >
         <q-list>
