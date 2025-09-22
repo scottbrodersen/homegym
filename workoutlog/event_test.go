@@ -14,11 +14,8 @@ import (
 )
 
 var testEventMeta EventMeta = EventMeta{
-	Mood:       1,
-	Energy:     2,
-	Motivation: 3,
-	Overall:    4,
-	Notes:      "test notes",
+	Overall: 4,
+	Notes:   "test notes",
 }
 
 const testEventID = "test-event-id"

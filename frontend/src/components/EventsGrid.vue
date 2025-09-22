@@ -45,44 +45,6 @@
   const { focusedEvent, setFocusedEvent } = inject('focusedEvent');
   const { selectedEvent, setSelectedEvent } = inject('selectedEvent');
 
-  // row gradient
-  const background = (eventID) => {
-    let count = 0;
-    let total = 0;
-    const e = eventStore.getByID(eventID);
-
-    if (e.mood) {
-      count++;
-      total += e.mood;
-    }
-    if (e.energy) {
-      count++;
-      total += e.energy;
-    }
-    if (e.motivation) {
-      count++;
-      total += e.motivation;
-    }
-
-    const start = count > 0 ? Math.round(total / count) : 0;
-    const end = e.overall > 0 ? e.overall : 0;
-
-    const colours = {
-      0: '--mood0',
-      1: '--mood1',
-      2: '--mood2',
-      3: '--mood3',
-      4: '--mood4',
-      5: '--mood5',
-    };
-    const layer1 = '90';
-    const layer2 = '50';
-
-    const mask =
-      ', linear-gradient(to right, #c0c0c050, #ffffff50, #c0c0c050), radial-gradient(#ffffff, #c0c0c0)';
-    return `background:linear-gradient(var(${colours[end]}) 15%, var(${colours[start]})) 85% ${mask};`;
-  };
-
   const columns = [
     {
       name: 'date',
@@ -127,15 +89,6 @@
       format: (id) => {
         return eventMetricsStore.getMetric(id, 'load');
       },
-    },
-    {
-      name: 'meta',
-      required: true,
-      field: 'id',
-      format: () => {
-        return null;
-      },
-      style: (row) => background(row.id),
     },
   ];
 

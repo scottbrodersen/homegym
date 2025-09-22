@@ -26,11 +26,8 @@ const (
 
 func testEvents(number int) []workoutlog.Event {
 	testEventMeta := workoutlog.EventMeta{
-		Mood:       1,
-		Energy:     2,
-		Motivation: 3,
-		Overall:    4,
-		Notes:      "test note",
+		Overall: 4,
+		Notes:   "test note",
 	}
 
 	testInstance := workoutlog.ExerciseInstance{

@@ -438,6 +438,10 @@ header .hgHamburger {
   justify-content: space-between;
   margin-top: var(--hg-small);
 }
+
+.activitySelect {
+  margin-left: 20px;
+}
 .exInstContainer {
   composes: blockBorder;
   composes: blockPadSm;
@@ -1004,6 +1008,6 @@ header .hgHamburger {
   }
 
   .pgmDash {
-    width: 200px;
+    width: 300px;
   }
 }

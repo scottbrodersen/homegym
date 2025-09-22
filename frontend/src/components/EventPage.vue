@@ -242,30 +242,23 @@
     <h1 :id="styles.event" :class="[styles.blockPadSm]">Edit Event</h1>
     <div :class="[styles.vert]">
       <div :class="[styles.eventTopRow]">
-        <DatePicker
-          :style="[styles.blockPadMed]"
-          :date-value="thisEvent.date"
-          @update="updateDateValue"
-        />
-        <q-select
-          :class="[styles.selActivity]"
-          :model-value="thisEventActivityName"
-          @update:model-value="setActivity"
-          :options="activityNames"
-          label="Activity"
-          dark
-        />
-      </div>
-      <div :class="[styles.blockPadSm]">
-        <EventMeta
-          :mood="thisEvent.mood"
-          :energy="thisEvent.energy"
-          :motivation="thisEvent.motivation"
-          :overall="thisEvent.overall"
-          :notes="thisEvent.notes"
-          v-show="thisEvent.activityID"
-          @update="(meta, value) => (thisEvent[meta] = value)"
-        />
+        <div>
+          <DatePicker
+            :style="[styles.blockPadMed]"
+            :date-value="thisEvent.date"
+            @update="updateDateValue"
+          />
+        </div>
+        <div :class="[styles.activitySelect]">
+          <q-select
+            :class="[styles.selActivity]"
+            :model-value="thisEventActivityName"
+            @update:model-value="setActivity"
+            :options="activityNames"
+            label="Activity"
+            dark
+          />
+        </div>
       </div>
       <div
         :class="[styles.exInstContainer]"
@@ -285,6 +278,14 @@
         label="Add exercise"
         color="primary"
         @click="setExerciseInstance(null, null)"
+      />
+    </div>
+    <div :class="[styles.blockPadSm]">
+      <EventMeta
+        :overall="thisEvent.overall"
+        :notes="thisEvent.notes"
+        v-show="thisEvent.activityID"
+        @update="(meta, value) => (thisEvent[meta] = value)"
       />
     </div>
     <div

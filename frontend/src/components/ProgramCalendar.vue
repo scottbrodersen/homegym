@@ -88,7 +88,6 @@
 </script>
 <template>
   <div>
-    {{ date }}
     <q-date
       v-model="date"
       :events="formattedNonRestDays"

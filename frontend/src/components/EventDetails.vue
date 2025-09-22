@@ -24,12 +24,6 @@
         :to="{ name: 'event', params: { eventId: props.eventId } }"
         icon="edit"
       />
-      <EventMeta
-        :mood="evt.mood"
-        :energy="evt.energy"
-        :motivation="evt.motivation"
-        :readonly="true"
-      />
       <div :class="[styles.blockPadXSm]">
         <ExerciseInstance
           v-for="(value, key) in evt.exercises"

@@ -21,9 +21,6 @@ enableAutoUnmount(afterEach);
 describe('EventMeta component', () => {
   it('renders correctly with all meta in read only', () => {
     const testMeta = {
-      mood: 1,
-      energy: 2,
-      motivation: 3,
       overall: 4,
       notes: 'test notes',
     };
@@ -31,9 +28,6 @@ describe('EventMeta component', () => {
     const wrapper = mount(EventMeta, {
       components: { QInput, QRating },
       props: {
-        mood: testMeta.mood,
-        energy: testMeta.energy,
-        motivation: testMeta.motivation,
         overall: testMeta.overall,
         notes: testMeta.notes,
         readonly: true,
@@ -65,8 +59,6 @@ describe('EventMeta component', () => {
     const wrapper = mount(EventMeta, {
       components: { QInput, QRating },
       props: {
-        mood: testMeta.mood,
-        energy: testMeta.energy,
         overall: testMeta.overall,
         readonly: true,
       },
