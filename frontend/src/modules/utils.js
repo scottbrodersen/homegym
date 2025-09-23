@@ -44,7 +44,7 @@ const intensityTypes = [
   'weight',
   'bodyweight',
   'rpe',
-  'percentOfMax',
+  //'percentOfMax',
   'hrZone',
   'distance',
   'pace',
