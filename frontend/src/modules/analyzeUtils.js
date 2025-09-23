@@ -123,20 +123,24 @@ export const getTimeSeriesData = async (startDate, endDate) => {
  *  The arrays can be interpreted as stacks in that the related items in each array have the same index.
  */
 export const getDailyTotals = (metrics) => {
+  // key is date (at midnight), values an array of [total volume; total load/volume]
   const dailyTotals = new Map();
 
+  // aggregate metrics for each day
   for (let i = 0; i < metrics.dates.length - 1; i++) {
     const midnight = dateUtils.setEpochToMidnight(metrics.dates[i]);
     if (dailyTotals.has(midnight)) {
       const volTot = dailyTotals.get(midnight)[0] + metrics.volume[i];
       const loadTot = dailyTotals.get(midnight)[1] + metrics.load[i];
 
-      dailyTotals.set(midnight, [volTot != 0 ? loadTot / volTot : 0, loadTot]);
+      //      dailyTotals.set(midnight, [volTot != 0 ? loadTot / volTot : 0, loadTot]);
+      dailyTotals.set(midnight, [volTot, loadTot]);
     } else {
-      dailyTotals.set(midnight, [
-        metrics.volume[i] != 0 ? metrics.load[i] / metrics.volume[i] : 0,
-        metrics.load[i],
-      ]);
+      // dailyTotals.set(midnight, [
+      //   metrics.volume[i] != 0 ? metrics.load[i] / metrics.volume[i] : 0,
+      //   metrics.load[i],
+      // ]);
+      dailyTotals.set(midnight, [metrics.volume[i], metrics.load[i]]);
     }
   }
 
@@ -183,7 +187,7 @@ export const getVolumeChart = (
     data: {
       labels: dates,
       datasets: [
-        { data: lvRatioData, yAxisID: 'yVol', label: 'Load/Volume' },
+        { data: lvRatioData, yAxisID: 'yVol', label: 'Volume' },
         { data: loadData, yAxisID: 'yLoad', label: 'Load' },
       ],
     },
@@ -204,7 +208,7 @@ export const getVolumeChart = (
         },
         yVol: {
           title: {
-            text: 'Load/Volume',
+            text: 'Volume',
           },
           position: 'left',
         },
