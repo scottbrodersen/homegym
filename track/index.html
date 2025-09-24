@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Log - HomeGym Documentation</title>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../css/fontawesome.min.css" rel="stylesheet">
+        <link href="../css/brands.min.css" rel="stylesheet">
+        <link href="../css/solid.min.css" rel="stylesheet">
+        <link href="../css/v4-font-face.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" disabled>
+        <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" >
+        <link href="../style.css" rel="stylesheet">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="..">HomeGym Documentation</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="nav-item">
+                                <a href="../prepare/" class="nav-link">Prepare</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="./" class="nav-link active" aria-current="page">Log</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../programs/" class="nav-link">Plan</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../instances/" class="nav-link">Execute</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../analyze/" class="nav-link">Analyze</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ms-md-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../prepare/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../programs/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                            <li class="nav-item dropdown">
+                              <button id="theme-menu" aria-expanded="false" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Toggle theme" class="nav-link dropdown-toggle">
+                                <i class="fa-solid fa-circle-half-stroke fa-fw"></i>
+                                <span class="d-lg-none ms-2">Toggle theme</span>
+                              </button>
+                              <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                  <button class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">
+                                    <i class="fa-solid fa-sun fa-fw"></i>
+                                    <span class="ms-2">Light</span>
+                                    <i class="fa-solid fa-check ms-auto d-none"></i>
+                                  </button>
+                                </li>
+                                <li>
+                                  <button class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="true">
+                                    <i class="fa-solid fa-moon fa-fw"></i>
+                                    <span class="ms-2">Dark</span>
+                                    <i class="fa-solid fa-check ms-auto"></i>
+                                  </button>
+                                </li>
+                                <li>
+                                  <button class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto" aria-pressed="false">
+                                    <i class="fa-solid fa-circle-half-stroke fa-fw"></i>
+                                    <span class="ms-2">Auto</span>
+                                    <i class="fa-solid fa-check ms-auto d-none"></i>
+                                  </button>
+                                </li>
+                              </ul>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <script src="../js/darkmode.js"></script>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-bs-toggle="collapse" data-bs-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-bs-level="1"><a href="#log-your-performance" class="nav-link">Log your performance</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#log-a-workout" class="nav-link">Log a workout</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#review-the-log" class="nav-link">Review the log</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#track-daily-health-markers" class="nav-link">Track daily health markers</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="log-your-performance">Log your performance</h1>
+<p>Log your workouts so that you can review them later. You can also enter daily health markers to track trends or relate them to exercise performance. Analytics are provided for both exercise volume and daily health markers so that you can spot trends.</p>
+<h2 id="log-a-workout">Log a workout</h2>
+<p>Log the work that you perform for each exercise in the workout. You can either log it as you work out or later if that is more convenient.</p>
+<p>These steps for adding a workout are meant to be used to log ad-hoc workouts, or workouts that were not planned as part of a program. Log workouts in this way when you do not intend to follow a program or if you have not yet added a program. If you start a program after you log the ad-hoc workout, you can later link the ad-hoc workout to a planned workout. The link causes the planned workout to be marked as having been completed.</p>
+<p>If you are executing a planned workout, you should start the workout from the program so that it is easier to enter the workout information and the planned workout is automatically marked as complete.</p>
+<h5 id="add-an-exercise">Add an exercise:</h5>
+<ol>
+<li>At the bottom of the Home page, click Add Event.
+   <br/>The current date and time are set by default. If you are entering a workout you already completed, modify the date and time accordingly.
+   <br /><img src="../img/log_add_init.png" width="450" /></li>
+<li>Select the activity that you are performing.
+   <br /><img src="../img/log_add_activity.png" width="250" /></li>
+<li>Click Add Exercise and then select the exercise you are performing.
+   <br /><img src="../img/log_add_exercise.png" width="400" /></li>
+</ol>
+<h5 id="to-enter-weight-based-intensity-and-count-based-volume">To enter weight-based intensity and count-based volume:</h5>
+<ol>
+<li>
+<p>Enter the intensity at which you are performing the exercise.
+   <br /><img src="../img/log_add_weight.png" width="400" /></p>
+</li>
+<li>
+<p>Click the arrow icon next to the intensity to record the associated volume. <img src="../img/btn_arrowright_round.png" width="54" /></p>
+</li>
+<li>
+<p>In the dialog that opens, enter the volume for the first set:<ul></p>
+</li>
+<li>
+<p>For a count, enter the reps that you performed.
+     <br /><img src="../img/log_add_reps.png" width="400" /></p>
+</li>
+<li>
+<p>If tracking failed reps, enter the result of each rep (fail or success).
+     <br /><img src="../img/log_add_reps_failed.png" width="400" /></ul></p>
+</li>
+<li>
+<p>Click the + icon to add another set, and enter the volume. <img src="../img/icon_add_round.png" width="35" />
+   <br /><img src="../img/log_add_reps_second.png" width="400" /></p>
+</li>
+<li>When all your sets and reps are added, click Done to close the dialog.</li>
+<li>To add volume at another intensity, click the + icon and repeat the previous steps. <img src="../img/icon_add_round.png" width="35" />
+   <br /><img src="../img/log_add_weight_second.png" width="400" /></li>
+</ol>
+<h5 id="to-enter-heart-rate-zone-intensities">To enter heart-rate zone intensities:</h5>
+<ul>
+<li>For each heart rate zone, enter the time that you spent in that zone.
+  <br /><img src="../img/log_add_hrzones.png" width="400" /></li>
+</ul>
+<h5 id="to-enter-rate-of-perceived-exertion-rpe-based-volume">To enter rate of perceived exertion (RPE) based volume:</h5>
+<ol>
+<li>Enter the RPE level.</li>
+<li>Enter the time or distance, depending on how volume is measured.
+   <br /><img src="../img/log_add_rpe.png" width="400" /></li>
+<li>To enter subsequent time or distance at another RPE, click the + icon and repeat the previous steps. <img src="../img/icon_add_round.png" width="35" /></li>
+</ol>
+<h5 id="to-enter-volume-based-on-pace-intensities">To enter volume based on pace intensities:</h5>
+<ol>
+<li>Enter the pace.</li>
+<li>Enter the time or distance, depending on how volume is measured.
+   <br /><img src="../img/log_add_pace.png" width="400" /></li>
+<li>To enter a subsequent time or distance at another pace, click the + icon and repeat the previous steps. <img src="../img/icon_add_round.png" width="35" /></li>
+</ol>
+<h5 id="to-complete-the-log-entry">To complete the log entry:</h5>
+<ol>
+<li>Add more exercises and configure them as needed.</li>
+<li>(Optional) Specify an Overall Performance value if you want to indicate how you felt during the workout.
+   <br /><img src="../img/log_add_meta.png" width="400" /></li>
+<li>(Optional) Add any notes that you want to mention for later reference.</li>
+<li>Click Save.</li>
+</ol>
+<h2 id="review-the-log">Review the log</h2>
+<p>Each workout that you record appears in the workout log on the home page. Each row represents a workout and shows an overview of what was performed.</p>
+<p><img src="../img/log_rows.png" width="500" /></p>
+<p>Click a row to reveal the details of the workout.</p>
+<p><img src="../img/log_rows_expanded.png" width="500" /></p>
+<p>If you need to edit a workout, click the pencil icon. <img src="../img/icon_edit_round.png" width="35" /></p>
+<h2 id="track-daily-health-markers">Track daily health markers</h2>
+<p>Log aspects of your daily health to objectively measure factors that might affect your training. For example, a downward trend in your hours of sleep might coincide with a decrease in performance.</p>
+<p>The following once-daily measurements can be logged:</p>
+<ul>
+<li>Hours of sleep</li>
+<li>Body weight</li>
+<li>Mood</li>
+<li>Stress level</li>
+<li>Energy level</li>
+</ul>
+<p>Mood, stress, and energy are measured on a scale of 0-5.</p>
+<p>Additionally, a few items can be logged multiple times in one day:</p>
+<ul>
+<li>Food intake</li>
+<li>Blood pressure</li>
+<li>Blood glucose</li>
+</ul>
+<p>All daily stats are optional. Track only the ones that you are interested in.</p>
+<ol>
+<li>On the menu bar, click the hamburger menu. <img src="../img/icon_hamburger.png" width="35" />
+   <br/><img src="../img/dailystats.png" width="125"/></li>
+<li>Click the item that you want to track.</li>
+<li>Change the date and/or time if necessary. Note that time only matters for blood pressure, blood glucose, and food measurements.
+   <br/> The sleep metric supports decimal numbers.
+   <br/> <img src="../img/dailystat_sleep.png" width="300"/>
+   <br/> Weight must be a whole number, and mood, stress, and energy are a scale of 0-5.
+   <br/><img src="../img/dailystat_bw.png" width="300"/> <img src="../img/dailystat_mood.png" width="300"/>
+   <br/> Blood glucose supports decimal numbers, and is measured in mmol/L. If you measure values in mg/dL just ignore the mmol/L units label.
+   <br/><img src="../img/dailystat_bg.png" width="300"/>
+   <br/>For blood pressure, enter the systolic and diastolic values.
+   <br/><img src="../img/dailystat_bp.png" width="300"/>
+   <br/>For food, you can track nutrition using a general description or measurements for protein, carbs, fat, and fiber, depending on how closely you monitor your intake.
+   <br/> <img src="../img/dailystat_food.png" width="300"/></li>
+</ol></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+<hr />
+<p>&copy; Scott Brodersen 2025</p>
+        </footer>
+        <script src="../js/bootstrap.bundle.min.js"></script>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js"></script>
+        <script src="../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
