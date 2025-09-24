@@ -17,9 +17,30 @@
         <link href="../css/base.css" rel="stylesheet">
         <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" disabled>
         <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" >
-        <link href="../style.css" rel="stylesheet">
+        <link href="../style.css" rel="stylesheet"> 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-        <script>hljs.highlightAll();</script> 
+        <script>hljs.highlightAll();</script>
+<script>
+  const contexts = {
+    charts: 'analyze',
+    home: 'track',
+    programs: 'programs',
+    activity: 'prepare',
+    instances: 'instances',
+  };
+  const contextualQuery = 'context';
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+
+  if (urlParams.has(contextualQuery)) {
+    const newURL =
+      window.location.origin +
+      '/homegym/' +
+      contexts[urlParams.get(contextualQuery)];
+
+    window.location.href = newURL;
+  }
+</script> 
     </head>
 
     <body>
@@ -140,7 +161,7 @@
 <h1 id="plan-workouts-using-programs">Plan workouts using programs</h1>
 <p>If you follow a training program you can enter it into HomeGym and later execute it as needed.</p>
 <p>Programs are organized into blocks that contain microcycles. Blocks are larger phases of training that you progress through such as the base, build, peak, and taper phases of marathon training. Each microcycle contains a number of workouts. Typically, a microcycle represents a training week and contains seven workouts.</p>
-<p>Once you've entered a program you can execute it as many times as you need to. See <a href="executions.md">Execute Programs</a>.</p>
+<p>Once you've entered a program you can execute it as many times as you need to. See <a href="../instances/">Execute Programs</a>.</p>
 <h2 id="create-a-program">Create a program</h2>
 <p>Creating a program is done in two phases:</p>
 <ul>

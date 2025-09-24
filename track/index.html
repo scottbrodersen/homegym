@@ -17,9 +17,30 @@
         <link href="../css/base.css" rel="stylesheet">
         <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" disabled>
         <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" >
-        <link href="../style.css" rel="stylesheet">
+        <link href="../style.css" rel="stylesheet"> 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-        <script>hljs.highlightAll();</script> 
+        <script>hljs.highlightAll();</script>
+<script>
+  const contexts = {
+    charts: 'analyze',
+    home: 'track',
+    programs: 'programs',
+    activity: 'prepare',
+    instances: 'instances',
+  };
+  const contextualQuery = 'context';
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+
+  if (urlParams.has(contextualQuery)) {
+    const newURL =
+      window.location.origin +
+      '/homegym/' +
+      contexts[urlParams.get(contextualQuery)];
+
+    window.location.href = newURL;
+  }
+</script> 
     </head>
 
     <body>
