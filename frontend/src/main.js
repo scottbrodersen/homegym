@@ -1,4 +1,4 @@
-import { createApp } from 'vue';
+import { createApp, ref } from 'vue';
 import { Quasar, Dialog, Notify } from 'quasar';
 import '@quasar/extras/material-icons/material-icons.css';
 import iconSet from 'quasar/icon-set/material-icons';
@@ -10,6 +10,12 @@ import { select, focus } from './modules/directives.js';
 import 'vite/modulepreload-polyfill';
 
 const app = createApp(App);
+
+// context sensitive help
+app.provide('docsRootURL', 'https://scottbrodersen.github.io/homegym/');
+app.provide('docsContextQuery', 'context');
+const docsContext = ref();
+app.provide('docsContext', docsContext);
 
 app.use(Quasar, {
   iconSet: iconSet,

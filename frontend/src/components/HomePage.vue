@@ -7,7 +7,7 @@
   import ProgramDash from './ProgramDash.vue';
   import EventsGrid from './EventsGrid.vue';
   import { activityStore, programInstanceStore } from '../modules/state';
-  import { provide, ref } from 'vue';
+  import { inject, provide, ref } from 'vue';
   import * as styles from './../style.module.css';
 
   const props = defineProps({ eventID: String });
@@ -16,6 +16,8 @@
   const focusedEvent = ref(props.eventID ? props.eventID : '');
   const selectedEvent = ref(props.eventID ? props.eventID : '');
 
+  const docsContext = ref(inject('docsContext'));
+  docsContext.value = 'home';
   const setFocusedEvent = (eventID) => {
     focusedEvent.value = eventID;
   };
