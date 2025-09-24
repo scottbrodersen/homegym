@@ -1,4 +1,26 @@
-{% extends "base.html" %} {%- block footer %}
+{% extends "base.html" %} {% block libs %} {{ super() }}
+<script>
+  const contexts = {
+    charts: 'analyze',
+    home: 'track',
+    programs: 'programs',
+    activity: 'prepare',
+    instances: 'instances',
+  };
+  const contextualQuery = 'context';
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+
+  if (urlParams.has(contextualQuery)) {
+    const newURL =
+      window.location.origin +
+      '/homegym/' +
+      contexts[urlParams.get(contextualQuery)];
+
+    window.location.href = newURL;
+  }
+</script>
+{%- endblock %} {%- block footer %}
 <hr />
 {%- if config.copyright %}
 <p>{{ config.copyright }}</p>

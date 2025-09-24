@@ -26,11 +26,14 @@
     updateProgramInstance,
   } from '../modules/utils';
   import * as styles from '../style.module.css';
-  import { onBeforeMount, provide, ref, Suspense } from 'vue';
+  import { inject, onBeforeMount, provide, ref, Suspense } from 'vue';
   import { QSelect, QBtn, QCheckbox } from 'quasar';
   import ActivityProgram from './ActivityProgram.vue';
   import ProgramSelect from './ProgramSelect.vue';
   import ProgramInstance from './ProgramInstance.vue';
+
+  const docsContext = ref(inject('docsContext'));
+  docsContext.value = 'programs';
 
   const props = defineProps({
     activityID: String,

@@ -7,7 +7,7 @@
    *
    * Exercise volume can be filtered by exercise type and date range.
    */
-  import { onMounted, ref } from 'vue';
+  import { inject, onMounted, ref } from 'vue';
   import * as utils from '../modules/utils';
   import * as dateUtils from '../modules/dateUtils';
   import * as styles from '../style.module.css';
@@ -17,6 +17,9 @@
   import Chart from 'chart.js/auto';
   import ExerciseFilter from './ExerciseFilter.vue';
   import { QExpansionItem } from 'quasar';
+
+  const docsContext = ref(inject('docsContext'));
+  docsContext.value = 'charts';
 
   // default date range is 16 weeks since now
   const endDate = ref(dateUtils.nowInSeconds());

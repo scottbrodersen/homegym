@@ -7,7 +7,7 @@
    *  activityID: The ID of an activity to preselect.
    *  programID: The ID of a program to preselect.
    */
-  import { inject, onMounted, provide, ref, watch } from 'vue';
+  import { inject, onActivated, onMounted, provide, ref, watch } from 'vue';
   import ProgramBlock from './ProgramBlock.vue';
   import * as utils from '../modules/utils';
   import { QBtn } from 'quasar';
@@ -198,6 +198,11 @@
       });
     }
   };
+
+  onActivated(() => {
+    const docsContext = ref(inject('docsContext'));
+    docsContext.value = 'programs';
+  });
 
   onMounted(() => {
     // set height of workouts div

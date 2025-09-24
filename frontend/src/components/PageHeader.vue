@@ -2,7 +2,7 @@
   /**
    * The top navigation bar.
    */
-  import { reactive, ref, watch } from 'vue';
+  import { reactive, ref, watch, inject } from 'vue';
   import { useRouter, useRoute } from 'vue-router';
   import {
     QBtn,
@@ -26,6 +26,23 @@
     '/homegym/exercises/': 'exTypes',
     '/homegym/programs/': 'programs',
   };
+
+  // docs context
+  const rootDocsURL = inject('docsRootURL');
+  const docsContextQuery = inject('docsContextQuery');
+  const docsContext = inject('docsContext');
+  const docsURL = ref(
+    rootDocsURL + '?' + docsContextQuery + '=' + docsContext.value
+  );
+  const hgdocs = ref('hgdocs');
+
+  watch(
+    () => docsContext.value,
+    (context) => {
+      docsURL.value =
+        rootDocsURL + '?' + docsContextQuery + '=' + docsContext.value;
+    }
+  );
 
   // field names match route names
   const active = reactive({
@@ -129,6 +146,7 @@
         :to="{ name: 'analyze' }"
       />
       <HeaderHamburger />
+      <q-btn icon="help" :href="docsURL" target="hgdocs" />
     </q-btn-group>
   </header>
 </template>

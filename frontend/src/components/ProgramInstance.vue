@@ -42,6 +42,9 @@
   import ProgramWorkoutSegment from './ProgramWorkoutSegment.vue';
   import * as utils from '../modules/utils';
 
+  const docsContext = ref(inject('docsContext'));
+  docsContext.value = 'instances';
+
   const props = defineProps({
     activityID: String,
     instanceID: String,

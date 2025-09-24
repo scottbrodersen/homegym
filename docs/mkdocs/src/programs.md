@@ -4,7 +4,7 @@ If you follow a training program you can enter it into HomeGym and later execute
 
 Programs are organized into blocks that contain microcycles. Blocks are larger phases of training that you progress through such as the base, build, peak, and taper phases of marathon training. Each microcycle contains a number of workouts. Typically, a microcycle represents a training week and contains seven workouts.
 
-Once you've entered a program you can execute it as many times as you need to. See [Execute Programs](executions.md).
+Once you've entered a program you can execute it as many times as you need to. See [Execute Programs](instances.md).
 
 ## Create a program
 

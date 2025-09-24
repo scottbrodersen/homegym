@@ -5,7 +5,7 @@
    * Enables adding/removing exercises for an activity.
    */
   import { activityStore, exerciseTypeStore } from '../modules/state';
-  import { computed, reactive, ref, toRaw } from 'vue';
+  import { computed, inject, reactive, ref, toRaw } from 'vue';
   import {
     authPromptAsync,
     updateActivityExercises,
@@ -27,6 +27,9 @@
     QItemLabel,
   } from 'quasar';
   import * as styles from '../style.module.css';
+
+  const docsContext = ref(inject('docsContext'));
+  docsContext.value = 'activity';
 
   // selected activity
   const currentActivity = reactive({
