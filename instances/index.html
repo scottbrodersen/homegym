@@ -27,6 +27,7 @@
     programs: 'programs',
     activity: 'prepare',
     instances: 'instances',
+    event: 'instances/#edit',
   };
   const contextualQuery = 'context';
   const queryString = window.location.search;
@@ -155,11 +156,11 @@
               <ul class="nav flex-column">
               </ul>
             </li>
-            <li class="nav-item" data-bs-level="2"><a href="#cancel-a-workout" class="nav-link">Cancel a workout</a>
+            <li class="nav-item" data-bs-level="2"><a href="#link-to-an-existing-workout" class="nav-link">Link to an existing workout</a>
               <ul class="nav flex-column">
               </ul>
             </li>
-            <li class="nav-item" data-bs-level="2"><a href="#link-to-an-existing-workout" class="nav-link">Link to an existing workout</a>
+            <li class="nav-item" data-bs-level="2"><a href="#edit" class="nav-link">Edit a workout</a>
               <ul class="nav flex-column">
               </ul>
             </li>
@@ -234,8 +235,6 @@
    <br/>The program dash now shows that today's workout has been completed.
    <br/><img src="../img/pgminst_dash_done.png" width="350"/></li>
 </ol>
-<h2 id="cancel-a-workout">Cancel a workout</h2>
-<p>If you know you won't be able to perform today's workout, you can immediately cancel it to mark it as not performed. Either cancel it immediately or merely wait until tomorrow. Past workouts are automatically cancelled if they are not associated with a logged workout.</p>
 <h2 id="link-to-an-existing-workout">Link to an existing workout</h2>
 <p>Link a logged workout that you <a href="../track/#log-a-workout">added ad-hoc</a> to a workout in your program instance. After linking, the scheduled workout will be marked as complete.</p>
 <ol>
@@ -250,6 +249,24 @@
    <br/><img src="../img/pgminst_workout_status_done.png" width="300"/>
    <br />The program dashboard also shows that the workout was completed.
    <br/><img src="../img/pgminst_dash_linked_done.png" width="550"/></li>
+</ol>
+<h2 id="edit">Edit a workout</h2>
+<p>You can make changes to the details of a logged workout at any time.</p>
+<ol>
+<li>
+<p>To open the workout in editing mode, do either of the following:
+ <br />
+<ul>
+   <li>On the home page, expand the workout in the log and click the pencil icon.
+   <br/><img src="../img/log_workout_edit.png" width="500"/></li>
+   <li>Open the program instance, locate the workout that you are editing, and click Edit from the hamburger menu.
+   <br/><img src="../img/pgminst_workout_link.png" width="300"/></li>
+</ul></p>
+</li>
+<li>
+<p>Change existing values or add more details, then click Save.
+   <br/><img src="../img/workout_edit.png" width="500"/></li></p>
+</li>
 </ol>
 <h2 id="modify-a-program-instance">Modify a program instance</h2>
 <p>Modify a program instance when the original program does not entirely support your current needs. When you modify a program instance, the program upon which it is based does not change.</p>
