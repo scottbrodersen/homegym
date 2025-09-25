@@ -82,14 +82,6 @@
     }
   };
 
-  const skipWorkout = (outstandingIndex) => {
-    currentInstance.events[
-      props.dayIndex - (slides.value.length - 1 - outstandingIndex)
-    ] = '';
-
-    updateProgramInstance(currentInstance);
-  };
-
   watch(
     () => selectedEvent.value,
     (newID) => {
@@ -152,21 +144,6 @@
                   slide != props.dayIndex ||
                   currentInstance.events[slide] != undefined ||
                   slides[slide].restDay
-                "
-              />
-              <q-btn
-                round
-                color="primary"
-                icon="do_not_disturb"
-                :disable="
-                  slide > props.dayIndex ||
-                  currentInstance.events[slide] != undefined ||
-                  slides[slide].restDay
-                "
-                @Click="
-                  () => {
-                    skipWorkout(slide);
-                  }
                 "
               />
             </div>

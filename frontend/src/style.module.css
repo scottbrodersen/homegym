@@ -536,7 +536,7 @@ header .hgHamburger {
 
 .buttonArray {
   composes: horiz;
-  justify-content: space-between;
+  justify-content: center;
   composes: blockPadSm;
 }
 

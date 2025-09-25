@@ -63,10 +63,6 @@ You can use this method to start a workout only on the day that the workout occu
    <br/>The program dash now shows that today's workout has been completed.
    <br/><img src="../img/pgminst_dash_done.png" width="350"/>
 
-## Cancel a workout
-
-If you know you won't be able to perform today's workout, you can immediately cancel it to mark it as not performed. Either cancel it immediately or merely wait until tomorrow. Past workouts are automatically cancelled if they are not associated with a logged workout.
-
 ## Link to an existing workout
 
 Link a logged workout that you [added ad-hoc](track.md#log-a-workout) to a workout in your program instance. After linking, the scheduled workout will be marked as complete.
