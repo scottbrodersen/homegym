@@ -30,28 +30,7 @@ Repeat the following steps for each exercise that you want to add. You don't hav
 4. For count volumes, select Track Failed Reps when monitoring failed attempts is important to you.
    <br /> <img src="../img/exercise_track_failed.png" width="400" />
 
-The Variation and Composite Exercise options are used to customize how volume is aggregated. See "Track Hidden Volume" below.
-
-## Track hidden volume
-
-Exercises can be a variation of another exercise, or a combination of 2 or more exercises. You can configure these exercises so that their volume is included in the aggregate data of the exercises they are based on or comprised of. In this way, you can get a more accurate measure of volume for the base exercises.
-
-When you configure an exercise as a variation or composite, volume that you already logged for the exercise is aggregated for the base exercises. You can configure variations and composites at any time.
-
-### Make an exercise variation
-
-Configure an exercise as a variation of another exercise so that the volume of the variation contributes to the total volume of the base exercise. For example, you might want to aggregate the volume from all squat movements. You create the Squat exercise, as well as the Back Squat and the Front Squat. You configure both the Back Squat and the Front Squat to be variations of Squat. Now, the Squat volume includes the volume of the two Squat variations. The volume of Back Squats and Front Squats are also aggregated separately.
-
-1. On the menu bar, click Activity > Exercises.
-2. Select the exercise that you want to configure as a variation.
-3. Click the pencil icon next to Properties. <img src="../img/icon_edit_round.png" width="35" />
-4. Select Variation and then click the arrow icon that appears next to it.
-   <br/><img src="../img/exercise_variation.png" width="450" />
-5. Select the exercise of which the exercise you are configuring is a variation, and click Done.
-   <br/><img src="../img/exercise_variation_squat.png" width="250" />
-6. Click the save icon. <img src="../img/icon_save.png" width="35" />
-
-### Make a composite exercise
+## Make a composite exercise
 
 An exercise can be a composite of two or more exercises. Configure an exercise as a composite so that the volume performed for the composite is also counted for the exercises of which it is comprised. For example, a clean can be thought of as being comprised of a pull and a front squat. You create the Clean exercise and configure it to be a composite of the Pull and the Front Squat (or simply Squat, however you want to track your volume).
 

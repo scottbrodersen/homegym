@@ -14,7 +14,6 @@
     intensityTypes,
     volumeTypes,
     openCompositionModal,
-    openVariationModal,
     ErrNotLoggedIn,
     states,
     toast,
@@ -56,18 +55,8 @@
     }
   };
 
-  const setBasis = (id) => {
-    currentExerciseType.value.basis = id;
-    if (id == '') {
-      isVariation.value = false;
-    }
-  };
-
   // model for composition checkbox
   const isComposite = ref(false);
-
-  // model for variation checkbox
-  const isVariation = ref(false);
 
   const state = ref(states.READ_ONLY);
 
@@ -116,7 +105,6 @@
     );
 
     isComposite.value = !!currentExerciseType.value.composition ? true : false;
-    isVariation.value = !!currentExerciseType.value.basis ? true : false;
   };
 
   const setNewState = () => {
@@ -137,13 +125,9 @@
       currentExerciseType.value.composition = null;
     }
 
-    // if not a composite or variation, make sure the associated references are empty
+    // if not a composite, make sure the associated references are empty
     if (!isComposite.value) {
       currentExerciseType.value.composition = null;
-    }
-
-    if (!isVariation.value) {
-      currentExerciseType.value.basis = '';
     }
 
     // if id, update existing
@@ -302,41 +286,6 @@
           :disable="state == states.READ_ONLY || isComposite"
           dark
         />
-
-        <div :class="[styles.horiz]">
-          <q-checkbox
-            v-show="currentExerciseType.volumeType === 'count'"
-            v-model="isVariation"
-            label="Variation"
-            :disable="state == states.READ_ONLY || isComposite"
-            dark
-          />
-          <div
-            v-show="isVariation && currentExerciseType.volumeType === 'count'"
-            :class="[styles.maxRight, styles.blockPadSm]"
-          >
-            <q-btn
-              round
-              icon="arrow_right_alt"
-              :disable="state == states.READ_ONLY || isComposite"
-              color="primary"
-              @click="
-                openVariationModal(
-                  currentExerciseType.id,
-                  currentExerciseType.basis,
-                  setBasis
-                )
-              "
-              size="0.65em"
-            />
-          </div>
-        </div>
-        <div v-show="isVariation" :class="[styles.blockPadSm, styles.compShow]">
-          <div v-if="!!currentExerciseType.basis">
-            {{ exerciseTypeStore.get(currentExerciseType.basis).name }}
-          </div>
-        </div>
-
         <div :class="[styles.horiz]">
           <q-checkbox
             v-show="currentExerciseType.volumeType === 'count'"
@@ -344,8 +293,7 @@
             label="Composite exercise"
             :disable="
               state == states.READ_ONLY ||
-              currentExerciseType.volumeConstraint == 2 ||
-              isVariation
+              currentExerciseType.volumeConstraint == 2
             "
             dark
           />

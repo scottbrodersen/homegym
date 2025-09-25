@@ -11,7 +11,6 @@ import { Dialog, Notify } from 'quasar';
 import NewActivityModal from './../components/NewActivityModal.vue';
 import VolumeModal from './../components/VolumeModal.vue';
 import CompositionModal from './../components/CompositionModal.vue';
-import VariationModal from './../components/VariationModal.vue';
 import NewProgramModal from '../components/NewProgramModal.vue';
 import ConfirmModal from './../components/ConfirmModal.vue';
 import ProgramInstanceModal from './../components/ProgramInstanceModal.vue';
@@ -571,23 +570,6 @@ const openCompositionModal = (exerciseTypeID, composition, callback) => {
   })
     .onOk((composition) => {
       callback(composition);
-    })
-    .onCancel(() => {});
-};
-
-/**
- * A dialog that sets or edits, for an exercise, the ID of an exercise upon which it is based. For example, a clean deadlift is a variation of a deadlift.
- * @param {String} exerciseTypeID The ID of the exercise that is a variation of another exercise.
- * @param {String} basisID (Optional) The ID of the exercise that is the basis. Provide a value when editing an existing variation.
- * @param {Function} callback A function to execute after the variation is defined. The function takes the variation ID as an argument.
- */
-const openVariationModal = (exerciseTypeID, basisID, callback) => {
-  Dialog.create({
-    component: VariationModal,
-    componentProps: { exerciseID: exerciseTypeID, basisID: basisID },
-  })
-    .onOk((id) => {
-      callback(id);
     })
     .onCancel(() => {});
 };
@@ -1164,7 +1146,6 @@ export {
   openVolumeModal,
   toast,
   openCompositionModal,
-  openVariationModal,
   openConfirmModal,
   states,
   OrderedList,
