@@ -79,6 +79,20 @@ Link a logged workout that you [added ad-hoc](track.md#log-a-workout) to a worko
    <br />The program dashboard also shows that the workout was completed.
    <br/><img src="../img/pgminst_dash_linked_done.png" width="550"/>
 
+## Edit a workout {: #edit }
+
+You can make changes to the details of a logged workout at any time.
+
+1. To open the workout in editing mode, do either of the following:
+   <ul>
+   <li>On the home page, expand the workout in the log and click the pencil icon.
+   <br/><img src="../img/log_workout_edit.png" width="500"/></li>
+   <li>Open the program instance, locate the workout that you are editing, and click Edit from the hamburger menu.
+   <br/><img src="../img/pgminst_workout_link.png" width="300"/></li>
+</ul>
+1. Change existing values or add more details, then click Save.
+   <br/><img src="../img/workout_edit.png" width="500"/></li>
+
 ## Modify a program instance
 
 Modify a program instance when the original program does not entirely support your current needs. When you modify a program instance, the program upon which it is based does not change.

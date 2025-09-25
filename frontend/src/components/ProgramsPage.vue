@@ -137,9 +137,9 @@
   <div>
     <div
       id="pgm-select-wrap"
-      :class="[styles.hgCentered, styles.pgmSelectWrap]"
+      :class="[styles.pgmCentered, styles.pgmSelectWrap]"
     >
-      <div :class="[styles.pgmSelect]">
+      <div :class="[styles.selActivityWrap]">
         <q-select
           id="activity"
           label="Activity"
@@ -204,7 +204,7 @@
         </div>
       </div>
     </div>
-    <div>
+    <div :class="[styles.pgmStartWrap]">
       <q-btn
         id="start"
         v-show="selectedProgram"
@@ -213,6 +213,7 @@
         square
         flat
         dark
+        outline
       />
     </div>
     <div>

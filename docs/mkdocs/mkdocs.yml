@@ -16,3 +16,4 @@ extra_css:
   - style.css
 markdown_extensions:
   - extra
+  - attr_list

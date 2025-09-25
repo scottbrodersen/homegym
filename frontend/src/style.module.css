@@ -249,6 +249,14 @@ header .hgHamburger {
   font-size: 1.25em;
 }
 
+.selActivityWrap {
+  composes: horiz;
+  align-items: center;
+}
+.selActivityWrap button {
+  font-size: 0.65em;
+}
+
 .eventsTable th {
   font-size: 1.25em;
 }
@@ -388,7 +396,8 @@ header .hgHamburger {
 .exName {
   color: var(--hg-yellow);
   font-weight: var(--hg-bold-weight);
-  width: 80px;
+  min-width: 80px;
+  margin-right: 20px;
   overflow-wrap: break-word;
 }
 
@@ -555,6 +564,7 @@ header .hgHamburger {
   composes: horiz;
   justify-content: space-between;
   align-items: center;
+  margin-left: 138px;
 }
 
 .pgmInstItem,
@@ -631,7 +641,10 @@ header .hgHamburger {
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--hg-black) var(--hg-mid);
+  border: 1px solid var(--hg-mid);
+  padding: 0px 0px 0px 6px;
 }
+
 .carouselNav {
   composes: horiz;
   justify-content: center;
@@ -700,6 +713,13 @@ header .hgHamburger {
   composes: vert;
   position: sticky;
   top: var(--hg-header);
+  align-items: center;
+}
+
+.pgmStartWrap {
+  composes: horiz;
+  align-items: center;
+  justify-content: center;
 }
 .pgmMap {
   width: 280px;
@@ -727,7 +747,7 @@ header .hgHamburger {
 .pgmSelectWrap {
   height: var(--hg-pgmselect);
 }
-.hgCentered {
+.pgmCentered {
   width: 100%;
   min-width: 100%;
   composes: vert;
@@ -806,6 +826,7 @@ header .hgHamburger {
   border: solid 1px var(--hg-mid);
   border-radius: 5px;
   align-self: center;
+  width: 500px;
 }
 
 :global(#inst-wrap) {
@@ -1004,7 +1025,7 @@ header .hgHamburger {
     padding: 4px 47px;
   }
   .pgmWrap {
-    max-width: 700px;
+    /* max-width: 700px; */
   }
 
   .pgmDash {
