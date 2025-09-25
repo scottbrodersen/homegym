@@ -10,7 +10,7 @@
    *  workoutIndex is the index of the workout in the microcycle. 0-based.
    *  dayIndex is the index of the program day that the workout falls on. 0-based.
    */
-  import { ref, computed } from 'vue';
+  import { inject, ref, computed } from 'vue';
   import * as styles from '../style.module.css';
   import DatePicker from './DatePicker.vue';
   import EventMeta from './EventMeta.vue';
@@ -32,6 +32,9 @@
     updateProgramInstance,
   } from '../modules/utils.js';
   import { useRouter } from 'vue-router';
+
+  const docsContext = ref(inject('docsContext'));
+  docsContext.value = 'event';
 
   const router = useRouter();
 
@@ -273,8 +276,9 @@
         />
       </div>
     </div>
-    <div>
+    <div :class="[styles.blockPadSm]">
       <q-btn
+        v-if="thisEventActivityName"
         label="Add exercise"
         color="primary"
         @click="setExerciseInstance(null, null)"
