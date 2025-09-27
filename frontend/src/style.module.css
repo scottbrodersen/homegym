@@ -808,6 +808,7 @@ header .hgHamburger {
   position: sticky;
   bottom: 0;
   background: var(--hg-black);
+  max-width: 430px;
 }
 
 :global(#program-dash .q-carousel__slide) {
