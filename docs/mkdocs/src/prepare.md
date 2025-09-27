@@ -1,6 +1,6 @@
 # Prepare your activities
 
-Before you log your workouts or create training programs, you need to create the activities and exercises that you perform. For example, a runner would create an activity called Running. Then, they would add different types of workouts and exercises that they perform such as Easy Jog, Threshold Run, Squats, and so on.
+Before you log your workouts or create training programs, you need to create the activities and exercises that you perform. For example, a runner would create an activity called Running. Then, they would add different types of workout segments and exercises that they perform such as Run, Squats, and so on.
 
 ## Create an activity
 
@@ -17,9 +17,9 @@ You can create multiple activities for when you train for different sports at di
 
 Create an exercise that you perform during a workout so that you can track the volume of work that you perform with it. Examples of strength training exercises are Squat or Deadlift. Running exercises would be characterized by workout segments that are performed at different intensities such as Sprint, Threshold Run, or Easy Run.
 
-In addition to the exercise name, you specify how to specify the intensity and volume. Several types of intensities and volume are provided that you use to configure your exercises. Strength training exercises typically use weight for intensity and count (i.e. sets and reps) for volume. For cardio, you might use RPE, heart rate, or pace as intensity and time or distance as the volume.
+In addition to the exercise name, you specify how to express the intensity and volume. Several types of intensities and volumes are provided that you use to configure your exercises. Strength training exercises typically use weight for intensity and count (i.e. sets and reps) for volume. For cardio, you might use RPE, heart rate, or pace as intensity and time or distance as the volume.
 
-When an exercise that is tracked by counting reps is highly skill-based, it can be useful to record failed attempts. For example, you might want to record failed snatches to monitor your success rate. Failed attempts do not contribute to overall volume calculations.
+When an exercise that is tracked by counting reps is highly skills-based, it can be useful to record failed attempts. For example, you might want to record failed snatches to monitor your success rate. Failed attempts do not contribute to overall volume calculations.
 
 Repeat the following steps for each exercise that you want to add. You don't have to add all of them at once; you can add exercises at any time.
 
