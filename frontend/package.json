@@ -18,7 +18,8 @@
     "chart.js": "^4.5.0",
     "date-fns": "^v4.1.0",
     "chartjs-adapter-date-fns": "^v3.0.0",
-    "chartjs-plugin-datalabels": "^v2.2.0"
+    "chartjs-plugin-datalabels": "^v2.2.0",
+    "tar-fs": "^3.1.1"
   },
   "devDependencies": {
     "@quasar/quasar-app-extension-testing-unit-vitest": "^1.1.0",
