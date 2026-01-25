@@ -5,6 +5,7 @@
 | Key                                                       | Value passed to/from dal | Description                    |
 | --------------------------------------------------------- | ------------------------ | ------------------------------ |
 | user:{id}#id                                              | string                   | username used to log in        |
+| user:{id}#role                                            | string                   | user role                      |
 | user:{id}#email                                           | string                   | email address                  |
 | user:{id}#phash                                           | string                   | password hash                  |
 | user:{id}#version                                         | int                      | version of user record         |

@@ -8,7 +8,7 @@
     }
   ],
   "settings": {
-    "cSpell.words": ["hgdocs", "testmode"]
+    "cSpell.words": ["dailybackup", "hgdocs", "restoredaily", "testmode"]
   },
   "launch": {
     "version": "0.2.0",
