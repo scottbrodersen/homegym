@@ -69,6 +69,8 @@ type Dstore interface {
 	GetBioStatsPage(useID string, startDate int64, pageSize int) ([][]byte, error)
 
 	Iter8er()
+
+	Restore(filepath string) error
 }
 
 var (

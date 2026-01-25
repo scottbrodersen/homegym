@@ -342,3 +342,9 @@ func (d *MockDal) GetBioStatsPage(userID string, startDate int64, pageSize int) 
 func (d *MockDal) Iter8er() {
 
 }
+
+func (d *MockDal) Restore(filename string) error {
+	args := d.Called(filename)
+
+	return args.Error(1)
+}

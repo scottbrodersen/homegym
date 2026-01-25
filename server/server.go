@@ -65,6 +65,7 @@ func init() {
 	secureMux.HandleFunc("/homegym/api/exercises/", ExerciseTypesApi)
 	secureMux.HandleFunc("/homegym/api/events/", EventsApi)
 	secureMux.HandleFunc("/homegym/api/dailystats/", DailyStatsApi)
+	secureMux.HandleFunc("/homegym/api/admin/", AdminApi)
 	secureFileServer := GymFileServer(secured.SecuredEFS)
 	secureMux.Handle("/homegym/home/dist/", http.StripPrefix("/homegym/home", secureFileServer))
 	//secureMux.Handle("/homegym/home/assets/", http.StripPrefix("/homegym/home", secureFileServer))

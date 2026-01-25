@@ -28,15 +28,19 @@ import (
 
 	"log"
 
+	"github.com/scottbrodersen/homegym/admin"
 	"github.com/scottbrodersen/homegym/auth"
 	"github.com/scottbrodersen/homegym/dal"
 	"github.com/scottbrodersen/homegym/server"
+	"github.com/scottbrodersen/homegym/workoutlog"
 )
 
 const (
 	dbPathEnv  = "HOMEGYM_DB_PATH"
 	testDBPath = "./../server/testDB"
 )
+
+var DailyBackupFile string
 
 func main() {
 	var currentLogLevel = slog.SetLogLoggerLevel(slog.LevelInfo)
@@ -62,12 +66,14 @@ func main() {
 		port = 3000
 	}
 
+	admin.DBPath = dbPath
+
 	if dbPath == "" {
 		log.Fatal("Database path not configured")
 	}
-	slog.Debug("using database", "path", dbPath)
+	slog.Debug("using database", "path", admin.DBPath)
 
-	db, err := dal.InitClient(dbPath)
+	db, err := dal.InitClient(admin.DBPath)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -80,23 +86,39 @@ func main() {
 
 	dal.InitHourlyGC(*db)
 
-	dbBackupDir := filepath.Join(dbPath, "backups")
+	dbBackupDir := filepath.Join(admin.DBPath, admin.DBBackupDir)
 	if err := os.Mkdir(dbBackupDir, 0750); err != nil && !os.IsExist(err) {
 		// backups are important
 		log.Fatal(err)
 	}
 
-	dbBackupFile := filepath.Join(dbBackupDir, "backup.bak")
+	dbBackupFile := filepath.Join(dbBackupDir, admin.DBDailyBackupFile)
 	dal.InitDailyBackup(*db, dbBackupFile)
 
-	if dbPath == testDBPath {
+	if admin.DBPath == testDBPath {
 		if err := AddData(); err != nil {
 			slog.Warn("error adding data.", "error", err.Error())
-			dal.DB.Iter8er()
+			//dal.DB.Iter8er()
 		}
 	}
+
+	createAdmin()
 
 	// StartUnsafe for dev purposes only!
 	//server.StartUnsafe(server.DefaultShutdown, port)
 	server.StartSafe(server.DefaultShutdown, port)
+}
+
+func createAdmin() {
+	username := "admin"
+	password := "homegymadmin1234"
+	email := "admin@example.com"
+	role := auth.Admin
+
+	_, err := workoutlog.FrontDesk.NewUser(username, role, email, password)
+	if err != nil {
+		slog.Error("error creating admin user", "error", err.Error())
+	} else {
+		slog.Info("created admin user")
+	}
 }

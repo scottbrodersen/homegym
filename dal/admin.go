@@ -1,6 +1,7 @@
 package dal
 
 import (
+	"bufio"
 	"fmt"
 	"log/slog"
 	"os"
@@ -75,4 +76,19 @@ func InitDailyBackup(db DBClient, filePath string) {
 
 		InitDailyBackup(db, filePath)
 	})
+}
+
+func (c *DBClient) Restore(filepath string) error {
+	f, err := os.Open(filepath)
+	if err != nil {
+		slog.Info(err.Error())
+		return err
+	}
+	r := bufio.NewReader(f)
+	err = c.db.Load(r, 100)
+	if err != nil {
+		slog.Info(err.Error())
+		return err
+	}
+	return nil
 }
