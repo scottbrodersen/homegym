@@ -101,7 +101,7 @@
     console.log(exerciseType);
     currentExerciseType.value = Object.assign(
       currentExerciseType.value,
-      exerciseType
+      exerciseType,
     );
 
     isComposite.value = !!currentExerciseType.value.composition ? true : false;
@@ -139,8 +139,12 @@
           currentExerciseType.value.intensityType,
           currentExerciseType.value.volumeType,
           currentExerciseType.value.volumeConstraint,
-          currentExerciseType.value.basis
+          currentExerciseType.value.basis,
         );
+        if (state.value == states.NEW) {
+          // after saving, the exercise is no longer new
+          state.value = states.EDIT;
+        }
       } else {
         await updateExerciseType(currentExerciseType.value);
       }
@@ -313,7 +317,7 @@
                 openCompositionModal(
                   currentExerciseType.id,
                   currentExerciseType.composition,
-                  setComposition
+                  setComposition,
                 )
               "
               size="0.65em"
