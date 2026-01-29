@@ -912,12 +912,27 @@ header .hgHamburger {
   max-width: 148px;
 }
 
-.analyzeFilter {
+.analyzeFilters {
+  composes: horiz;
+  align-items: center;
+  margin-top: 1em;
+}
+.exerciseFilter {
   align-self: flex-start;
+  margin-top: 5px;
+  margin-right: 8em;
 }
 
-.analyzeFilter :global(.q-item__label) {
+.exerciseFilter :global(.q-item__label) {
   font-weight: 700;
+}
+.aggregateFilter {
+  composes: horiz;
+  align-items: center;
+  font-weight: 700;
+}
+.aggregateFilterLabel {
+  margin-right: 1.5em;
 }
 .chartFilter {
   composes: vert;

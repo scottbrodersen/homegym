@@ -16,7 +16,7 @@
   import * as analyzeUtils from '../modules/analyzeUtils';
   import Chart from 'chart.js/auto';
   import ExerciseFilter from './ExerciseFilter.vue';
-  import { QExpansionItem } from 'quasar';
+  import { QExpansionItem, QSelect } from 'quasar';
 
   const docsContext = ref(inject('docsContext'));
   docsContext.value = 'charts';
@@ -25,6 +25,8 @@
   const endDate = ref(dateUtils.nowInSeconds());
   const startDate = ref(endDate.value - 16 * 7 * 24 * 60 * 60);
   let exerciseTypes = [];
+  const bucketSize = ref(1);
+  const bucketOptions = ref([1, 7, 14, 28]);
 
   let rawMetrics = { dates: [], load: [], volume: [] };
   // chart data for exercise metrics
@@ -42,7 +44,7 @@
     } else {
       startDate.value = newStartDate;
     }
-    getMetrics();
+    getMetrics(false, bucketSize.value);
   };
 
   /**
@@ -55,12 +57,21 @@
     } else {
       endDate.value = newEndDate;
     }
-    getMetrics();
+    getMetrics(false, bucketSize.value);
+  };
+
+  /**
+   * Sets the length of contiguous time periods over which metrics are aggregated.
+   * @param newSize The number of days in the time period.
+   */
+  const updateBucketSize = (newSize) => {
+    console.log('bucket size updated to ' + newSize);
+    getMetrics(false, newSize);
   };
 
   Chart.defaults.color = 'rgb(252,252,252)';
   Chart.defaults.elements.line.borderWidth = 1;
-  Chart.defaults.elements.point.radius = 1;
+  Chart.defaults.elements.point.radius = 2;
   Chart.defaults.plugins.legend.labels.boxHeight = 1;
   Chart.defaults.plugins.legend.labels.color = 'rgb(252,252,252)';
   Chart.defaults.scale.title.display = true;
@@ -92,7 +103,7 @@
       startDate.value,
       metrics.value.dates,
       lvRatioData,
-      loadData
+      loadData,
     );
   };
 
@@ -105,7 +116,7 @@
       document.getElementById('chartdaily'),
       endDate.value,
       startDate.value,
-      dayBuckets
+      dayBuckets,
     );
   };
 
@@ -116,7 +127,7 @@
     const datasets = dailyStatsUtils.getTimeSeriesDataSets(dailyStats.value);
     const eventDataset = await analyzeUtils.getTimeSeriesData(
       endDate.value,
-      startDate.value
+      startDate.value,
     );
 
     datasets.events = eventDataset;
@@ -125,7 +136,7 @@
       document.getElementById('chartglucose'),
       endDate.value,
       startDate.value,
-      datasets
+      datasets,
     );
   };
 
@@ -135,14 +146,14 @@
    */
   const setExerciseTypes = (types) => {
     exerciseTypes = types;
-    getMetrics(true);
+    getMetrics(true, bucketSize.value);
   };
 
   /**
    * Retrieves exercise metrics from the server and creates the exercise metrics, daily stats, and time series charts.
    * @param {boolean} updatedTypes True if the chart is updated due to a change in the exercise filter.
    */
-  const getMetrics = async (updatedTypes = false) => {
+  const getMetrics = async (updatedTypes = false, bucketSize = 1) => {
     resetMetrics();
     try {
       if (endDate.value && startDate.value) {
@@ -150,10 +161,10 @@
           rawMetrics = await analyzeUtils.fetchMetrics(
             endDate.value,
             startDate.value,
-            exerciseTypes
+            exerciseTypes,
           );
 
-          metrics.value = analyzeUtils.getDailyTotals(rawMetrics);
+          metrics.value = analyzeUtils.getDailyTotals(rawMetrics, bucketSize);
           exerciseChart();
         }
 
@@ -161,7 +172,7 @@
         if (!updatedTypes) {
           dailyStats.value = await dailyStatsUtils.fetchDailyStats(
             endDate.value,
-            startDate.value
+            startDate.value,
           );
           dailyStatsChart();
           timeSeriesChart();
@@ -207,14 +218,26 @@
       </div>
     </div>
     <h3>Exercise Volume</h3>
-    <q-expansion-item
-      :class="[styles.analyzeFilter]"
-      label="Exercise Filters"
-      dark
-      dense
-    >
-      <ExerciseFilter @ids="(val) => setExerciseTypes(val)" />
-    </q-expansion-item>
+    <div :class="[styles.analyzeFilters]">
+      <q-expansion-item
+        :class="[styles.exerciseFilter]"
+        label="Exercise Filters"
+        dark
+        dense
+      >
+        <ExerciseFilter @ids="(val) => setExerciseTypes(val)" />
+      </q-expansion-item>
+      <div :class="[styles.aggregateFilter]">
+        <div :class="[styles.aggregateFilterLabel]">Aggregate Size (days)</div>
+        <q-select
+          v-model="bucketSize"
+          :options="bucketOptions"
+          dark
+          dense
+          @update:modelValue="updateBucketSize"
+        />
+      </div>
+    </div>
     <div :class="[styles.analyzeChart]">
       <canvas id="chartvolume"></canvas>
     </div>

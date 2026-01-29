@@ -81,7 +81,7 @@ export const getTimeSeriesData = async (startDate, endDate) => {
       await utils.fetchEvents(
         lastCachedEvent.id,
         lastCachedEvent.date,
-        endDate
+        endDate,
       );
     }
   }
@@ -117,32 +117,72 @@ export const getTimeSeriesData = async (startDate, endDate) => {
 };
 
 /**
- * Amalgamates raw metrics into daily totals.
+ * Amalgamates raw metrics into totals over a certain number of days.
  * @param {[Object]} metrics is an array of objects with properties of date, volume, and load that pertain to the performance of an exercise.
+ * @param bucketSize is the number of days for which totals are calculated. Default is one day.
  * @returns An object with properties dates (array of dates), lvRatio (an array of load/volume ratios), and load (an array of load values).
  *  The arrays can be interpreted as stacks in that the related items in each array have the same index.
+ *
+ * Note that metrics.date values must be ordered from most recent to oldest.
  */
-export const getDailyTotals = (metrics) => {
+export const getDailyTotals = (metrics, bucketSize = 1) => {
   // key is date (at midnight), values an array of [total volume; total load/volume]
   const dailyTotals = new Map();
 
-  // aggregate metrics for each day
-  for (let i = 0; i < metrics.dates.length - 1; i++) {
-    const midnight = dateUtils.setEpochToMidnight(metrics.dates[i]);
-    if (dailyTotals.has(midnight)) {
-      const volTot = dailyTotals.get(midnight)[0] + metrics.volume[i];
-      const loadTot = dailyTotals.get(midnight)[1] + metrics.load[i];
+  const oneDay = 1 * 24 * 60 * 60;
 
-      //      dailyTotals.set(midnight, [volTot != 0 ? loadTot / volTot : 0, loadTot]);
-      dailyTotals.set(midnight, [volTot, loadTot]);
+  // first day of current bucket
+  let currentDate = dateUtils.setEpochToMidnight(metrics.dates[0]);
+  let nextDate = currentDate - oneDay * bucketSize;
+
+  let workoutIndex = 0;
+  while (workoutIndex < metrics.dates.length) {
+    /**
+     * if datei is between currentdate and next date
+     *  we are within the current bucket
+     *  we add values to the current bucket
+     *
+     * ELSE
+     *  we increment currentDate and next Date
+     *  we check if the ith date is within and update values accordingly
+     */
+    const midnight = dateUtils.setEpochToMidnight(metrics.dates[workoutIndex]);
+    if (midnight <= currentDate && midnight > nextDate) {
+      if (dailyTotals.has(currentDate)) {
+        const volTot =
+          dailyTotals.get(currentDate)[0] + metrics.volume[workoutIndex];
+        const loadTot =
+          dailyTotals.get(currentDate)[1] + metrics.load[workoutIndex];
+        dailyTotals.set(currentDate, [volTot, loadTot]);
+      } else {
+        dailyTotals.set(currentDate, [
+          metrics.volume[workoutIndex],
+          metrics.load[workoutIndex],
+        ]);
+      }
+      workoutIndex++;
+      continue;
     } else {
-      // dailyTotals.set(midnight, [
-      //   metrics.volume[i] != 0 ? metrics.load[i] / metrics.volume[i] : 0,
-      //   metrics.load[i],
-      // ]);
-      dailyTotals.set(midnight, [metrics.volume[i], metrics.load[i]]);
+      currentDate = nextDate;
+      nextDate -= oneDay * bucketSize;
     }
   }
+
+  // for (let i = 0; i < metrics.dates.length - 1; i++) {
+  //   // date is the first date of the bucket
+  //   const midnight = dateUtils.setEpochToMidnight(metrics.dates[i]);
+
+  //   // aggregate metrics for each day in the bucket
+  //   for (let j = 0; j < bucketSize; j++) {
+  //     if (dailyTotals.has(midnight)) {
+  //       const volTot = dailyTotals.get(midnight)[0] + metrics.volume[i + j];
+  //       const loadTot = dailyTotals.get(midnight)[1] + metrics.load[i + j];
+  //       dailyTotals.set(midnight, [volTot, loadTot]);
+  //     } else {
+  //       dailyTotals.set(midnight, [metrics.volume[i + j], metrics.load[i + j]]);
+  //     }
+  //   }
+  // }
 
   const dailyMetricStacks = {
     dates: [],
@@ -175,7 +215,7 @@ export const getVolumeChart = (
   endDate,
   dates,
   lvRatioData,
-  loadData
+  loadData,
 ) => {
   const existing = Chart.getChart(element);
   if (existing) {
