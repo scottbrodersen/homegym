@@ -32,7 +32,7 @@
       // Get daily stats from today only
       const dailyStats = await dailyStatsUtils.fetchDailyStats(
         startDate,
-        endDate
+        endDate,
       );
 
       dailyStatsStore.bulkAdd(dailyStats);
@@ -61,10 +61,9 @@
         for (const activity of activityStore.getAll()) {
           programInstanceStore.setCurrent(
             activity.id,
-            selectCurrentProgramInstance(activity.id)
+            selectCurrentProgramInstance(activity.id),
           );
         }
-        console.log('done init state');
       }
     } catch (e) {
       if (e instanceof ErrNotLoggedIn) {
