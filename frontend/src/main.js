@@ -8,6 +8,14 @@ import App from './App.vue';
 import router from './routes.js';
 import { select, focus } from './modules/directives.js';
 import 'vite/modulepreload-polyfill';
+import faviconUrl from './favicon.png';
+
+// Dynamically create or update the favicon link
+const link = document.createElement('link');
+link.rel = 'icon';
+link.type = 'image/png';
+link.href = faviconUrl;
+document.head.appendChild(link);
 
 const app = createApp(App);
 
