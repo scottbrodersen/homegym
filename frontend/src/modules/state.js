@@ -170,10 +170,11 @@ export const programsStore = reactive({
 export const programInstanceStore = reactive({
   // key is the programID, value is a map of (programInstanceID, programInstance)
   programInstances: new Map(),
+  // instances that are not complete
   // key is the activityID, value is an array of objects with fields programID, instanceID
   activeInstances: new Map(),
   // key is the activityID, value is an object with fields programID, instanceID
-  // One current instance per activity is allowed
+  // One current instance (being executed now) per activity is allowed
   currentInstances: new Map(),
 
   add(instance) {
@@ -182,7 +183,7 @@ export const programInstanceStore = reactive({
     } else {
       this.programInstances.set(
         instance.programID,
-        new Map([[instance.id, instance]])
+        new Map([[instance.id, instance]]),
       );
     }
   },
