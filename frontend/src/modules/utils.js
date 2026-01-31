@@ -25,11 +25,12 @@ import ProgramModal from '../components/ProgramModal.vue';
 const pageSize = () => {
   const defaultPage = 8;
   try {
-    const availableHeight = window.innerHeight - 220 - 36;
-    page = Math.floor((availableHeight - 48 - 50 - 40 - 30) / 42);
+    const availableHeight = window.innerHeight;
+    const page = Math.floor((availableHeight - 48 - 50 - 40 - 30) / 42);
     if (page < 1) {
       return defaultPage;
     }
+    return page;
   } catch (e) {
     return defaultPage;
   }
@@ -267,7 +268,7 @@ const fetchProgramInstances = async (programID, activityID) => {
     const instancePage = await fetchProgramInstancePage(
       lastInstance,
       programID,
-      activityID
+      activityID,
     );
     programInstanceStore.addBulk(instancePage);
     if (instancePage.length < pageSize()) {
@@ -288,7 +289,7 @@ const fetchProgramInstances = async (programID, activityID) => {
 const fetchProgramInstancePage = async (
   programInstanceID,
   programID,
-  activityID
+  activityID,
 ) => {
   const params = new URLSearchParams();
 
@@ -477,7 +478,7 @@ const openVolumeModal = (
   intensity,
   segmentIndex,
   volume,
-  callback
+  callback,
 ) => {
   Dialog.create({
     component: VolumeModal,
@@ -634,7 +635,7 @@ const addExerciseType = async (
   intensityType,
   VolumeType,
   volumeConstraint,
-  basisID
+  basisID,
 ) => {
   const url = '/homegym/api/exercises/';
 
