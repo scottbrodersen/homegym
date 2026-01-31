@@ -18,7 +18,7 @@
 | pepperkey:{keyID}                                         | []byte                   | pepper key                     |
 | session:{sessionid}#userID:{userID}#expires               | int64                    | session expiration time        |
 | user:{id}#activity:{id}#program:{id}                      | []byte                   | training program               |
-| user:{id}#program:{id}#instance:{id}                      | []byte                   | a program instance             |
+| user:{id}#program:{id}#programinstance:{id}               | []byte                   | a program instance             |
 | user:{id}#activity:{id}#activeprogram:{id}                | string                   | {programID: programInstanceID} |
 | user:{id}#bio:{date}                                      | []byte                   | health daily stats             |
 

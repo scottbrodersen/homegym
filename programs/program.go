@@ -486,7 +486,7 @@ func (pu ProgramUtil) GetActiveProgramInstancesPage(userID, ActivityID, previous
 		}
 
 		if len(instanceBytes) == 0 {
-			return nil, nil
+			continue
 		}
 		instance := new(ProgramInstance)
 		err = json.Unmarshal(instanceBytes[0], instance)
