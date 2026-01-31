@@ -33,7 +33,7 @@ export const getWorkoutStatus = (
   eventID,
   workoutIndex,
   todayIndex,
-  isRestDay
+  isRestDay,
 ) => {
   if (eventID && eventID != '') {
     return workoutStatuses.DONE;
@@ -167,7 +167,7 @@ const getEventsForDate = async (activityID, date) => {
   // Get page of events that occur earlier than nextDay
   const eventPage = await utils.fetchEvents(
     null,
-    Math.floor(nextDay.valueOf() / 1000)
+    Math.floor(nextDay.valueOf() / 1000),
   );
 
   for (let i = 0; i < eventPage.length; i++) {
@@ -347,7 +347,7 @@ export const getProgramInstanceStatus = (instanceID) => {
   } else {
     percentComplete = Math.floor((dayIndex / progLength) * 100);
     adherence = Math.floor(
-      (numPerformed / (dayIndex + 1 - restDaysSoFar)) * 100
+      (numPerformed / (dayIndex + 1 - restDaysSoFar)) * 100,
     );
     coords = getWorkoutCoords(instance, dayIndex);
   }
@@ -514,8 +514,8 @@ export const selectCurrentProgramInstance = (activityID) => {
       instances.push(
         programInstanceStore.get(
           activeInstances[i].id,
-          activeInstances[i].programID
-        )
+          activeInstances[i].programID,
+        ),
       );
     }
     let earliest = null;
@@ -528,6 +528,10 @@ export const selectCurrentProgramInstance = (activityID) => {
         active = instances[i];
       }
     }
+  }
+  // check if the start date is in the future
+  if (dateUtils.nowInSeconds() < active.startDate) {
+    return null;
   }
   return active;
 };
