@@ -1031,6 +1031,9 @@ header .hgHamburger {
   .eventsTable {
     min-width: 700px;
   }
+  .eventsTable td.expanded {
+    padding-left: 100px;
+  }
   #wrapper {
     min-width: var(--hg-minwidthwide);
   }
