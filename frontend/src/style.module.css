@@ -636,7 +636,7 @@ header .hgHamburger {
   align-items: center;
 }
 .carouselWrap {
-  min-width: 340px;
+  max-width: 330px;
 }
 .carouselSlideContent {
   composes: horiz;
@@ -845,6 +845,7 @@ header .hgHamburger {
   border: solid 1px var(--hg-mid);
   border-radius: 5px;
   align-self: center;
+  margin-bottom: 40px;
 }
 
 .instInfo,
@@ -1026,7 +1027,9 @@ header .hgHamburger {
   main > div.vert {
     align-items: center;
   }
-
+  .carouselWrap {
+    min-width: 340px;
+  }
   .eventsTable {
     min-width: 700px;
   }
