@@ -1,6 +1,6 @@
 # build the frontend
 cd frontend
-npm install
+npm install --force
 npm run build
 cd ..
 go mod tidy

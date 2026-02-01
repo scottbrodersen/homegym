@@ -295,7 +295,7 @@ const fetchProgramInstancePage = async (
 
   params.append('size', fetchPageSize);
 
-  if (programInstanceID) params.append('previous', eventID);
+  if (programInstanceID) params.append('previous', programInstanceID);
 
   const paramStr = params.toString();
   const url = `/homegym/api/activities/${activityID}/programs/${programID}/instances?${paramStr}`;

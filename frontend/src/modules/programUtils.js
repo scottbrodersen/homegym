@@ -530,7 +530,7 @@ export const selectCurrentProgramInstance = (activityID) => {
     }
   }
   // check if the start date is in the future
-  if (dateUtils.nowInSeconds() < active.startDate) {
+  if (active && dateUtils.nowInSeconds() < active.startDate) {
     return null;
   }
   return active;

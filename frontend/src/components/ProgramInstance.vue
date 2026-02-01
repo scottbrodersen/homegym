@@ -86,8 +86,9 @@
       today = programUtils.getTodayIndex(instance.value);
 
       isCurrentProgramInstance.value =
+        programInstanceStore.getCurrent(props.activityID).id &&
         programInstanceStore.getCurrent(props.activityID).id ==
-        props.instanceID;
+          props.instanceID;
     }
   };
 
@@ -96,9 +97,8 @@
     () => props.instanceID,
     (newID) => {
       init();
-    }
+    },
   );
-  init();
 
   // watch for changes and validate
   watch(
@@ -111,7 +111,7 @@
         valid.value = programUtils.programValidator(newVal);
       }
     },
-    { deep: true }
+    { deep: true },
   );
 
   const saveInstance = async () => {
@@ -135,7 +135,7 @@
   const updateMicroCycle = async (
     microCycleProps,
     blockIndex,
-    microCycleIndex
+    microCycleIndex,
   ) => {
     instance.value.blocks[blockIndex].microCycles[microCycleIndex].title =
       microCycleProps.title;
@@ -160,7 +160,7 @@
     () => coords.value,
     (newCoords) => {
       const evtEl = document.getElementById(
-        `workout${newCoords[0]}-${newCoords[1]}-${newCoords[2]}`
+        `workout${newCoords[0]}-${newCoords[1]}-${newCoords[2]}`,
       );
       if (evtEl) {
         evtEl.scrollIntoView({
@@ -169,7 +169,7 @@
           inline: 'center',
         });
       }
-    }
+    },
   );
 
   const isFuture = (coords) => {
@@ -203,14 +203,14 @@
     } else if (typeof coords === 'object') {
       const events = await programUtils.getEventsOnWorkoutDay(
         instance.value,
-        coords
+        coords,
       );
       // set up dialog options
       if (events && events.length > 0) {
         linkEventDialog.value.events = [];
         events.forEach((evt) => {
           const eventTime = dateUtils.formatTime(
-            dateUtils.dateFromSeconds(evt.date)
+            dateUtils.dateFromSeconds(evt.date),
           );
           linkEventDialog.value.events.push({
             label: eventTime,
@@ -249,7 +249,7 @@
             toggleInstanceTitle();
           });
       }
-    }
+    },
   );
 
   const editWorkout = async (coords) => {
@@ -276,6 +276,7 @@
         }
       });
   };
+  init();
 </script>
 <template>
   <div v-if="instance" :class="[styles.pgmInstance]">
