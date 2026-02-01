@@ -834,6 +834,7 @@ header .hgHamburger {
   border-radius: 5px;
   align-self: center;
   width: 500px;
+  max-width: 300px;
 }
 
 :global(#inst-wrap) {
@@ -1060,6 +1061,9 @@ header .hgHamburger {
   }
   .pgmWrap {
     /* max-width: 700px; */
+  }
+  :global(#wo-wrap) {
+    min-width: 500px;
   }
 
   .pgmDash {
