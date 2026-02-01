@@ -44,6 +44,7 @@
         eTypeIDs.push(eType.id);
         names.push(eType.name);
       });
+      names.sort();
     }
     return names;
   });
@@ -71,7 +72,7 @@
     },
     async (newID) => {
       await getActivityExercises(newID);
-    }
+    },
   );
   onBeforeMount(async () => {
     await getActivityExercises(props.activityID);

@@ -90,6 +90,7 @@
         }
       });
     }
+    exerciseOptions.sort((a, b) => a.name.localeCompare(b.name));
 
     exerciseOptions.forEach((exerciseType) => {
       selected.value.push(exerciseType.name);

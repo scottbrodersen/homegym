@@ -41,6 +41,7 @@
     instanceID: String,
   });
 
+  const activities = ref([]);
   const selectedProgram = ref(props.programID ? props.programID : '');
   const selectedProgramInstance = ref(props.instanceID ? props.instanceID : '');
   const activityID = ref(props.activityID);
@@ -89,7 +90,7 @@
         history.replaceState(
           history.state,
           '',
-          newURL + '&program=' + obj.programID
+          newURL + '&program=' + obj.programID,
         );
       } else {
         selectedProgram.value = '';
@@ -97,7 +98,7 @@
         history.replaceState(
           history.state,
           '',
-          newURL + '&instance=' + obj.programInstanceID
+          newURL + '&instance=' + obj.programInstanceID,
         );
       }
     }
@@ -107,7 +108,7 @@
     newProgramInstanceModal(
       activityID.value,
       selectedProgram.value,
-      saveProgramInstance
+      saveProgramInstance,
     );
   };
 
@@ -129,8 +130,14 @@
     }
   };
 
+  const getActivities = () => {
+    activities.value = activityStore.getAll();
+    activities.value.sort((a, b) => a.name.localeCompare(b.name));
+  };
+
   onBeforeMount(() => {
     setState(states.READ_ONLY);
+    getActivities();
   });
 </script>
 <template>
@@ -145,7 +152,7 @@
           label="Activity"
           stack-label
           :model-value="activityID"
-          :options="activityStore.getAll()"
+          :options="activities"
           option-label="name"
           option-value="id"
           dark
@@ -175,8 +182,8 @@
               props.programID
                 ? props.programID
                 : props.instanceID
-                ? props.instanceID
-                : ''
+                  ? props.instanceID
+                  : ''
             "
             :hideCompleted="hideCompleted"
             @selected="setProgramSelection"

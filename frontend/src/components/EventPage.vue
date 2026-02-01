@@ -68,7 +68,7 @@
 
     if (thisEvent.value.activityID) {
       thisEventActivityName.value = activityStore.get(
-        thisEvent.value.activityID
+        thisEvent.value.activityID,
       ).name;
     }
   } else if (props.programInstanceID && props.dayIndex) {
@@ -81,7 +81,7 @@
     thisEvent.value = { activityID: programInstance.activityID };
 
     thisEventActivityName.value = activityStore.get(
-      thisEvent.value.activityID
+      thisEvent.value.activityID,
     ).name;
 
     thisEvent.value.exercises = {};
@@ -101,6 +101,7 @@
 
   for (const activity of activityStore.getAll()) {
     activityNames.push(activity.name);
+    activityNames.sort();
   }
 
   const setActivity = (activityName) => {
