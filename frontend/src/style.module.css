@@ -919,14 +919,14 @@ header .hgHamburger {
 }
 
 .analyzeFilters {
-  composes: horiz;
-  align-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
   margin-top: 1em;
+  max-width: 300px;
 }
 .exerciseFilter {
-  align-self: flex-start;
   margin-top: 5px;
-  margin-right: 8em;
 }
 
 .exerciseFilter :global(.q-item__label) {
@@ -1041,7 +1041,13 @@ header .hgHamburger {
   .analyzeChart {
     width: 700px;
   }
-
+  .analyzeFilters {
+    flex-direction: row;
+    max-width: 700px;
+  }
+  .exerciseFilter {
+    margin-right: 8em;
+  }
   header {
     max-width: var(--hg-minwidthwide);
   }
