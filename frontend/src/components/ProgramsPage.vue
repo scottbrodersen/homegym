@@ -206,9 +206,9 @@
             "
           />
         </div>
-        <div>
-          <q-checkbox v-model="hideCompleted" label="Hide completed" dark />
-        </div>
+      </div>
+      <div v-show="activityID">
+        <q-checkbox v-model="hideCompleted" label="Hide completed" dark />
       </div>
     </div>
     <div :class="[styles.pgmStartWrap]">

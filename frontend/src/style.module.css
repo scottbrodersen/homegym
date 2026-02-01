@@ -98,10 +98,7 @@ h3 {
   padding: var(--hg-xsmall);
 }
 
-#app {
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+:global(#app) {
   min-width: 100%;
 }
 
@@ -570,7 +567,6 @@ header .hgHamburger {
   composes: horiz;
   justify-content: space-between;
   align-items: center;
-  margin-left: 138px;
 }
 
 .pgmInstItem,
@@ -726,6 +722,7 @@ header .hgHamburger {
   composes: horiz;
   align-items: center;
   justify-content: center;
+  margin-top: 40px;
 }
 .pgmMap {
   width: 280px;
@@ -835,6 +832,7 @@ header .hgHamburger {
   align-self: center;
   width: 500px;
   max-width: 300px;
+  margin-bottom: 40px;
 }
 
 :global(#inst-wrap) {
