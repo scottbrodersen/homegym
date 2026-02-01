@@ -32,7 +32,7 @@
   const docsContextQuery = inject('docsContextQuery');
   const docsContext = inject('docsContext');
   const docsURL = ref(
-    rootDocsURL + '?' + docsContextQuery + '=' + docsContext.value
+    rootDocsURL + '?' + docsContextQuery + '=' + docsContext.value,
   );
   const hgdocs = ref('hgdocs');
 
@@ -41,7 +41,7 @@
     (context) => {
       docsURL.value =
         rootDocsURL + '?' + docsContextQuery + '=' + docsContext.value;
-    }
+    },
   );
 
   // field names match route names
@@ -98,55 +98,59 @@
     () => route.name,
     (newname) => {
       setActive(newname);
-    }
+    },
   );
 </script>
 
 <template>
   <header>
     <q-btn-group push square stretch>
-      <q-btn
-        :class="{ active: active.home }"
-        :unelevated="active.home"
-        :glossy="!active.home"
-        :label="labels.home"
-        square
-        :to="{ name: 'home' }"
-      />
-      <q-btn
-        :class="{ active: active.programs }"
-        :unelevated="active.programs"
-        :glossy="!active.programs"
-        :label="labels.programs"
-        square
-        :to="{ name: 'programs' }"
-      />
-      <q-btn-dropdown
-        :class="{ active: active.activities }"
-        :unelevated="active.activities"
-        :glossy="!active.activities"
-        :label="labels.activity"
-        square
-      >
-        <q-list>
-          <q-item dark clickable :to="{ name: 'activities' }">
-            <q-item-label dark>{{ labels.activities }}</q-item-label>
-          </q-item>
-          <q-item clickable :to="{ name: 'exTypes' }">
-            <q-item-label>{{ labels.exTypes }}</q-item-label>
-          </q-item>
-        </q-list>
-      </q-btn-dropdown>
-      <q-btn
-        :class="{ active: active.analyze }"
-        :unelevated="active.analyze"
-        :glossy="!active.analyze"
-        :label="labels.analyze"
-        square
-        :to="{ name: 'analyze' }"
-      />
+      <div :class="[styles.pageButtons]">
+        <q-btn
+          :class="{ active: active.home }"
+          :unelevated="active.home"
+          :glossy="!active.home"
+          :label="labels.home"
+          square
+          :to="{ name: 'home' }"
+        />
+        <q-btn
+          :class="{ active: active.programs }"
+          :unelevated="active.programs"
+          :glossy="!active.programs"
+          :label="labels.programs"
+          square
+          :to="{ name: 'programs' }"
+        />
+        <q-btn-dropdown
+          :class="{ active: active.activities }"
+          :unelevated="active.activities"
+          :glossy="!active.activities"
+          :label="labels.activity"
+          square
+        >
+          <q-list>
+            <q-item dark clickable :to="{ name: 'activities' }">
+              <q-item-label dark>{{ labels.activities }}</q-item-label>
+            </q-item>
+            <q-item clickable :to="{ name: 'exTypes' }">
+              <q-item-label>{{ labels.exTypes }}</q-item-label>
+            </q-item>
+          </q-list>
+        </q-btn-dropdown>
+        <q-btn
+          :class="{ active: active.analyze }"
+          :unelevated="active.analyze"
+          :glossy="!active.analyze"
+          :label="labels.analyze"
+          square
+          :to="{ name: 'analyze' }"
+        />
+      </div>
       <HeaderHamburger />
-      <q-btn icon="help" :href="docsURL" target="hgdocs" />
+      <div :class="[styles.helpButton]">
+        <q-btn icon="help" :href="docsURL" target="hgdocs" />
+      </div>
     </q-btn-group>
   </header>
 </template>

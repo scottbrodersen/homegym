@@ -102,6 +102,7 @@ h3 {
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  min-width: 100%;
 }
 
 #event {
@@ -232,7 +233,7 @@ header :global(button) :global(.q-icon.q-btn-dropdown__arrow) {
 }
 
 header :global(.q-btn) {
-  padding: 4px 7px;
+  padding: 4px 2px;
 }
 
 .hgHamburger {
@@ -242,6 +243,11 @@ header :global(.q-btn) {
 
 header .hgHamburger {
   margin-left: auto;
+  padding-right: 5px;
+}
+
+.helpButton {
+  padding-left: 5px;
 }
 .selActivity {
   min-width: var(--hg-xxlg);
@@ -1037,8 +1043,11 @@ header .hgHamburger {
     max-width: var(--hg-minwidthwide);
   }
 
-  header :global(.q-btn) {
+  header .pageButtons :global(.q-btn) {
     padding: 4px 47px;
+  }
+  header .pageButtons {
+    margin-left: auto;
   }
   .pgmWrap {
     /* max-width: 700px; */
