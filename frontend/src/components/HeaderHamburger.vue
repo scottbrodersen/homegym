@@ -34,7 +34,7 @@
     if (isMetric) {
       state.metricState.setMetric();
     } else {
-      state / metricState.setImperial();
+      state.metricState.setImperial();
     }
   };
 </script>
