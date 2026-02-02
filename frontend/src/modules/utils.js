@@ -25,7 +25,15 @@ import ProgramModal from '../components/ProgramModal.vue';
 const pageSize = () => {
   const defaultPage = 8;
   try {
-    const availableHeight = window.innerHeight;
+    // account for the program dash if there is a current program instance
+    let programDash = 0;
+    activityStore.getAll().forEach((activity) => {
+      if (programInstanceStore.getCurrent(activity.id)) {
+        programDash = 300;
+      }
+    });
+
+    const availableHeight = window.innerHeight - programDash;
     const page = Math.floor((availableHeight - 48 - 50 - 40 - 30) / 42);
     if (page < 1) {
       return defaultPage;
