@@ -51,6 +51,7 @@
           :type="isPwd ? 'password' : 'text'"
           label="Password"
           autocomplete="current-password"
+          @keydown.enter="onOKClick"
         >
           <template v-slot:append>
             <q-icon
