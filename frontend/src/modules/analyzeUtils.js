@@ -211,8 +211,20 @@ export const getVolumeChart = (
     data: {
       labels: dates,
       datasets: [
-        { data: lvRatioData, yAxisID: 'yVol', label: 'Volume' },
-        { data: loadData, yAxisID: 'yLoad', label: 'Load' },
+        {
+          data: lvRatioData,
+          yAxisID: 'yVol',
+          label: 'Volume',
+          borderColor: 'red',
+          order: 1,
+        },
+        {
+          data: loadData,
+          yAxisID: 'yLoad',
+          label: 'Load',
+          borderColor: 'yellow',
+          order: 0,
+        },
       ],
     },
     options: {
