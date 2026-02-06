@@ -29,7 +29,7 @@ const pageSize = () => {
     let programDash = 0;
     activityStore.getAll().forEach((activity) => {
       if (programInstanceStore.getCurrent(activity.id)) {
-        programDash = 300;
+        programDash = 260;
       }
     });
 
