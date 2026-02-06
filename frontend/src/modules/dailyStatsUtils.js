@@ -322,7 +322,7 @@ export const getDailyChart = (element, startDate, endDate, dataset) => {
     },
 
     options: {
-      maintainAspectRatio: false,
+      maintainAspectRatio: true,
       aspectRatio: 1,
       scales: {
         x: {
@@ -422,7 +422,7 @@ export const getTimeSeriesChart = (
   element,
   startDate,
   endDate,
-  datasetsObj
+  datasetsObj,
 ) => {
   const existing = Chart.getChart(element);
   if (existing) {
@@ -456,7 +456,7 @@ export const getTimeSeriesChart = (
       datasets: datasets,
     },
     options: {
-      maintainAspectRatio: false,
+      maintainAspectRatio: true,
       aspectRatio: 1,
       elements: {
         point: {
@@ -507,9 +507,6 @@ export const getTimeSeriesChart = (
         // Substitute the appropriate scale IDs
         const dataX = chart.scales.x.getValueForPixel(canvasPosition.x);
         const dataY = chart.scales.y.getValueForPixel(canvasPosition.y);
-        console.log(`clicked: (${dataX}, ${dataY})`);
-        console.log(chart.tooltip.dataPoints);
-        console.log(e);
       },
     },
   });

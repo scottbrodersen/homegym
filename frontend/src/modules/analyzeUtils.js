@@ -168,22 +168,6 @@ export const getDailyTotals = (metrics, bucketSize = 1) => {
     }
   }
 
-  // for (let i = 0; i < metrics.dates.length - 1; i++) {
-  //   // date is the first date of the bucket
-  //   const midnight = dateUtils.setEpochToMidnight(metrics.dates[i]);
-
-  //   // aggregate metrics for each day in the bucket
-  //   for (let j = 0; j < bucketSize; j++) {
-  //     if (dailyTotals.has(midnight)) {
-  //       const volTot = dailyTotals.get(midnight)[0] + metrics.volume[i + j];
-  //       const loadTot = dailyTotals.get(midnight)[1] + metrics.load[i + j];
-  //       dailyTotals.set(midnight, [volTot, loadTot]);
-  //     } else {
-  //       dailyTotals.set(midnight, [metrics.volume[i + j], metrics.load[i + j]]);
-  //     }
-  //   }
-  // }
-
   const dailyMetricStacks = {
     dates: [],
     lvRatio: [],
@@ -232,7 +216,7 @@ export const getVolumeChart = (
       ],
     },
     options: {
-      maintainAspectRatio: false,
+      maintainAspectRatio: true,
       aspectRatio: 1,
       scales: {
         x: {

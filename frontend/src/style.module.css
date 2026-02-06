@@ -959,10 +959,6 @@ header .hgHamburger {
 .analyzeDates > div {
   padding: 0px var(--hg-med);
 }
-
-.analyzeChart {
-  height: 700px;
-}
 .filterOptions {
   padding: var(--hg-xsmall) 0px;
 }
