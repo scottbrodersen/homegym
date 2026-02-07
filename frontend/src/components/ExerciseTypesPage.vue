@@ -339,7 +339,7 @@
             text-color="dark"
             icon="save"
             @click="saveType"
-            :disable="!isChanged && isTypeValid"
+            :disable="!isChanged || !isTypeValid"
           />
           <q-btn
             color="accent"
