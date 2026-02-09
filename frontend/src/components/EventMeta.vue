@@ -44,9 +44,9 @@
 <template>
   <div v-if="props.readonly" :class="[styles.horiz]">
     <div :class="styles.sibSpSmall" v-for="(value, key) in labels">
-      <div v-if="props[key]">
-        <span :class="[styles.hgBold]">{{ value }}</span
-        >: <span>{{ props[key] }}</span>
+      <div v-if="props[key]" :class="styles.eventMetaItem">
+        <div :class="[styles.hgBold]">{{ value }}: &nbsp;</div>
+        <div>{{ props[key] }}</div>
       </div>
     </div>
   </div>
