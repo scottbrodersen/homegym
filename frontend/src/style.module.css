@@ -443,6 +443,16 @@ header .hgHamburger {
   composes: horiz;
   justify-content: space-between;
 }
+
+.eventMetaItem {
+  composes: horiz;
+  max-width: 300px;
+}
+
+.eventMetaItem div:nth-child(2) {
+  white-space: pre-wrap;
+  line-height: 1.5em;
+}
 .eventTopRow {
   display: flex;
   flex-direction: row;
@@ -1031,6 +1041,9 @@ header .hgHamburger {
   }
   .eventsTable td.expanded {
     padding-left: 100px;
+  }
+  .eventMetaItem {
+    max-width: 560px;
   }
   #wrapper {
     min-width: var(--hg-minwidthwide);
