@@ -206,6 +206,11 @@ h3 {
   align-self: center;
 }
 
+.exerciseWrap,
+.activityWrap {
+  display: flex;
+  justify-content: center;
+}
 header {
   width: 100%;
   max-width: var(--hg-maxwidth);
@@ -1069,14 +1074,19 @@ header .hgHamburger {
   header .pageButtons {
     margin-left: auto;
   }
-  .pgmWrap {
-    /* max-width: 700px; */
-  }
+
   :global(#wo-wrap) {
     min-width: 500px;
   }
 
   .pgmDash {
     width: 300px;
+  }
+  .grid2Col {
+    min-width: 700px;
+  }
+  .exerciseWrap,
+  .activityWrap {
+    margin-left: 200px;
   }
 }
