@@ -83,7 +83,7 @@
   const resetValues = () => {
     if (!!currentActivity.id) {
       selectedTypeIDs.value = toRaw(
-        activityStore.get(currentActivity.id).exercises
+        activityStore.get(currentActivity.id).exercises,
       );
     }
   };
@@ -159,151 +159,151 @@
 </script>
 
 <template>
-  <div :class="[styles.grid2Col]">
-    <div :class="[styles.colTitleWrapper, styles.leftColumn]">
-      <div :class="[styles.listTitle, styles.sibSpSmall]">Activities</div>
-      <div :class="[styles.sibSpSmall]">
-        <q-btn
-          size="0.65em"
-          round
-          :disable="state == states.EDIT"
-          icon="add"
-          name="add-activity"
-          color="primary"
-          @Click="newActivityPrompt"
-        />
-      </div>
-      <div :class="[styles.sibSpSmall]">
-        <q-btn
-          name="edit-activity"
-          size="0.65em"
-          round
-          :disable="state == states.EDIT || currentActivity.id == ''"
-          icon="edit"
-          color="primary"
-        />
-        <q-popup-edit
-          :model-value="currentActivity.name"
-          persistent
-          buttons
-          label-set="Save"
-          @update:model-value="updateActivityName"
-          v-slot="scope"
-        >
-          <q-input
-            v-model="scope.value"
-            dense
-            autofocus
-            counter
-            v-focus
-            @keyup.enter="scope.set"
+  <div :class="[styles.activityWrap]">
+    <div :class="[styles.grid2Col]">
+      <div :class="[styles.colTitleWrapper, styles.leftColumn]">
+        <div :class="[styles.listTitle, styles.sibSpSmall]">Activities</div>
+        <div :class="[styles.sibSpSmall]">
+          <q-btn
+            size="0.65em"
+            round
+            :disable="state == states.EDIT"
+            icon="add"
+            name="add-activity"
+            color="primary"
+            @Click="newActivityPrompt"
           />
-        </q-popup-edit>
-      </div>
-    </div>
-
-    <div :class="[styles.leftColumn]">
-      <q-list
-        :class="[styles.listStd, styles.blockBorder]"
-        bordered
-        separator
-        dense
-      >
-        <q-item
-          clickable
-          v-for="[id, activity] in activityStore.activities"
-          :key="id"
-          :disable="state == states.EDIT && id != currentActivity.id"
-          @Click.stop="setCurrentActivity(activity)"
-        >
-          <q-item-section>
-            <q-item-label>{{ activity.name }}</q-item-label>
-          </q-item-section>
-          <q-item-section side>
-            <q-icon
-              name="start"
-              color="green"
-              size="sm"
-              v-show="currentActivity.id == id"
+        </div>
+        <div :class="[styles.sibSpSmall]">
+          <q-btn
+            name="edit-activity"
+            size="0.65em"
+            round
+            :disable="state == states.EDIT || currentActivity.id == ''"
+            icon="edit"
+            color="primary"
+          />
+          <q-popup-edit
+            :model-value="currentActivity.name"
+            persistent
+            buttons
+            label-set="Save"
+            @update:model-value="updateActivityName"
+            v-slot="scope"
+          >
+            <q-input
+              v-model="scope.value"
+              dense
+              autofocus
+              counter
+              v-focus
+              @keyup.enter="scope.set"
             />
-          </q-item-section>
-        </q-item>
-      </q-list>
-    </div>
-
-    <div :class="[styles.colTitleWrapper, styles.rightColumn]">
-      <div :class="[styles.listTitle, styles.sibSpSmall]">Exercises</div>
-      <div :class="[styles.sibSpSmall]">
-        <q-btn
-          size="0.65em"
-          round
-          :disable="state == states.EDIT || currentActivity.id == ''"
-          icon="edit"
-          name="edit-exercises"
-          color="primary"
-          @Click="state = states.EDIT"
-        />
+          </q-popup-edit>
+        </div>
       </div>
-    </div>
-    <div :class="[styles.rightColumn]">
-      <div v-if="state == states.EDIT">
-        <q-list :class="[styles.listStd]" compact>
+      <div :class="[styles.leftColumn]">
+        <q-list
+          :class="[styles.listStd, styles.blockBorder]"
+          bordered
+          separator
+          dense
+        >
           <q-item
-            v-for="[id, eType] in exerciseTypeStore.exerciseTypes"
+            clickable
+            v-for="[id, activity] in activityStore.activities"
             :key="id"
+            :disable="state == states.EDIT && id != currentActivity.id"
+            @Click.stop="setCurrentActivity(activity)"
           >
             <q-item-section>
-              <q-checkbox
-                v-model="selectedTypeIDs"
-                :val="eType.id"
-                :label="eType.name"
-                dark
+              <q-item-label>{{ activity.name }}</q-item-label>
+            </q-item-section>
+            <q-item-section side>
+              <q-icon
+                name="start"
+                color="green"
+                size="sm"
+                v-show="currentActivity.id == id"
               />
             </q-item-section>
           </q-item>
         </q-list>
-        <div :class="[styles.buttonArray]">
+      </div>
+      <div :class="[styles.colTitleWrapper, styles.rightColumn]">
+        <div :class="[styles.listTitle, styles.sibSpSmall]">Exercises</div>
+        <div :class="[styles.sibSpSmall]">
           <q-btn
-            color="accent"
-            text-color="dark"
-            icon="save"
-            @click="saveExerciseIDs"
-            :disabled="!isChanged"
-          />
-          <q-btn
-            color="accent"
-            text-color="dark"
-            icon="restart_alt"
-            @click="resetValues"
-            :disabled="!isChanged"
-          />
-          <q-btn
-            color="accent"
-            text-color="dark"
-            icon="done"
-            :disabled="isChanged"
-            @click="state = states.READ_ONLY"
-            :class="[styles.maxRight]"
+            size="0.65em"
+            round
+            :disable="state == states.EDIT || currentActivity.id == ''"
+            icon="edit"
+            name="edit-exercises"
+            color="primary"
+            @Click="state = states.EDIT"
           />
         </div>
       </div>
-      <div v-if="state == states.READ_ONLY">
-        <q-list
-          :class="[styles.listStd, styles.blockBorder]"
-          dense
-          bordered
-          separator
-          ><q-item v-if="currentActivity.id == ''"
-            ><q-item-section
-              ><q-item-label>Select an activity</q-item-label></q-item-section
-            ></q-item
-          >
-          <q-item v-for="e in selectedTypeIDs" :key="e.id">
-            <q-item-section>
-              <q-item-label>{{ exerciseTypeStore.get(e).name }}</q-item-label>
-            </q-item-section>
-          </q-item>
-        </q-list>
+      <div :class="[styles.rightColumn]">
+        <div v-if="state == states.EDIT">
+          <q-list :class="[styles.listStd]" compact>
+            <q-item
+              v-for="[id, eType] in exerciseTypeStore.exerciseTypes"
+              :key="id"
+            >
+              <q-item-section>
+                <q-checkbox
+                  v-model="selectedTypeIDs"
+                  :val="eType.id"
+                  :label="eType.name"
+                  dark
+                />
+              </q-item-section>
+            </q-item>
+          </q-list>
+          <div :class="[styles.buttonArray]">
+            <q-btn
+              color="accent"
+              text-color="dark"
+              icon="save"
+              @click="saveExerciseIDs"
+              :disabled="!isChanged"
+            />
+            <q-btn
+              color="accent"
+              text-color="dark"
+              icon="restart_alt"
+              @click="resetValues"
+              :disabled="!isChanged"
+            />
+            <q-btn
+              color="accent"
+              text-color="dark"
+              icon="done"
+              :disabled="isChanged"
+              @click="state = states.READ_ONLY"
+              :class="[styles.maxRight]"
+            />
+          </div>
+        </div>
+        <div v-if="state == states.READ_ONLY">
+          <q-list
+            :class="[styles.listStd, styles.blockBorder]"
+            dense
+            bordered
+            separator
+            ><q-item v-if="currentActivity.id == ''"
+              ><q-item-section
+                ><q-item-label>Select an activity</q-item-label></q-item-section
+              ></q-item
+            >
+            <q-item v-for="e in selectedTypeIDs" :key="e.id">
+              <q-item-section>
+                <q-item-label>{{ exerciseTypeStore.get(e).name }}</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </div>
       </div>
     </div>
   </div>
