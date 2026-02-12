@@ -29,7 +29,14 @@
     QSelect,
     QInput,
     QCheckbox,
+    QTab,
+    QTabs,
+    QTabPanel,
+    QTabPanels,
   } from 'quasar';
+  import ExerciseStats from './ExerciseStats.vue';
+
+  const tab = ref('properties');
 
   const emptyType = () => {
     return {
@@ -98,7 +105,6 @@
   });
 
   const setCurrentExercise = (exerciseType) => {
-    console.log(exerciseType);
     currentExerciseType.value = Object.assign(
       currentExerciseType.value,
       exerciseType,
@@ -233,19 +239,6 @@
           </q-item>
         </q-list>
       </div>
-      <div :class="[styles.colTitleWrapper, styles.rightColumn]">
-        <div :class="[styles.listTitle, styles.sibSpSmall]">Properties</div>
-        <div :class="[styles.sibSpSmall]">
-          <q-btn
-            size="0.65em"
-            round
-            icon="edit"
-            color="primary"
-            :disable="state != states.READ_ONLY || !currentExerciseType.id"
-            @Click="state = states.EDIT"
-          />
-        </div>
-      </div>
       <div :class="[styles.rightColumn, styles.blockBorder]">
         <div
           v-if="currentExerciseType.id == '' && state == states.READ_ONLY"
@@ -254,108 +247,167 @@
           Select an exercise
         </div>
         <div v-else :class="[styles.vert]">
-          <q-input
-            v-model="currentExerciseType.name"
-            filled
-            type="text"
-            label="Exercise Name"
-            :readonly="state == states.READ_ONLY"
-            dark
-            v-focus
-          />
-          <q-select
-            v-model="currentExerciseType.intensityType"
-            :options="intensityTypes"
-            filled
-            label="Intensity"
-            emit-value
-            :readonly="state == states.READ_ONLY"
-            dark
-          />
-          <q-select
-            v-model="currentExerciseType.volumeType"
-            :options="volumeTypes"
-            filled
-            label="Volume"
-            :readonly="state == states.READ_ONLY"
-            emit-value
-            dark
-          />
-          <q-checkbox
-            v-show="currentExerciseType.volumeType === 'count'"
-            v-model.number="currentExerciseType.volumeConstraint"
-            :true-value="Number('2')"
-            :false-value="Number('1')"
-            :toggle-indeterminate="false"
-            label="Track Failed reps"
-            :disable="state == states.READ_ONLY || isComposite"
-            dark
-          />
-          <div :class="[styles.horiz]">
-            <q-checkbox
-              v-show="currentExerciseType.volumeType === 'count'"
-              v-model="isComposite"
-              label="Composite exercise"
-              :disable="
-                state == states.READ_ONLY ||
-                currentExerciseType.volumeConstraint == 2
-              "
-              dark
-            />
-            <div
-              v-show="isComposite && currentExerciseType.volumeType === 'count'"
-              :class="[styles.maxRight, styles.blockPadSm]"
-            >
-              <q-btn
-                round
-                icon="arrow_right_alt"
-                :disable="
-                  state == states.READ_ONLY ||
-                  currentExerciseType.volumeConstraint == 2
-                "
-                color="primary"
-                @click="
-                  openCompositionModal(
-                    currentExerciseType.id,
-                    currentExerciseType.composition,
-                    setComposition,
-                  )
-                "
-                size="0.65em"
+          <div>
+            <q-tabs v-model="tab" :content-class="styles.exerciseTabs">
+              <q-tab
+                name="properties"
+                label="Properties"
+                :content-class="styles.exerciseTab"
               />
-            </div>
-          </div>
-          <div
-            v-show="isComposite && currentExerciseType.volumeType === 'count'"
-            :class="[styles.blockPadSm, styles.compShow]"
-          >
-            <div v-for="(value, key) in currentExerciseType.composition">
-              {{ exerciseTypeStore.get(key).name }} x
-              {{ value }}
-            </div>
-          </div>
-          <div v-show="state != states.READ_ONLY" :class="[styles.buttonArray]">
-            <q-btn
-              color="accent"
-              text-color="dark"
-              icon="save"
-              @click="saveType"
-              :disable="!isChanged || !isTypeValid"
-            />
-            <q-btn
-              color="accent"
-              text-color="dark"
-              icon="restart_alt"
-              @click="resetValues"
-              :disable="!isChanged"
-            />
-            <q-btn
-              color="accent"
-              text-color="dark"
-              icon="done"
-              @click="resetAndCancel"
-              :disable="isChanged"
-            />
+              <q-tab
+                name="stats"
+                label="Stats"
+                :content-class="styles.exerciseTab"
+                :disable="currentExerciseType.intensityType != 'weight'"
+              />
+            </q-tabs>
+
+            <q-tab-panels v-model="tab" animated dark>
+              <q-tab-panel name="properties">
+                <div
+                  v-if="
+                    currentExerciseType.id == '' && state == states.READ_ONLY
+                  "
+                  :class="[styles.blockPadSm]"
+                >
+                  Select an exercise
+                </div>
+                <div v-else :class="[styles.vert]">
+                  <q-input
+                    v-model="currentExerciseType.name"
+                    filled
+                    type="text"
+                    label="Exercise Name"
+                    :readonly="state == states.READ_ONLY"
+                    dark
+                    v-focus
+                  />
+                  <q-select
+                    v-model="currentExerciseType.intensityType"
+                    :options="intensityTypes"
+                    filled
+                    label="Intensity"
+                    emit-value
+                    :readonly="state == states.READ_ONLY"
+                    dark
+                  />
+                  <q-select
+                    v-model="currentExerciseType.volumeType"
+                    :options="volumeTypes"
+                    filled
+                    label="Volume"
+                    :readonly="state == states.READ_ONLY"
+                    emit-value
+                    dark
+                  />
+                  <q-checkbox
+                    v-show="currentExerciseType.volumeType === 'count'"
+                    v-model.number="currentExerciseType.volumeConstraint"
+                    :true-value="Number('2')"
+                    :false-value="Number('1')"
+                    :toggle-indeterminate="false"
+                    label="Track Failed reps"
+                    :disable="state == states.READ_ONLY || isComposite"
+                    dark
+                  />
+                  <div :class="[styles.horiz]">
+                    <q-checkbox
+                      v-show="currentExerciseType.volumeType === 'count'"
+                      v-model="isComposite"
+                      label="Composite exercise"
+                      :disable="
+                        state == states.READ_ONLY ||
+                        currentExerciseType.volumeConstraint == 2
+                      "
+                      dark
+                    />
+                    <div
+                      v-show="
+                        isComposite &&
+                        currentExerciseType.volumeType === 'count'
+                      "
+                      :class="[styles.maxRight, styles.blockPadSm]"
+                    >
+                      <q-btn
+                        round
+                        icon="arrow_right_alt"
+                        :disable="
+                          state == states.READ_ONLY ||
+                          currentExerciseType.volumeConstraint == 2
+                        "
+                        color="primary"
+                        @click="
+                          openCompositionModal(
+                            currentExerciseType.id,
+                            currentExerciseType.composition,
+                            setComposition,
+                          )
+                        "
+                        size="0.65em"
+                      />
+                    </div>
+                  </div>
+                  <div
+                    v-show="
+                      isComposite && currentExerciseType.volumeType === 'count'
+                    "
+                    :class="[styles.blockPadSm, styles.compShow]"
+                  >
+                    <div
+                      v-for="(value, key) in currentExerciseType.composition"
+                    >
+                      {{ exerciseTypeStore.get(key).name }} x
+                      {{ value }}
+                    </div>
+                  </div>
+                  <div :class="[styles.exercisePropsEditBtn]">
+                    <q-btn
+                      size="0.65em"
+                      label="Edit"
+                      color="primary"
+                      :disable="
+                        state != states.READ_ONLY || !currentExerciseType.id
+                      "
+                      @Click="state = states.EDIT"
+                    />
+                  </div>
+                  <div
+                    v-show="state != states.READ_ONLY"
+                    :class="[styles.buttonArray]"
+                  >
+                    <q-btn
+                      color="accent"
+                      text-color="dark"
+                      icon="save"
+                      @click="saveType"
+                      :disable="!isChanged || !isTypeValid"
+                    />
+                    <q-btn
+                      color="accent"
+                      text-color="dark"
+                      icon="restart_alt"
+                      @click="resetValues"
+                      :disable="!isChanged"
+                    />
+                    <q-btn
+                      color="accent"
+                      text-color="dark"
+                      icon="done"
+                      @click="resetAndCancel"
+                      :disable="isChanged"
+                    />
+                  </div>
+                </div>
+              </q-tab-panel>
+
+              <q-tab-panel name="stats">
+                <div>
+                  <div v-show="currentExerciseType.id">
+                    <exercise-stats :exerciseID="currentExerciseType.id" />
+                  </div>
+                </div>
+              </q-tab-panel>
+            </q-tab-panels>
           </div>
         </div>
       </div>

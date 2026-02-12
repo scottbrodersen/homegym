@@ -381,11 +381,89 @@ const fetchExerciseTypes = async () => {
   if (resp.status == 401) {
     throw new ErrNotLoggedIn('unauthorized fetch of exercise types');
   }
-
+  if (resp.status == 404) {
+    return null;
+  }
   const exerciseTypes = await resp.json();
   exerciseTypes.forEach((a) => {
     exerciseTypeStore.add(a);
   });
+};
+
+const fetchExercisePR = async (exerciseID) => {
+  const resp = await fetch(`/homegym/api/exercises/${exerciseID}/pr`, {
+    method: 'GET',
+    mode: 'same-origin',
+  });
+  if (resp.status == 401) {
+    throw new ErrNotLoggedIn('unauthorized fetch of exercise PR');
+  }
+  if (resp.status == 404) {
+    return null;
+  }
+  const prJSON = await resp.json();
+  return prJSON.value;
+};
+
+const updateExercisePR = async (exerciseID, pr) => {
+  const url = `/homegym/api/exercises/${exerciseID}/pr?pr=${pr}`;
+
+  const headers = new Headers();
+  // headers.set('content-type', 'application/json');
+
+  const options = {
+    method: 'POST',
+    //    headers: headers,
+  };
+
+  const resp = await fetch(url, options);
+
+  if (resp.status == 401) {
+    throw new ErrNotLoggedIn('unauthorized post of exercise PR');
+  } else if (resp.status == 404) {
+    return null;
+  } else if (resp.status < 200 || resp.status >= 300) {
+    console.log('failed to update exercise PR');
+    throw new Error();
+  }
+};
+
+const fetchExercise1RM = async (exerciseID) => {
+  const resp = await fetch(`/homegym/api/exercises/${exerciseID}/onerm`, {
+    method: 'GET',
+    mode: 'same-origin',
+  });
+  if (resp.status == 401) {
+    throw new ErrNotLoggedIn('unauthorized fetch of exercise 1RM');
+  }
+  if (resp.status == 404) {
+    return null;
+  }
+  const prJSON = await resp.json();
+  return prJSON.value;
+};
+
+const updateExercise1RM = async (exerciseID, onerm) => {
+  const url = `/homegym/api/exercises/${exerciseID}/onerm?onerm=${onerm}`;
+
+  const headers = new Headers();
+  // headers.set('content-type', 'application/json');
+
+  const options = {
+    method: 'POST',
+    //    headers: headers,
+  };
+
+  const resp = await fetch(url, options);
+
+  if (resp.status == 401) {
+    throw new ErrNotLoggedIn('unauthorized post of exercise 1RM');
+  } else if (resp.status == 404) {
+    return null;
+  } else if (resp.status < 200 || resp.status >= 300) {
+    console.log('failed to update exercise PR');
+    throw new Error();
+  }
 };
 
 /**
@@ -435,11 +513,11 @@ const authPromptAsync = () => {
 /**
  * Opens a dialog that displays a message and enables the user to edit a value.
  * Both the message and value to edit are provided by the caller.
- * @param {Object} valueObjects An object with properties label and value, eg.
- *            {
+ * @param {Object} valueObjects An array of objects with properties label and value, eg.
+ *            [{
  *             label: 'Program Title',
  *             value: program.value.title,
- *             }
+ *             }]
  * @returns The changed value.
  */
 const openEditValueModal = (valueObjects) => {
@@ -1072,12 +1150,10 @@ class OrderedList {
   }
   copyItem(index) {
     this.copiedIndex = index;
-    console.log(this.list[index]);
   }
   pasteItem(index) {
     if (this.copiedIndex > -1) {
       const copy = Object.assign({}, this.list[this.copiedIndex]);
-      console.log(copy);
       this.list[index] = copy;
     }
   }
@@ -1131,6 +1207,10 @@ export {
   fetchEventPage,
   fetchEvents,
   fetchExerciseTypes,
+  fetchExercisePR,
+  fetchExercise1RM,
+  updateExercisePR,
+  updateExercise1RM,
   pageSize,
   login,
   fetchActivityExercises,

@@ -16,6 +16,8 @@ const (
 	testVolume        = "count"
 	testIntensity     = "weight"
 	testVolConstraint = 2
+	testPR            = 50
+	test1RM           = 40
 )
 
 var testComposition = map[string]int{"id1": 2, "id2": 3}
@@ -94,7 +96,47 @@ func TestExercises(t *testing.T) {
 				So(err, ShouldNotBeNil)
 				So(id, ShouldBeNil)
 			})
+		})
 
+		Convey("When we set a PR", func() {
+			db.On("AddPR", mock.Anything, mock.Anything, mock.Anything).Return(nil)
+
+			err := ExerciseManager.SetPR(testUserID, testExerciseID, testPR)
+
+			Convey("Then no error is returned", func() {
+				So(err, ShouldBeNil)
+			})
+		})
+
+		Convey("When we get a PR", func() {
+			db.On("GetPR", mock.Anything, mock.Anything, mock.Anything).Return(testPR, nil)
+
+			pr, err := ExerciseManager.GetPR(testUserID, testExerciseID)
+
+			Convey("Then no error is returned", func() {
+				So(err, ShouldBeNil)
+				So(pr, ShouldEqual, testPR)
+			})
+		})
+
+		Convey("When we set a 1RM", func() {
+			db.On("AddOneRM", mock.Anything, mock.Anything, mock.Anything).Return(nil)
+
+			err := ExerciseManager.Set1RM(testUserID, testExerciseID, testPR)
+
+			Convey("Then no error is returned", func() {
+				So(err, ShouldBeNil)
+			})
+		})
+		Convey("When we get a 1RM", func() {
+			db.On("GetOneRM", mock.Anything, mock.Anything, mock.Anything).Return(test1RM, nil)
+
+			oneRM, err := ExerciseManager.Get1RM(testUserID, testExerciseID)
+
+			Convey("Then no error is returned", func() {
+				So(err, ShouldBeNil)
+				So(oneRM, ShouldEqual, test1RM)
+			})
 		})
 
 	})

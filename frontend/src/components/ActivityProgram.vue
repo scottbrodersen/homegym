@@ -48,7 +48,7 @@
       program.value = {};
     } else {
       program.value = utils.deepToRaw(
-        programsStore.get(props.activityID, props.programID)
+        programsStore.get(props.activityID, props.programID),
       );
       if (!program.value.blocks) {
         program.value.blocks = [{}];
@@ -65,7 +65,7 @@
     },
     (newID) => {
       init();
-    }
+    },
   );
 
   // create new program
@@ -116,7 +116,7 @@
           toggleNewProgram();
         });
       }
-    }
+    },
   );
 
   // Open modal to edit the instance title
@@ -133,14 +133,13 @@
           ])
           .then(async (newValue) => {
             if (newValue) {
-              console.log(newValue);
               program.value.title = newValue[0];
               await saveProgram(program.value);
             }
             toggleProgramTitle();
           });
       }
-    }
+    },
   );
 
   init();
@@ -176,19 +175,19 @@
       changed.value = baseline != JSON.stringify(newVal);
       valid.value = programUtils.programValidator(newVal);
     },
-    { deep: true }
+    { deep: true },
   );
 
   watch(
     () => coords.value,
     (newCoords) => {
       scrollToWorkout(newCoords);
-    }
+    },
   );
 
   const scrollToWorkout = (coords) => {
     const wo = document.getElementById(
-      `workout${coords[0]}-${coords[1]}-${coords[2]}`
+      `workout${coords[0]}-${coords[1]}-${coords[2]}`,
     );
     if (wo) {
       wo.scrollIntoView({

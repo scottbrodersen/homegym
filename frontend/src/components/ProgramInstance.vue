@@ -242,7 +242,6 @@
           ])
           .then(async (newValue) => {
             if (newValue) {
-              console.log(newValue);
               instance.value.title = newValue[0];
               await saveInstance();
             }

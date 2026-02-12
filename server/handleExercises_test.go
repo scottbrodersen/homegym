@@ -21,6 +21,8 @@ const (
 	testVolume           = "count"
 	testIntensity        = "weight"
 	testVolumeConstraint = 2
+	testPR               = 200
+	test1RM              = 190
 )
 
 var testComposition = map[string]int{"id1": 2, "id2": 1}
@@ -242,6 +244,84 @@ func TestHandleExercises(t *testing.T) {
 
 			So(w.Result().StatusCode, ShouldNotEqual, http.StatusNoContent)
 			So(w.Result().StatusCode, ShouldNotEqual, http.StatusOK)
+		})
+
+		Convey("When we receive a request to set a new PR", func() {
+			mockEmgr.On("SetPR", mock.Anything, mock.Anything, mock.Anything).Return(nil)
+
+			url := fmt.Sprintf("%s%s/pr?pr=%s", baseURL, testExerciseID, fmt.Sprint(testPR))
+			req := httptest.NewRequest(http.MethodPost, url, nil)
+			req = req.WithContext(testContext())
+
+			values := req.URL.Query()
+			values.Add("pr", fmt.Sprint(testPR))
+			req.URL.RawQuery = values.Encode()
+
+			w := httptest.NewRecorder()
+
+			ExerciseTypesApi(w, req)
+
+			So(w.Result().StatusCode, ShouldEqual, http.StatusOK)
+		})
+
+		Convey("When we receive a request to get a PR", func() {
+			mockEmgr.On("GetPR", mock.Anything, mock.Anything).Return(testPR, nil)
+
+			url := fmt.Sprintf("%s%s/pr/", baseURL, testExerciseID)
+			req := httptest.NewRequest(http.MethodGet, url, nil)
+			req = req.WithContext(testContext())
+
+			w := httptest.NewRecorder()
+
+			ExerciseTypesApi(w, req)
+
+			pr := returnedValue{}
+
+			if err := json.NewDecoder(w.Result().Body).Decode(&pr); err != nil {
+				t.Fail()
+			}
+
+			So(w.Result().StatusCode, ShouldEqual, http.StatusOK)
+			So(pr.Value, ShouldEqual, testPR)
+		})
+
+		Convey("When we receive a request to set a new 1RM", func() {
+			mockEmgr.On("Set1RM", mock.Anything, mock.Anything, mock.Anything).Return(nil)
+
+			url := fmt.Sprintf("%s%s/onerm?onerm=%s", baseURL, testExerciseID, fmt.Sprint(test1RM))
+			req := httptest.NewRequest(http.MethodPost, url, nil)
+			req = req.WithContext(testContext())
+
+			values := req.URL.Query()
+			values.Add("onerm", fmt.Sprint(test1RM))
+			req.URL.RawQuery = values.Encode()
+
+			w := httptest.NewRecorder()
+
+			ExerciseTypesApi(w, req)
+
+			So(w.Result().StatusCode, ShouldEqual, http.StatusOK)
+		})
+
+		Convey("When we receive a request to get a 1RM", func() {
+			mockEmgr.On("Get1RM", mock.Anything, mock.Anything).Return(test1RM, nil)
+
+			url := fmt.Sprintf("%s%s/onerm/", baseURL, testExerciseID)
+			req := httptest.NewRequest(http.MethodGet, url, nil)
+			req = req.WithContext(testContext())
+
+			w := httptest.NewRecorder()
+
+			ExerciseTypesApi(w, req)
+
+			rm := returnedValue{}
+
+			if err := json.NewDecoder(w.Result().Body).Decode(&rm); err != nil {
+				t.Fail()
+			}
+
+			So(w.Result().StatusCode, ShouldEqual, http.StatusOK)
+			So(rm.Value, ShouldEqual, test1RM)
 		})
 	})
 }

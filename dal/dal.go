@@ -68,6 +68,11 @@ type Dstore interface {
 	AddBioStats(userID string, date int64, stats []byte) error
 	GetBioStatsPage(useID string, startDate int64, pageSize int) ([][]byte, error)
 
+	AddOneRM(userID, exerciseID string, value int) error
+	GetOneRM(userID, exerciseID string) (int, error)
+	AddPR(userID, exerciseID string, value int) error
+	GetPR(userID, exerciseID string) (int, error)
+
 	Iter8er()
 
 	Restore(filepath string) error
@@ -94,6 +99,8 @@ const (
 	sessionKey        = "session"
 	expiresKey        = "expires"
 	tokenCryptoKeyKey = "tokenkey"
+	oneRMKey          = "onerm"
+	prKey             = "pr"
 )
 
 // A DBClient implements the Dstore interface for a Badger database.
@@ -396,6 +403,82 @@ func (c *DBClient) GetExercises(userID string) ([][]byte, error) {
 	}
 
 	return types, nil
+}
+
+func (c *DBClient) AddOneRM(userID, exerciseID string, value int) error {
+	prefix := []string{userKey, userID, oneRMKey, exerciseID}
+
+	valueBytes, err := int64ToBSlice(int64(value))
+	if err != nil {
+		return fmt.Errorf("failed to add 1RM: %w", err)
+	}
+
+	ex := badger.NewEntry(key(prefix), valueBytes)
+
+	updates := []*badger.Entry{ex}
+
+	if err := writeUpdates(c, updates); err != nil {
+		return fmt.Errorf("failed to add 1RM: %w", err)
+	}
+	return nil
+}
+
+func (c *DBClient) GetOneRM(userID, exerciseID string) (int, error) {
+	prefix := []string{userKey, userID, oneRMKey, exerciseID}
+	oneRMEntry, err := readItem(c, key(prefix))
+	if err != nil {
+		return -1, fmt.Errorf("failed to read 1RM: %w", err)
+	}
+
+	if oneRMEntry == nil {
+		return -1, nil
+	}
+
+	valueInt64, err := bSliceToInt64(oneRMEntry.Value)
+	if err != nil {
+		return -1, fmt.Errorf("failed to read 1RM: %w", err)
+	}
+
+	valInt := int(*valueInt64)
+	return valInt, nil
+}
+
+func (c *DBClient) AddPR(userID, exerciseID string, value int) error {
+	prefix := []string{userKey, userID, prKey, exerciseID}
+
+	valueBytes, err := int64ToBSlice(int64(value))
+	if err != nil {
+		return fmt.Errorf("failed to add PR: %w", err)
+	}
+
+	ex := badger.NewEntry(key(prefix), valueBytes)
+
+	updates := []*badger.Entry{ex}
+
+	if err := writeUpdates(c, updates); err != nil {
+		return fmt.Errorf("failed to add PR: %w", err)
+	}
+	return nil
+}
+
+func (c *DBClient) GetPR(userID, exerciseID string) (int, error) {
+	prefix := []string{userKey, userID, prKey, exerciseID}
+	prEntry, err := readItem(c, key(prefix))
+	if err != nil {
+		return -1, fmt.Errorf("failed to read 1RM: %w", err)
+	}
+
+	if prEntry == nil {
+		return -1, nil
+	}
+
+	valueInt64, err := bSliceToInt64(prEntry.Value)
+	if err != nil {
+		return -1, fmt.Errorf("failed to read 1RM: %w", err)
+	}
+
+	valInt := int(*valueInt64)
+	return valInt, nil
 }
 
 // AddEvent stores a workout event for a user.

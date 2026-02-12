@@ -14,6 +14,8 @@
 | user:{id}#activity:{id}#name                              | string                   | activity name                  |
 | user:{id}#activity:{id}#exercise:{id}                     | string                   | exercise type id               |
 | user:{id}#exercise:{id}#type                              | []byte                   | exercise type value            |
+| user:{id}#oneRM:{exercise id}                             | int                      | 1RM value                      |
+| user:{id}#pr:{exercise id}                                | int                      | Personal record value          |
 | tokenkey:{keyID}                                          | []byte                   | token key                      |
 | pepperkey:{keyID}                                         | []byte                   | pepper key                     |
 | session:{sessionid}#userID:{userID}#expires               | int64                    | session expiration time        |

@@ -31,6 +31,8 @@ const (
 	testSessionID    = "test-session-id"
 	testRole         = "testRole"
 	testSessionTTL   = 14
+	testPR           = 100
+	test1RM          = 90
 )
 
 var testEvent []byte = []byte("test event")
@@ -377,6 +379,32 @@ func TestLogItemsDal(t *testing.T) {
 				So(err, ShouldBeNil)
 				So(eventByte, ShouldBeNil)
 			})
+		})
+
+		Convey("When we add a PR for an exercise", func() {
+			err := client.AddPR(testUserID, testExerciseID, testPR)
+
+			So(err, ShouldBeNil)
+		})
+
+		Convey("When we get the PR for an exercise", func() {
+			pr, err := client.GetPR(testUserID, testExerciseID)
+
+			So(err, ShouldBeNil)
+			So(pr, ShouldEqual, testPR)
+		})
+
+		Convey("When we add a 1RM for an exercise", func() {
+			err := client.AddOneRM(testUserID, testExerciseID, test1RM)
+
+			So(err, ShouldBeNil)
+		})
+
+		Convey("When we get the 1RM for an exercise", func() {
+			oneRM, err := client.GetOneRM(testUserID, testExerciseID)
+
+			So(err, ShouldBeNil)
+			So(oneRM, ShouldEqual, test1RM)
 		})
 	})
 }
