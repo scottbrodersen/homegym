@@ -348,3 +348,29 @@ func (d *MockDal) Restore(filename string) error {
 
 	return args.Error(1)
 }
+
+func (d *MockDal) AddOneRM(userID, exerciseID string, value int) error {
+	args := d.Called(userID, exerciseID, value)
+	return args.Error(0)
+}
+
+func (d *MockDal) GetOneRM(userID, exerciseID string) (int, error) {
+	args := d.Called(userID, exerciseID)
+	if args.Error(1) != nil {
+		return args.Int(0), args.Error(1)
+	}
+	return args.Int(0), nil
+}
+
+func (d *MockDal) AddPR(userID, exerciseID string, value int) error {
+	args := d.Called(userID, exerciseID, value)
+	return args.Error(0)
+}
+
+func (d *MockDal) GetPR(userID, exerciseID string) (int, error) {
+	args := d.Called(userID, exerciseID)
+	if args.Error(1) != nil {
+		return args.Int(0), args.Error(1)
+	}
+	return args.Int(0), nil
+}

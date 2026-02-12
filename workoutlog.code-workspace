@@ -1,14 +1,20 @@
 {
   "folders": [
     {
-      "path": "."
+      "path": ".",
     },
     {
-      "path": "frontend"
-    }
+      "path": "frontend",
+    },
   ],
   "settings": {
-    "cSpell.words": ["dailybackup", "hgdocs", "restoredaily", "testmode"]
+    "cSpell.words": [
+      "dailybackup",
+      "hgdocs",
+      "onerm",
+      "restoredaily",
+      "testmode",
+    ],
   },
   "launch": {
     "version": "0.2.0",
@@ -19,7 +25,7 @@
         "request": "launch",
         "mode": "auto",
         "program": "${workspaceFolder:homegym}/homegym",
-        "args": ["-testmode"]
+        "args": ["-testmode"],
       },
       {
         "name": "Launch Homegym",
@@ -27,7 +33,7 @@
         "request": "launch",
         "mode": "auto",
         "program": "${workspaceFolder:homegym}/homegym",
-        "args": ["-path=/Users/scottbrodersen/Documents/testhomegym/datastore"]
+        "args": ["-path=/Users/scottbrodersen/Documents/testhomegym/datastore"],
       },
       {
         "type": "node",
@@ -38,8 +44,8 @@
         "program": "${workspaceFolder}/frontend/node_modules/vitest/vitest.mjs",
         "args": ["run", "${relativeFile}"],
         "smartStep": true,
-        "console": "integratedTerminal"
-      }
-    ]
-  }
+        "console": "integratedTerminal",
+      },
+    ],
+  },
 }

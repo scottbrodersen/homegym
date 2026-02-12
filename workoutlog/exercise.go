@@ -22,6 +22,10 @@ type ExerciseAdmin interface {
 	UpdateExerciseType(userID, exerciseID, name, intensity, volume string, volConstraint int, composition map[string]int, basis string) error
 	GetExerciseTypes(userID string) ([]ExerciseType, error)
 	GetExerciseType(userID, exerciseID string) (*ExerciseType, error)
+	SetPR(userID, exerciseID string, value int) error
+	GetPR(userID, exerciseID string) (int, error)
+	Set1RM(userID, exerciseID string, value int) error
+	Get1RM(userID, exerciseID string) (int, error)
 }
 
 // An ExerciseFilter stores criteria for retrieving exercise types from the database.
@@ -186,6 +190,41 @@ func (ea *exerciseManager) GetExerciseType(userID, exerciseID string) (*Exercise
 	return exerciseType, nil
 }
 
+func (ea *exerciseManager) SetPR(userID, exerciseID string, value int) error {
+	err := dal.DB.AddPR(userID, exerciseID, value)
+	if err != nil {
+		return fmt.Errorf("failed to add PR: %w", err)
+	}
+
+	return nil
+}
+func (ea *exerciseManager) GetPR(userID, exerciseID string) (int, error) {
+	pr, err := dal.DB.GetPR(userID, exerciseID)
+	if err != nil {
+		return -1, fmt.Errorf("failed to get PR, %w", err)
+	}
+
+	return pr, nil
+}
+
+func (ea *exerciseManager) Set1RM(userID, exerciseID string, value int) error {
+	err := dal.DB.AddOneRM(userID, exerciseID, value)
+	if err != nil {
+		return fmt.Errorf("failed to add 1RM: %w", err)
+	}
+
+	return nil
+}
+func (ea *exerciseManager) Get1RM(userID, exerciseID string) (int, error) {
+	oneRM, err := dal.DB.GetOneRM(userID, exerciseID)
+	if err != nil {
+		return -1, fmt.Errorf("failed to get 1RM, %w", err)
+	}
+
+	return oneRM, nil
+
+}
+
 func isTypeNameAvailable(ea exerciseManager, userID, name string) (bool, error) {
 	types, err := ea.GetExerciseTypes(userID)
 	if err != nil {
@@ -280,4 +319,32 @@ func (m *mockExerciseManager) GetExerciseType(userID, exerciseID string) (*Exerc
 	}
 
 	return args.Get(0).(*ExerciseType), nil
+}
+
+func (m *mockExerciseManager) SetPR(userID, exerciseID string, value int) error {
+	args := m.Called(userID, exerciseID, value)
+	return args.Error(0)
+}
+
+func (m *mockExerciseManager) GetPR(userID, exerciseID string) (int, error) {
+	args := m.Called(userID, exerciseID)
+
+	if args.Error(1) != nil {
+		return -1, args.Error(1)
+	}
+
+	return args.Int(0), nil
+}
+func (m *mockExerciseManager) Set1RM(userID, exerciseID string, value int) error {
+	args := m.Called(userID, exerciseID, value)
+	return args.Error(0)
+}
+func (m *mockExerciseManager) Get1RM(userID, exerciseID string) (int, error) {
+	args := m.Called(userID, exerciseID)
+
+	if args.Error(1) != nil {
+		return -1, args.Error(1)
+	}
+
+	return args.Int(0), nil
 }

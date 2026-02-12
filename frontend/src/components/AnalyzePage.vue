@@ -65,7 +65,6 @@
    * @param newSize The number of days in the time period.
    */
   const updateBucketSize = (newSize) => {
-    console.log('bucket size updated to ' + newSize);
     getMetrics(false, newSize);
   };
 
