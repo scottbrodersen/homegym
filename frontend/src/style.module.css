@@ -936,7 +936,7 @@ header .hgHamburger {
 .analyzeFilters {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-start;
   margin-top: 1em;
   max-width: 300px;
 }
@@ -958,7 +958,10 @@ header .hgHamburger {
 .chartFilter {
   composes: vert;
   align-items: center;
-  margin-top: var(--hg-lg);
+  padding-top: var(--hg-med);
+  padding-bottom: var(--hg-med);
+  padding-left: var(--hg-small);
+  border: 1px solid var(--hg-mid);
 }
 
 .analyzePage .selExercise {
