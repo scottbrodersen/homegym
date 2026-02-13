@@ -125,6 +125,7 @@
       @update:model-value="setIDs"
       @popup-hide="emitIDs"
       @clear="emitIDs"
+      behavior="menu"
       hint="Select a category to narrow the options. Clear all selections to chart the all available options. "
     />
   </div>
