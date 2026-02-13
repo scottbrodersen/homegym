@@ -69,13 +69,13 @@
       } else if (props.statName == dailyStatsUtils.FOOD) {
         disableSave.value =
           typeof dailyStatsUtils.foodDescriptionValidator(
-            newStat.food.description
+            newStat.food.description,
           ) == 'string';
       } else if (props.statName == dailyStatsUtils.SPIRIT) {
         disableSave.value = false;
       }
     },
-    { deep: true }
+    { deep: true },
   );
 </script>
 <template>
@@ -84,6 +84,7 @@
       <h1>{{ title }}</h1>
       <DatePicker
         v-if="!props.stats || !props.stats.date"
+        :hideTime="true"
         @update="(value) => (stats.date = value)"
       />
       <div v-else>
