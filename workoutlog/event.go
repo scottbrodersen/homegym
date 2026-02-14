@@ -155,7 +155,7 @@ func prepEventExercises(userID, activityID string, exerciseInstances map[int]Exe
 
 		err = exerciseType.validateInstance(&inst)
 		if err != nil {
-			return nil, nil, fmt.Errorf("invalid exercise instance: %w", err)
+			return nil, nil, ErrInvalidEvent
 		}
 
 		instanceByte, err := json.Marshal(inst)
