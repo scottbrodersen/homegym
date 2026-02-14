@@ -19,6 +19,7 @@
     eventStore,
     activityStore,
     programInstanceStore,
+    exerciseTypeStore,
   } from '../modules/state';
   import { QBtn, QSelect, QSpinner } from 'quasar';
   import {
@@ -50,6 +51,10 @@
   const thisEvent = ref({});
   const thisEventActivityName = ref('');
   const activityNames = [];
+
+  const disableSave = ref(true);
+  const showSpinner = ref(false);
+
   let programInstance;
   let updateProgram = false;
   let baseline = ref();
@@ -143,10 +148,58 @@
     } else {
       thisEvent.value.exercises[index] = updated;
     }
+    validateEvent();
   };
 
   const updateDateValue = (newDate) => {
     thisEvent.value.date = newDate;
+  };
+
+  const validateEvent = () => {
+    const numExercises = Object.keys(thisEvent.value.exercises).length;
+    if (numExercises == 0) {
+      disableSave.value = true;
+      return;
+    }
+    for (let i = 0; i < numExercises; i++) {
+      if (!thisEvent.value.exercises[i].typeID) {
+        disableSave.value = true;
+        return;
+      }
+      if (thisEvent.value.exercises[i].parts.length == 0) {
+        disableSave.value = true;
+        return;
+      }
+      for (let j = 0; j < thisEvent.value.exercises[i].parts.length; j++) {
+        // get the intensity type of the exercise
+        const intensityType = exerciseTypeStore.get(
+          thisEvent.value.exercises[i].typeID,
+        ).intensityType;
+
+        if (
+          thisEvent.value.exercises[i].parts[j].intensity <= 0 &&
+          intensityType != 'bodyweight'
+        ) {
+          disableSave.value = true;
+          return;
+        }
+        if (thisEvent.value.exercises[i].parts[j].volume.length == 0) {
+          disableSave.value = true;
+          return;
+        }
+        for (
+          let k = 0;
+          k < thisEvent.value.exercises[i].parts[j].volume.length;
+          k++
+        ) {
+          if (thisEvent.value.exercises[i].parts[j].volume[k] <= 0) {
+            disableSave.value = true;
+            return;
+          }
+        }
+      }
+    }
+    disableSave.value = false;
   };
 
   const saveThisEvent = async () => {
@@ -220,15 +273,10 @@
     });
   };
 
-  // controls whether the Save button is enabled
+  // controls whether the Save button is enabled based on whether it has changed since last save
   const changed = computed(() => {
     return baseline.value != JSON.stringify(thisEvent.value);
   });
-
-  // use to override changed
-  const disableSave = ref(false);
-
-  const showSpinner = ref(false);
 
   const cancel = async () => {
     const route = { name: 'home' };
