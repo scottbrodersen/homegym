@@ -36,7 +36,7 @@
 
   if (!props.activityID && !props.exerciseInstance.index) {
     throw Error(
-      'ExerciseInstance requires an activity id and an indexed exercise instance'
+      'ExerciseInstance requires an activity id and an indexed exercise instance',
     );
   }
 
@@ -52,12 +52,12 @@
   const exerciseName = ref(
     props.exerciseInstance.typeID
       ? exerciseTypeStore.get(props.exerciseInstance.typeID).name
-      : ''
+      : '',
   );
 
   const isCountReps = computed(() => {
     const volumeConstraint = exerciseTypeStore.get(
-      instance.value.typeID
+      instance.value.typeID,
     ).volumeConstraint;
     return volumeConstraint === 1;
   });
@@ -79,6 +79,7 @@
       addSegments();
     }
     exerciseName.value = exerciseTypeStore.get(typeID).name;
+    emit('update', instance.value);
   };
 
   const addSegments = () => {
@@ -94,7 +95,7 @@
     } else {
       const segment = { intensity: 0, volume: [] };
       const volumeType = exerciseTypeStore.get(
-        instance.value.typeID
+        instance.value.typeID,
       ).volumeType;
       if (volumeType == 'time' || volumeType == 'distance') {
         segment.volume.push(0);
@@ -192,7 +193,7 @@
                 part.intensity,
                 partIndex,
                 part.volume,
-                updateVolume
+                updateVolume,
               )
             "
           />

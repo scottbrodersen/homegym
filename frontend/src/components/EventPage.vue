@@ -191,6 +191,9 @@
       } else {
         console.log(e);
         toast('Error', 'negative');
+
+        disableSave.value = false;
+        showSpinner.value = false;
       }
     }
   };
@@ -271,7 +274,7 @@
       >
         <ExerciseInstance
           :exercise-instance="value"
-          :activity-i-d="thisEvent.activityID"
+          :activityID="thisEvent.activityID"
           :writable="true"
           @update="(updated) => setExerciseInstance(index, updated)"
         />
