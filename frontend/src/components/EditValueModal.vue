@@ -14,7 +14,7 @@
     QCardActions,
     QBtn,
   } from 'quasar';
-  import { ref } from 'vue';
+  import { computed, ref } from 'vue';
   import * as styles from '../style.module.css';
 
   defineEmits([...useDialogPluginComponent.emits]);
@@ -31,12 +31,40 @@
   const onOKClick = () => {
     onDialogOK(newValues.value);
   };
+
+  // returns true if none of the values has not changed
+  const disableSave = computed(() => {
+    let disable = true;
+    for (let i = 0; i < props.values.length; i++) {
+      if (
+        newValues.value[i] != props.values[i].value &&
+        newValues.value[i].length > 3
+      ) {
+        disable = false;
+        break;
+      }
+      if (newValues.value[i].length < 3) {
+        disable = true;
+        break;
+      }
+    }
+    return disable;
+  });
 </script>
 <template>
   <q-dialog ref="dialogRef" @hide="onDialogHide">
     <q-card dark class="q-dialog-plugin" :class="[styles.bgBlack]">
       <div v-for="(valueObj, ix) in props.values">
-        <q-input v-model="newValues[ix]" :label="props.values[ix].label" dark />
+        <q-input
+          v-model="newValues[ix]"
+          :label="props.values[ix].label"
+          dark
+          :rules="[
+            (val) =>
+              (val != props.values[ix].value && val.length >= 3) ||
+              'Value must be different. Min length 3',
+          ]"
+        />
       </div>
       <q-card-actions align="right">
         <q-btn
@@ -51,6 +79,7 @@
           label="Done"
           @click="onOKClick"
           :class="[styles.maxRight]"
+          :disable="disableSave"
         />
       </q-card-actions>
     </q-card>
