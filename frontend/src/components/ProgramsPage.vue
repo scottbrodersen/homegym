@@ -225,6 +225,7 @@
     </div>
     <div>
       <ActivityProgram
+        v-if="selectedProgram || newProgram"
         :programID="selectedProgram"
         :activityID="activityID"
         @done="setProgramSelection"
@@ -233,7 +234,6 @@
         v-if="selectedProgramInstance && !newProgram"
         :instanceID="selectedProgramInstance"
         :activityID="activityID"
-        @done="setProgramSelection"
       />
     </div>
   </div>
