@@ -265,6 +265,10 @@ header .hgHamburger {
   font-size: 0.65em;
 }
 
+.selActivityWrap > div {
+  margin-left: var(--hg-small);
+}
+
 .eventsTable th {
   font-size: 1.25em;
 }
@@ -582,6 +586,11 @@ header .hgHamburger {
   composes: horiz;
   justify-content: space-between;
   align-items: center;
+  margin-left: 45px;
+}
+
+.pgmSelect > div {
+  margin-left: var(--hg-small);
 }
 
 .pgmInstItem,
