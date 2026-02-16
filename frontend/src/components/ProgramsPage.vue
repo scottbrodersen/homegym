@@ -56,22 +56,39 @@
 
   const editProgramTitle = ref(false);
   const editInstanceTitle = ref(false);
+  const cloneProgram = ref(false);
+
+  // listener for the edit program title button
   const toggleProgramTitle = () => {
     editProgramTitle.value = !editProgramTitle.value;
   };
+
+  // listener for the edit instance title button
   const toggleInstanceTitle = () => {
     editInstanceTitle.value = !editInstanceTitle.value;
   };
 
+  // listener for the new program button
   const newProgram = ref(false);
   const toggleNewProgram = () => {
     newProgram.value = !newProgram.value;
   };
 
+  //listener for the clone program button
+  const toggleCloneProgram = () => {
+    cloneProgram.value = !cloneProgram.value;
+  };
+
+  // Mutates the program title
   provide('editProgramTitle', { editProgramTitle, toggleProgramTitle });
+  // Mutates the program instance
   provide('editInstanceTitle', { editInstanceTitle, toggleInstanceTitle });
+  // Mutates the new program state
   provide('newProgram', { newProgram, toggleNewProgram });
+  // mutates the edit/read only state
   provide('state', { state, setState });
+  // mutates the clone program state
+  provide('cloneProgram', { cloneProgram, toggleCloneProgram });
 
   const setActivitySelection = (id) => {
     activityID.value = id;
@@ -201,6 +218,22 @@
             color="primary"
             :disabled="
               (!selectedProgram && !selectedProgramInstance) ||
+              editInstanceTitle ||
+              editProgramTitle
+            "
+          />
+        </div>
+        <div>
+          <q-btn
+            id="clone"
+            @click="toggleCloneProgram()"
+            icon="content_copy"
+            round
+            dark
+            color="primary"
+            :disabled="
+              !selectedProgram ||
+              selectedProgramInstance ||
               editInstanceTitle ||
               editProgramTitle
             "

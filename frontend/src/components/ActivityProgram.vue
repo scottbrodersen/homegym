@@ -24,6 +24,8 @@
   const { editProgramTitle, toggleProgramTitle } = inject('editProgramTitle');
   const { newProgram, toggleNewProgram } = inject('newProgram');
   const { state } = inject('state');
+  const { cloneProgram, toggleCloneProgram } = inject('cloneProgram');
+
   provide('activity', props.activityID);
 
   const program = ref({});
@@ -142,6 +144,34 @@
     },
   );
 
+  // Open modal to clone the program
+  watch(
+    () => cloneProgram.value,
+    (newValue) => {
+      let clonedProgram = {};
+      if (newValue === true) {
+        // make a static copy of the program
+        clonedProgram = utils.deepToRaw(
+          programsStore.get(props.activityID, props.programID),
+        );
+        clonedProgram.id = '';
+        utils
+          .openEditValueModal([
+            {
+              label: 'Cloned Program Title',
+              value: clonedProgram.title,
+            },
+          ])
+          .then(async (newValue) => {
+            if (newValue) {
+              clonedProgram.title = newValue[0];
+              await saveProgram(clonedProgram);
+            }
+            toggleCloneProgram();
+          });
+      }
+    },
+  );
   init();
 
   const saveProgram = async (p) => {
