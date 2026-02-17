@@ -54,3 +54,15 @@ A program is created using the structure that you prescribed. You can now explor
    5. Configure the exercise and add more as needed.</ol>
 6. Configure the workouts for the rest of the microcycles in all of the blocks.
 7. Click Done.
+
+## Clone a program
+
+Clone a program when you want to create a new program that is similar to an existing one. Cloning saves time when you need to adjust only a few properties after cloning.
+
+1. Select the activity of the program you want to clone.
+1. Select the program to clone in the Programs drop down.
+1. Click the Clone button. <img src="../img/btn_clone.png" width="35"/>
+1. Enter a name for the clone.
+1. Click Done.
+
+The clone is saved while the original program remains open.
