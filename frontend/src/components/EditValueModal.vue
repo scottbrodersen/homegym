@@ -37,8 +37,8 @@
     let disable = true;
     for (let i = 0; i < props.values.length; i++) {
       if (
-        newValues.value[i] != props.values[i].value &&
-        newValues.value[i].length > 3
+        newValues.value[i] != props.values[i] &&
+        newValues.value[i].length >= 3
       ) {
         disable = false;
         break;
