@@ -340,7 +340,7 @@ export const getDailyChart = (element, startDate, endDate, dataset) => {
         yBio: {
           position: 'left',
           min: 0,
-          max: 12,
+          max: 10,
           title: {
             text: 'Sleep, Mood, Stress, Energy',
           },
