@@ -258,7 +258,7 @@
     </div>
     <div>
       <ActivityProgram
-        v-if="selectedProgram || newProgram"
+        v-show="selectedProgram || newProgram"
         :programID="selectedProgram"
         :activityID="activityID"
         @done="setProgramSelection"
