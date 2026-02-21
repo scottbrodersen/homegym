@@ -8,6 +8,8 @@ The Exercise Volume chart shows the total work that you've performed for one or 
 
 <br /><img src="../img/chart_volume.png" width="700" />
 
+This chart shows a general upward trend over time, as well as significant fluctuations from workout to workout.
+
 The type of volume that is defined for an exercise determines how it is aggregated:
 
 - Counts: total number of reps
@@ -42,15 +44,25 @@ You can either use one of the provided filters that define subsets based on the 
 
 1. Above the Exercise Volume chart, click Exercise Filters to reveal the filters.
    <br />By default, all exercises are in the filter as can be seen by the tags that appear.
-   <br /> <img src="../img/chart_filter_all.png" width="500"/>
+   <br /> <img src="../img/chart_filter_all.png" width="400"/>
 2. Select a filter group.
    <br />Only the exercises in the group are filtered.
-   <br /> <img src="../img/chart_filter_weight.png" width="500"/>
+   <br /> <img src="../img/chart_filter_weight.png" width="400"/>
 3. To remove exercises individually, click the X on the tag.
 4. To add an exercise, expand the dropdown and select the exercise.
    <br />Already-included exercises appear blue, otherwise white.
-   <br/> <img src="../img/chart_filter_exerciseselect.png" width="500"/>
+   <br/> <img src="../img/chart_filter_exerciseselect.png" width="400"/>
 5. To remove all exercise tags, click the X icon on the right. <img src="../img/icon_x_round.png" width="35"/>
+
+### Smooth the volume curve
+
+The chart of daily load and volume values can appears choppy such that a long-term trend is difficult to see. In this case, try charting values that are aggregated over a longer time period. For example, using a 7-day aggregate size plots the loads and volumes that are accumulated over 7 days. Compared to the volume chart at the top of this page, the upward trend in the following chart is easier to recognize.
+
+<img src="../img/chart_aggregate.png" />
+
+Aggregate sizes of 1, 7, 14, and 28 days are supported.
+
+- To change the aggregate size, select the size from the Aggregate Size (days) drop-down.
 
 ## Health Markers chart
 

@@ -16,7 +16,7 @@ To start a program, you schedule the date of the first workout. The program dash
 
 1. On the menu bar, click Program.
 2. Select the activity that you are performing and then select the program to execute.
-   <br/><img src="../img/pgm_start.png" width="550"/>
+   <br/><img src="../img/pgm_start.png" width="350"/>
 3. Click Start.
 4. Enter a name for the program instance and set the starting date.
    <br/><img src="../img/pgm_start_dialog.png" width="400"/>
@@ -30,9 +30,9 @@ All the program instances that you have created appear in a list so that you can
 2. Select the activity and then click the Programs drop down.
    <br/>Programs are left-justified and program instances are indented.
    <br/>The program that is currently being executed is green and all future ones are white.
-   <br/><img src="../img/pgminst_list.png" width="450"/>
+   <br/><img src="../img/pgminst_list.png" width="350"/>
 3. To include programs that occurred in the past, deselect Hide Completed.
-   <br/><img src="../img/pgminst_list_completed.png" width="450"/>
+   <br/><img src="../img/pgminst_list_completed.png" width="350"/>
 
 ## Explore a program instance
 
