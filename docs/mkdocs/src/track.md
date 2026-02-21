@@ -27,7 +27,6 @@ If you are executing a planned workout, you should start the workout from the pr
 
 2. Click the arrow icon next to the intensity to record the associated volume. <img src="../img/btn_arrowright_round.png" width="54" />
 3. In the dialog that opens, enter the volume for the first set:<ul>
-
    - For a count, enter the reps that you performed.
      <br /><img src="../img/log_add_reps.png" width="400" />
    - If tracking failed reps, enter the result of each rep (fail or success).
@@ -114,3 +113,18 @@ All daily stats are optional. Track only the ones that you are interested in.
    <br/><img src="../img/dailystat_bp.png" width="300"/>
    <br/>For food, you can track nutrition using a general description or measurements for protein, carbs, fat, and fiber, depending on how closely you monitor your intake.
    <br/> <img src="../img/dailystat_food.png" width="300"/>
+
+## Track maximum lifts
+
+For weight-based exercises, you can keep track of your 1RM and PR.
+
+<img src="../img/exercise_stats.png" width="450"/>
+
+1RM values are expected to change at times depending on the progress in your training cycle. If you use percentages to determine the lift intensity for a workout it is useful to keep your 1RM up to date as a reference.
+
+1. Click Activity > Exercises.
+2. Click the weight-based exercise for which you want to track a maximum value.
+3. Click the Stats tab and then click either PR or 1RM, depending on which one you are setting.
+4. In the dialog that opens, enter the value and click Done.
+
+The value is saved.

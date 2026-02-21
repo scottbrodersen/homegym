@@ -51,8 +51,13 @@ For each exercise that comprises the composite, you indicate the number of reps 
 
 Configure an activity so that it includes the exercises that you perform for that activity. Exercises are available to all activities, so when you add one to an activity, it is still available to add to other activities. You can add or remove exercises at any time.
 
-1. In the menu bar, click Activity > Activity.
+1. In the menu bar, click Activity > Activities.
 2. Select the activity to configure and then click the pencil icon next to Exercises. <img src="../img/icon_edit_round.png" width="35" />
 3. Select the exercises to include.
    <br /> <img src="../img/activity_exercises_edit.png" width="150" />
 4. Click the Save icon. <img src="../img/icon_save.png" width="35" />
+5. Click the Done icon. <img src="../img/icon_done_square.png" width="45" />
+
+The exercises are added to the activity.
+
+<img src="../img/activity_exercises.png" width="600" />
