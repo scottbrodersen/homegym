@@ -468,6 +468,7 @@ header .hgHamburger {
   align-items: center;
   justify-content: space-between;
   margin-top: var(--hg-small);
+  margin-bottom: var(--hg-small);
 }
 
 .activitySelect {
