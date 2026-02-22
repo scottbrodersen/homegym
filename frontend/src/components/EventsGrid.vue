@@ -111,7 +111,7 @@
       if (e instanceof ErrNotLoggedIn) {
         console.log(e.message);
         await authPromptAsync();
-        setPage(props);
+        await setPage(props);
       } else {
         console.log(e);
       }
@@ -149,8 +149,6 @@
     eventMetricsStore.setMetric(event.id, 'load', load);
   };
 
-  await setPage({ pagination: { page: 1 } });
-
   // custom expand row function to allow only one row to be expanded at a time
   const expandRow = async (rowID) => {
     // close the currently-expanded row or expand the row to expand
@@ -162,7 +160,9 @@
     setSelectedEvent(expanded.value[0]);
   };
 
-  onMounted(() => {
+  onMounted(async () => {
+    await setPage({ pagination: { page: 1 } });
+
     if (props.eventID) {
       expandRow(props.eventID);
     }
@@ -176,7 +176,7 @@
       if (expanded.value.length > 0 && expanded.value[0] != newID) {
         expandRow(newID);
       }
-    }
+    },
   );
 
   watch(
@@ -185,7 +185,7 @@
     },
     async (newID) => {
       await toRowPage(newID);
-    }
+    },
   );
 
   // turns to the page that contains the event
