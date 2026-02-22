@@ -224,7 +224,7 @@
         eventStore.add(thisEvent.value);
       }
 
-      setBaseline();
+      setBaseline(thisEvent.value);
       showSpinner.value = false;
       toast('Saved', 'positive');
       disableSave.value = false;
