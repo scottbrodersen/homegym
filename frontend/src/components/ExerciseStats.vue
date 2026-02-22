@@ -8,6 +8,7 @@
     updateExercisePR,
     updateExercise1RM,
     authPromptAsync,
+    toast,
   } from '../modules/utils.js';
   import * as styles from '../style.module.css';
 
@@ -24,12 +25,14 @@
         try {
           await updateExercisePR(props.exerciseID, edited[0]);
           pr.value = edited[0];
+          toast('Saved', 'positive');
         } catch (e) {
           if (e instanceof ErrNotLoggedIn) {
             console.log(e.message);
             await authPromptAsync();
             editPR();
           } else {
+            toast('Error', 'negative');
             console.log(e);
           }
         }
@@ -44,12 +47,14 @@
         try {
           await updateExercise1RM(props.exerciseID, edited[0]);
           oneRM.value = edited[0];
+          toast('Saved', 'positive');
         } catch (e) {
           if (e instanceof ErrNotLoggedIn) {
             console.log(e.message);
             await authPromptAsync();
             edit1RM();
           } else {
+            toast('Error', 'negative');
             console.log(e);
           }
         }
