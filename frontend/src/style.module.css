@@ -513,7 +513,13 @@ header .hgHamburger {
 .pgmCycles {
   composes: blockBorder;
 }
+
 .pgmMicrocycle {
+  align-items: center;
+}
+
+.pgmMicrocycle button {
+  margin-left: var(--hg-small);
 }
 .pgmMicrocycleEdit :global(label) {
   width: 100%;
@@ -529,6 +535,7 @@ header .hgHamburger {
 }
 .pgmMicrocycleTitle {
   padding-right: var(--hg-small);
+  font-weight: 700;
 }
 .pgmMcWorkouts {
   composes: blockPadXSm;
@@ -888,6 +895,13 @@ header .hgHamburger {
 
 .instInfo .pgmBlock {
   margin-bottom: 4px;
+}
+
+.pgmBlock {
+  align-items: center;
+}
+.pgmBlock button {
+  margin-left: var(--hg-small);
 }
 
 .instBase {
