@@ -175,9 +175,16 @@ h3 {
   font-weight: var(--hg-bold-weight);
 }
 
-.grid2Col {
+.grid2ColActivity {
   display: grid;
-  grid-template-columns: [leftCol] 35% [spacer] 0% [rightCol] 60%;
+  grid-template-columns: [leftCol] 50% [spacer] 0% [rightCol] 50%;
+  column-gap: var(--hg-xsmall);
+  row-gap: var(--hg-small);
+}
+
+.grid2ColExercise {
+  display: grid;
+  grid-template-columns: [leftCol] 38% [spacer] 0% [rightCol] 60%;
   column-gap: var(--hg-xsmall);
   row-gap: var(--hg-small);
 }

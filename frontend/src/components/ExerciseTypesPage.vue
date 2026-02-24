@@ -201,9 +201,9 @@
 </script>
 <template>
   <div :class="[styles.exerciseWrap]">
-    <div :class="[styles.grid2Col]">
+    <div :class="[styles.grid2ColExercise]">
       <div :class="[styles.colTitleWrapper, styles.leftColumn]">
-        <div :class="[styles.listTitle, styles.sibSpSmall]">Exercises</div>
+        <div :class="[styles.listTitle, styles.sibSpxSmall]">Exercises</div>
         <div :class="[styles.sibSpSmall]">
           <q-btn
             size="0.65em"
