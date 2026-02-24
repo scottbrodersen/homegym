@@ -189,6 +189,10 @@ h3 {
   row-gap: var(--hg-small);
 }
 
+.grid2ColExercise .listTitle {
+  margin-right: var(--hg-xsmall);
+}
+
 .colTitleWrapper {
   display: flex;
   align-self: end;
