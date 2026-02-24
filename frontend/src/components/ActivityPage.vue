@@ -160,7 +160,7 @@
 
 <template>
   <div :class="[styles.activityWrap]">
-    <div :class="[styles.grid2Col]">
+    <div :class="[styles.grid2ColActivity]">
       <div :class="[styles.colTitleWrapper, styles.leftColumn]">
         <div :class="[styles.listTitle, styles.sibSpSmall]">Activities</div>
         <div :class="[styles.sibSpSmall]">
