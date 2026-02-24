@@ -23,8 +23,10 @@
 
   const props = defineProps({ instance: Object, coords: Array });
   const workout = ref(
-    props.instance.blocks[props.coords[0]].microCycles[props.coords[1]]
-      .workouts[props.coords[2]]
+    utils.deepToRaw(
+      props.instance.blocks[props.coords[0]].microCycles[props.coords[1]]
+        .workouts[props.coords[2]],
+    ),
   );
 
   const workoutIsValid = ref(true);
@@ -45,7 +47,7 @@
     (newValue) => {
       workoutIsValid.value = programUtils.workoutValidator(newValue);
     },
-    { deep: true }
+    { deep: true },
   );
 
   const updateSegments = (action, index) => {
