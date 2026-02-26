@@ -50,8 +50,26 @@
   const initWorkouts = (blockIndex, microCycleIndex) => {
     // called on expansion item show
     workouts = new utils.OrderedList(
-      program.value.blocks[blockIndex].microCycles[microCycleIndex].workouts
+      program.value.blocks[blockIndex].microCycles[microCycleIndex].workouts,
     );
+  };
+  const updateBlock = (block, blockIndex) => {
+    program.value.blocks[blockIndex].title = block.title;
+    program.value.blocks[blockIndex].description = block.description;
+  };
+
+  const updateMicroCycle = (cycle, blockIndex, cycleIndex) => {
+    program.value.blocks[blockIndex].microCycles[cycleIndex].title =
+      cycle.title;
+    program.value.blocks[blockIndex].microCycles[cycleIndex].span = cycle.span;
+    program.value.blocks[blockIndex].microCycles[cycleIndex].description =
+      cycle.description;
+  };
+
+  const updateWorkout = (workout, blockIndex, cycleIndex, workoutIndex) => {
+    program.value.blocks[blockIndex].microCycles[cycleIndex].workouts[
+      workoutIndex
+    ] = workout;
   };
 </script>
 <template>
@@ -61,7 +79,14 @@
         <h1 :class="[styles.pgmTitle]">Editing {{ program.title }}</h1>
         <div v-for="(block, bix) of program.blocks" :key="bix">
           <div :class="[styles.horiz]">
-            <ProgramBlock :block="block" />
+            <ProgramBlock
+              :block="block"
+              @update="
+                (value) => {
+                  updateBlock(value, bix);
+                }
+              "
+            />
             <div>
               <ListActions @update="(action) => blocks.update(action, bix)" />
             </div>
@@ -72,7 +97,10 @@
             :class="[styles.horiz]"
           >
             <div :class="[styles.pgmMicrocycleEdit]">
-              <ProgramMicrocycle :microcycle="cycle" />
+              <ProgramMicrocycle
+                :microcycle="cycle"
+                @update="(value) => updateMicroCycle(value, bix, cix)"
+              />
               <q-expansion-item
                 switch-toggle-side
                 group="workouts"
@@ -83,7 +111,14 @@
                   v-for="(workout, wix) of cycle.workouts"
                   :class="[styles.horiz]"
                 >
-                  <ProgramWorkout :workout="workout" />
+                  <ProgramWorkout
+                    :workout="workout"
+                    @update="
+                      (value) => {
+                        updateWorkout(value, bix, cix, wix);
+                      }
+                    "
+                  />
                   <ListActions
                     @update="(action) => workouts.update(action, wix)"
                   />

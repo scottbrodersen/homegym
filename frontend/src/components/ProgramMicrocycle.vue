@@ -8,15 +8,23 @@
  * Injected:
  *  state indicates whether to present the block in read-only or edit mode.
  */
-  import { inject } from 'vue';
+  import { inject, ref } from 'vue';
   import * as styles from '../style.module.css';
   import {  states } from '../modules/utils.js';
   import {  QInput } from 'quasar';
   import * as programUtils from '../modules/programUtils';
+  import * as utils from '../modules/utils';
 
   const {state} = inject('state');
   const props = defineProps({ microcycle: Object });
   const emit = defineEmits(['update']);
+
+  const rawCycle = ref(utils.deepToRaw(props.microcycle));
+
+  const updateCycle = () => {
+    emit('update', rawCycle.value);
+  }
+
 </script>
 <template>
   <div :class="[styles.pgmMicrocycle]">
@@ -34,27 +42,24 @@
       <div :class="[styles.horiz]">
         <div>
           <q-input
-            v-model="props.microcycle.title"
+            v-model="rawCycle.title"
             label="Microcycle Title"
             stack-label
             dark
-            :rules="[
+            :rules="[programUtils.requiredFieldValidator, programUtils.maxFieldValidator,]"
+            @update:model-value="() => updateCycle()"/>
+          <q-input v-model.number="rawCycle.span" type="number" label="Days" stack-label dense dark :rules="[
               programUtils.requiredFieldValidator,
               programUtils.maxFieldValidator,
             ]"
-               />
-          <q-input v-model.number="props.microcycle.span"type="number" label="Days" stack-label dense dark :rules="[
-              programUtils.requiredFieldValidator,
-              programUtils.maxFieldValidator,
-            ]"
-          />
+            @update:model-value="() => updateCycle()"/>
           <q-input
-            v-model="props.microcycle.description"
+            v-model="rawCycle.description"
             label="Description"
             stack-label
             dark
             :rules="[programUtils.maxFieldValidator]"
-          />
+            @update:model-value="() => updateCycle()"/>
         </div>
       </div>
     </div>

@@ -20,7 +20,7 @@
   import * as programUtils from '../modules/programUtils';
 
   const props = defineProps({ segment: Object });
-  const emit = defineEmits(['update']);
+  const emit = defineEmits(['update', 'setExercise']);
 
   const { state } = inject('state');
   const activityID = inject('activity');
@@ -29,7 +29,7 @@
     emit('update', action);
   };
   const setExercise = (exerciseID) => {
-    props.segment.exerciseTypeID = exerciseID;
+    emit('setExercise', exerciseID);
   };
 </script>
 <template>
@@ -52,7 +52,7 @@
           <ExerciseSelect
             :activityID="activityID"
             :exerciseID="props.segment.exerciseTypeID"
-            @selected-i-d="(id) => setExercise(id)"
+            @selectedID="(id) => setExercise(id)"
           />
         </Suspense>
         <q-input
