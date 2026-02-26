@@ -1125,6 +1125,7 @@ class OrderedList {
         break;
     }
   }
+  // index is the index of the list item o. which an action is performed
   deleteItem(index) {
     this.list.splice(index, 1);
   }
