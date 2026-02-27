@@ -20,11 +20,17 @@
 
   const props = defineProps({ activityID: String, exerciseID: String });
   const emits = defineEmits(['selectedID']);
-
-  const exerciseName = props.exerciseID
-    ? ref(exerciseTypeStore.get(props.exerciseID).name)
-    : ref('');
+  const exerciseName = ref('');
+  // const exerciseName = props.exerciseID
+  //   ? ref(exerciseTypeStore.get(props.exerciseID).name)
+  //   : ref('');
   const eTypeIDs = [];
+
+  const setExerciseName = () => {
+    exerciseName.value = props.exerciseID
+      ? exerciseTypeStore.get(props.exerciseID).name
+      : '';
+  };
 
   const setExercise = (typeName) => {
     for (const id of eTypeIDs) {
@@ -66,6 +72,16 @@
     }
   };
 
+  // props.exerciseID changes when workout segment order changes in a program
+  watch(
+    () => {
+      return props.exerciseID;
+    },
+    () => {
+      setExerciseName();
+    },
+  );
+
   watch(
     () => {
       return props.activityID;
@@ -76,6 +92,7 @@
   );
   onBeforeMount(async () => {
     await getActivityExercises(props.activityID);
+    setExerciseName();
   });
 </script>
 <template>
