@@ -13,7 +13,7 @@
   import { useDialogPluginComponent, QCard, QDialog } from 'quasar';
   import * as utils from '../modules/utils';
   import * as programUtils from '../modules/programUtils';
-  import ProgramWorkout2 from './ProgramWorkout2.vue';
+  import ProgramInstanceWorkout from './ProgramInstanceWorkout.vue';
   import * as styles from '../style.module.css';
   import ProgramWorkoutSegment from './ProgramWorkoutSegment.vue';
 
@@ -61,7 +61,7 @@
       dark
       :class="[styles.blockPadSm, styles.blockBorder]"
     >
-      <ProgramWorkout2 :workout="workout" />
+      <ProgramInstanceWorkout :workout="workout" />
       <ProgramWorkoutSegment
         v-for="(segment, ix) in workout.segments"
         :key="ix"

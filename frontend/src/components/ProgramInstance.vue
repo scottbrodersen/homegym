@@ -10,7 +10,7 @@
    *  instanceID is the ID of the program instance.
    */
   import { inject, provide, ref, watch } from 'vue';
-  import ProgramBlock2 from './ProgramBlock2.vue';
+  import ProgramInstanceBlock from './ProgramInstanceBlock.vue';
   import { programInstanceStore, programsStore } from './../modules/state';
   import { updateProgramInstance } from './../modules/utils';
   import {
@@ -37,8 +37,8 @@
   import * as programUtils from '../modules/programUtils';
   import * as dateUtils from '../modules/dateUtils';
   import ProgramCalendar from './ProgramCalendar.vue';
-  import ProgramMicrocycle2 from './ProgramMicrocycle2.vue';
-  import ProgramWorkout2 from './ProgramWorkout2.vue';
+  import ProgramInstanceMicrocycle from './ProgramInstanceMicrocycle.vue';
+  import ProgramInstanceWorkout from './ProgramInstanceWorkout.vue';
   import ProgramWorkoutSegment from './ProgramWorkoutSegment.vue';
   import * as utils from '../modules/utils';
 
@@ -302,12 +302,12 @@
       {{ programTitle }}
     </div>
     <div :class="[styles.instInfo]">
-      <ProgramBlock2
+      <ProgramInstanceBlock
         v-if="coords"
         :block="instance.blocks[coords[0]]"
         @update="(updated) => updateBlock(updated, coords[0])"
       />
-      <ProgramMicrocycle2
+      <ProgramInstanceMicrocycle
         v-if="coords"
         :microcycle="instance.blocks[coords[0]].microCycles[coords[1]]"
         @update="(updated) => updateMicroCycle(updated, coords[0], coords[1])"
@@ -333,7 +333,7 @@
         "
       >
         <div>
-          <ProgramWorkout2
+          <ProgramInstanceWorkout
             :id="`workout${coords[0]}-${coords[1]}-${wix}`"
             :workout="workout"
           />
