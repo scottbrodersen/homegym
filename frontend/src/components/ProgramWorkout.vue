@@ -7,7 +7,7 @@
    *
    * The injected state value indicates whether to display in read-only or edit mode.
    */
-  import { inject, ref, watch } from 'vue';
+  import { inject, ref, onBeforeMount, watch } from 'vue';
   import ProgramWorkoutSegment from './ProgramWorkoutSegment.vue';
   import * as styles from '../style.module.css';
   import { OrderedList, states } from '../modules/utils.js';
@@ -17,15 +17,17 @@
 
   const { state } = inject('state');
   const props = defineProps({ workout: Object });
-  const rawWorkout = ref(utils.deepToRaw(props.workout));
   const emits = defineEmits('update');
+  let segments;
+  const rawWorkout = ref([{}]);
 
-  // todo: do not mutate props.workout
-
-  if (!props.workout.segments) {
-    rawWorkout.value.segments = [{}];
-  }
-  let segments = new OrderedList(rawWorkout.value.segments);
+  const setRawWorkout = () => {
+    rawWorkout.value = utils.deepToRaw(props.workout);
+    if (!props.workout.segments) {
+      rawWorkout.value.segments = [{}];
+    }
+    segments = new OrderedList(rawWorkout.value.segments);
+  };
 
   const updateSegments = (action, index) => {
     segments.update(action, index);
@@ -40,6 +42,20 @@
   const updateWorkout = () => {
     emits('update', rawWorkout.value);
   };
+
+  // props.workout changes when workouts are reordered in a program
+  watch(
+    () => {
+      return props.workout;
+    },
+    () => {
+      setRawWorkout();
+    },
+  );
+
+  onBeforeMount(() => {
+    setRawWorkout();
+  });
 </script>
 <template>
   <div>
