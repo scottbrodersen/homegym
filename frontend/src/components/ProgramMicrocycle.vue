@@ -8,7 +8,7 @@
  * Injected:
  *  state indicates whether to present the block in read-only or edit mode.
  */
-  import { inject, ref } from 'vue';
+  import { inject, onBeforeMount, ref, watch } from 'vue';
   import * as styles from '../style.module.css';
   import {  states } from '../modules/utils.js';
   import {  QInput } from 'quasar';
@@ -19,12 +19,24 @@
   const props = defineProps({ microcycle: Object });
   const emit = defineEmits(['update']);
 
-  const rawCycle = ref(utils.deepToRaw(props.microcycle));
+  const rawCycle = ref();
+
+  const updateRawCycle = () => {
+    rawCycle.value = utils.deepToRaw(props.microcycle);
+  }
 
   const updateCycle = () => {
     emit('update', rawCycle.value);
   }
 
+  // props.microcycle changes upon reordering microcycles in a program
+  watch( () => {return props.microcycle}, () => {
+    updateRawCycle();
+  }
+  )
+  onBeforeMount(() => {
+    updateRawCycle();
+  })
 </script>
 <template>
   <div :class="[styles.pgmMicrocycle]">
@@ -34,9 +46,9 @@
           {{ props.microcycle.title ? props.microcycle.title : '<no microcycle title>' }}
         </div>
       </div>
-        <div :class="[styles.sibSpxSmall]">
-          {{ props.microcycle.description }}
-        </div>
+      <div :class="[styles.sibSpxSmall]">
+        {{ props.microcycle.description }}
+      </div>
     </div>
     <div v-else>
       <div :class="[styles.horiz]">
