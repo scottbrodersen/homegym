@@ -8,7 +8,7 @@
    * Injected:
    *  state indicates whether to present the block in read-only or edit mode.
    */
-  import { inject, ref } from 'vue';
+  import { inject, onBeforeMount, ref, watch } from 'vue';
   import { QInput } from 'quasar';
   import * as styles from '../style.module.css';
   import { states } from '../modules/utils.js';
@@ -19,11 +19,29 @@
   const props = defineProps({ block: Object });
   const emits = defineEmits(['update']);
 
-  const rawBlock = ref(utils.deepToRaw(props.block));
+  const rawBlock = ref();
+
+  const setupRawBlock = () => {
+    rawBlock.value = utils.deepToRaw(props.block);
+  };
 
   const updateBlock = () => {
     emits('update', rawBlock.value);
   };
+
+  // props.block changes upon reordering blocks in a program
+  watch(
+    () => {
+      return props.block;
+    },
+    () => {
+      setupRawBlock();
+    },
+  );
+
+  onBeforeMount(() => {
+    setupRawBlock();
+  });
 </script>
 <template>
   <div :class="[styles.pgmBlock]">
