@@ -9,7 +9,7 @@
    *  activityID is the activity with which the program instance is associated.
    *  instanceID is the ID of the program instance.
    */
-  import { inject, provide, ref, watch } from 'vue';
+  import { inject, onBeforeMount, provide, ref, watch } from 'vue';
   import ProgramInstanceBlock from './ProgramInstanceBlock.vue';
   import { programInstanceStore, programsStore } from './../modules/state';
   import { updateProgramInstance } from './../modules/utils';
@@ -275,7 +275,10 @@
         }
       });
   };
-  init();
+
+  onBeforeMount(() => {
+    init();
+  });
 </script>
 <template>
   <div v-if="instance" :class="[styles.pgmInstance]">

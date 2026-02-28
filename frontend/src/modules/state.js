@@ -7,9 +7,6 @@ workout events be like:
     "id": "6ef6125f-1708-4977-8dad-598bfff2a3a4",
     "activityID": "49adfe46-854f-425e-9782-a1d9a5255e43",
     "date": 1719402960,
-    "mood": 4,
-    "motivation": 4,
-    "energy": 2,
     "overall": 4,
     "notes": "",
     "exercises": {
@@ -88,7 +85,7 @@ export const eventStore = reactive({
   },
   getAll() {
     const all = [];
-    for (const event of this.events.values()) {
+    for (const event of this.events) {
       all.push(event);
     }
     return all;
@@ -205,7 +202,6 @@ export const programInstanceStore = reactive({
       }
       return instances;
     }
-    console.warn('Instances of program not yet added');
     return undefined;
   },
 

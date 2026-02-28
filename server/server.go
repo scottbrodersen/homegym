@@ -47,6 +47,7 @@ var internalRoutes []string = []string{
 	"/homegym/exercises/",
 	"/homegym/programs/",
 	"/homegym/analyze/",
+	"/homegym/download/",
 }
 
 var secureMux *http.ServeMux
