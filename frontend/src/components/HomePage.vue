@@ -58,15 +58,27 @@
     </div>
 
     <EventsGrid :eventID="selectedEvent" />
-    <div :class="[styles.blockPadSm]">
-      <q-btn
-        size="0.65em"
-        label="Add Event"
-        :to="{ name: 'event' }"
-        id="addevent"
-        dark
-        unelevated
-      />
+    <div :class="[styles.buttonArray]">
+      <div :class="[styles.blockPadSm]">
+        <q-btn
+          size="0.65em"
+          label="Add Event"
+          :to="{ name: 'event' }"
+          id="addevent"
+          dark
+          unelevated
+        />
+      </div>
+      <div :class="[styles.blockPadSm]">
+        <q-btn
+          size="0.65em"
+          label="Download"
+          :to="{ name: 'download' }"
+          id="download"
+          dark
+          unelevated
+        />
+      </div>
     </div>
   </div>
 </template>

@@ -6,6 +6,7 @@ import PageHeader from './components/PageHeader.vue';
 import ExerciseTypesPage from './components/ExerciseTypesPage.vue';
 import ProgramsPage from './components/ProgramsPage.vue';
 import AnalyzePage from './components/AnalyzePage.vue';
+import DownloadEventsPage from './components/DownloadEventsPage.vue';
 
 const routes = [
   {
@@ -27,6 +28,11 @@ const routes = [
     path: '/homegym/analyze/',
     components: { default: PageHeader, main: AnalyzePage },
     name: 'analyze',
+  },
+  {
+    path: '/homegym/download/',
+    components: { default: PageHeader, main: DownloadEventsPage },
+    name: 'download',
   },
   {
     path: '/homegym/event/:eventId?',

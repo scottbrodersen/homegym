@@ -959,12 +959,25 @@ header .hgHamburger {
 .dailySlider > div {
   padding-top: var(--hg-med);
 }
+.downloadPage {
+  composes: vert;
+  align-items: center;
+}
+.downloadDates {
+  composes: horiz;
+  justify-content: space-around;
+  margin-bottom: 3em;
+}
+.downloadContent {
+  width: 330px;
+}
 .analyzePage {
   composes: vert;
   align-items: center;
 }
 
-.analyzePage .datePicker {
+.analyzePage .datePicker,
+.downloadPage .datePicker {
   max-width: 148px;
 }
 

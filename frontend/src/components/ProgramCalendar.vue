@@ -9,7 +9,7 @@
    *
    * Emits the index of the workout that occurs on the selected date.
    */
-  import { onMounted, ref, watch } from 'vue';
+  import { onMounted, onBeforeMount, ref, watch } from 'vue';
   import { QDate } from 'quasar';
   import * as dateUtils from '../modules/dateUtils';
   import * as programUtils from '../modules/programUtils';
@@ -36,7 +36,7 @@
     formattedWorkoutDates = formatForQuasar(workoutDates);
 
     date.value = dateUtils.formatDate(
-      dateUtils.dateFromSeconds(props.instance.startDate)
+      dateUtils.dateFromSeconds(props.instance.startDate),
     );
   };
 
@@ -61,20 +61,20 @@
     () => props.coords,
     (newCoords) => {
       date.value = dateUtils.formatDate(
-        programUtils.getWorkoutDate(props.instance, newCoords)
+        programUtils.getWorkoutDate(props.instance, newCoords),
       );
     },
-    { deep: true }
+    { deep: true },
   );
 
   watch(
     () => props.instance,
     (newInstance) => {
       init();
-    }
+    },
   );
 
-  onMounted(() => {
+  onBeforeMount(() => {
     init();
     emitDayIndex(date.value);
   });

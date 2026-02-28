@@ -22,7 +22,6 @@
     programsStore,
   } from '../modules/state';
   import * as styles from '../style.module.css';
-  import { getCurrentInstance } from 'vue';
 
   const init = async () => {
     const endDate = dateUtils.setEpochToMidnight(dateUtils.nowInSeconds());
