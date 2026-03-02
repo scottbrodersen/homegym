@@ -15,73 +15,53 @@ import (
 type creds struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
+	Form     string `json:"form"`
 }
 
 // HandleLogin handles log in requests.
 // Generates a JWT and returns it in a cookie.
 // Generates a session ID and returns it in a cookie.
 func HandleLogin(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet && r.Method != http.MethodPost {
-		http.Error(w, "use GET to log in", http.StatusMethodNotAllowed)
-		return
-	}
+	if r.Method == http.MethodPost {
 
-	credentials := new(creds)
-	// GET means we received a form submission
-	if r.Method == http.MethodGet {
-		if err := r.ParseForm(); err != nil {
-			slog.Debug("Error parsing credentials", "error", err.Error())
-			http.Error(w, "could not parse credentials", http.StatusBadRequest)
-			return
-		}
+		credentials := new(creds)
 
-		credentials.Username = r.FormValue("username")
-		credentials.Password = r.FormValue("password")
-
-		if credentials.Username == "" || credentials.Password == "" {
-			slog.Debug("Either the user name or password was missing")
-			http.Error(w, "You must provide both a user name and a password", http.StatusBadRequest)
-			return
-		}
-	} else {
-		// POST means we received a fetch request
 		*credentials = readPostedBody(w, r, 10000)
-	}
 
-	token, sessionID, err := authorizer.IssueToken(credentials.Username, credentials.Password)
-	if err != nil {
-		if errors.Is(err, auth.ErrUnauthorized) {
-			slog.Debug(err.Error())
-			http.Error(w, "Authentication failed", http.StatusUnauthorized)
+		token, sessionID, err := authorizer.IssueToken(credentials.Username, credentials.Password)
+		if err != nil {
+			if errors.Is(err, auth.ErrUnauthorized) {
+				slog.Debug(err.Error())
+				http.Error(w, "Authentication failed", http.StatusUnauthorized)
+				return
+			}
+			slog.Error(err.Error())
+			http.Error(w, internalServerError, http.StatusInternalServerError)
 			return
 		}
-		slog.Error(err.Error())
-		http.Error(w, internalServerError, http.StatusInternalServerError)
-		return
+
+		tokenCookie := tokenCookieMaker(token)
+		sessionCookie := &http.Cookie{
+			Name:     "session",
+			Value:    *sessionID,
+			Secure:   isSafe,
+			HttpOnly: isSafe,
+			Path:     "/homegym/",
+			SameSite: samesite,
+			MaxAge:   authorizer.SessionTTL(),
+		}
+
+		http.SetCookie(w, tokenCookie)
+		http.SetCookie(w, sessionCookie)
+		h := w.Header()
+		standardHeaders(&h)
+
+		if credentials.Form == "true" {
+			// redirect to home handler
+			http.Redirect(w, r, "/homegym/home/", http.StatusFound)
+		}
+		w.WriteHeader(http.StatusOK)
 	}
-
-	tokenCookie := tokenCookieMaker(token)
-	sessionCookie := &http.Cookie{
-		Name:     "session",
-		Value:    *sessionID,
-		Secure:   isSafe,
-		HttpOnly: isSafe,
-		Path:     "/homegym/",
-		SameSite: samesite,
-		MaxAge:   authorizer.SessionTTL(),
-	}
-
-	http.SetCookie(w, tokenCookie)
-	http.SetCookie(w, sessionCookie)
-	h := w.Header()
-	standardHeaders(&h)
-
-	if r.Method == http.MethodGet {
-		// redirect to home handler
-		http.Redirect(w, r, "/homegym/home/", http.StatusFound)
-
-	}
-	w.WriteHeader(http.StatusOK)
 }
 
 // HandleSignup handles requests to create a new user account.

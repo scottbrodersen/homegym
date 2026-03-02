@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <title>Sign in to HomeGym</title>
@@ -10,41 +10,38 @@
   </head>
   <body>
     <h1>Sign in to <span class="hgtitle">HomeGym</span></h1>
-    <form action="/homegym/login">
-      <section>
-        <label for="username">User Name</label>
-        <input
-          id="username"
-          name="username"
-          type="username"
-          placeholder=" "
-          autocomplete="username"
-          required
-        />
-      </section>
+    <section>
+      <label for="username">User Name</label>
+      <input
+        id="username"
+        name="username"
+        type="username"
+        placeholder=" "
+        autocomplete="username"
+        required
+      />
+    </section>
 
-      <section>
-        <label for="password">Password</label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          autocomplete="password"
-          aria-describedby="password-constraints"
-          required
-        />
-        <button
-          id="toggle-password"
-          type="button"
-          aria-label="Show password as plain text. Warning: this will display your password on the screen."
-        >
-          Show password
-        </button>
-      </section>
-
-      <div id="bad" class="hide">Bad credentials</div>
-      <button id="signin">Sign in</button>
-    </form>
+    <section>
+      <label for="password">Password</label>
+      <input
+        id="password"
+        name="password"
+        type="password"
+        autocomplete="password"
+        aria-describedby="password-constraints"
+        required
+      />
+      <button
+        id="toggle-password"
+        type="button"
+        aria-label="Show password as plain text. Warning: this will display your password on the screen."
+      >
+        Show password
+      </button>
+    </section>
+    <button id="signin">Sign in</button>
+    <div id="badlogin" style="visibility: hidden">Login unsuccessful.</div>
     <div class="signuplink">
       <a href="../signup/">Sign up if you don't have an account</a>
     </div>
