@@ -84,7 +84,6 @@
       <h1>{{ title }}</h1>
       <DatePicker
         v-if="!props.stats || !props.stats.date"
-        :hideTime="true"
         @update="(value) => (stats.date = value)"
       />
       <div v-else>
