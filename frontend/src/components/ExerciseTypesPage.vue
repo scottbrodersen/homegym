@@ -402,7 +402,12 @@
 
               <q-tab-panel name="stats">
                 <div>
-                  <div v-show="currentExerciseType.id">
+                  <div
+                    v-show="
+                      currentExerciseType.id &&
+                      currentExerciseType.intensityType == 'weight'
+                    "
+                  >
                     <exercise-stats :exerciseID="currentExerciseType.id" />
                   </div>
                 </div>
