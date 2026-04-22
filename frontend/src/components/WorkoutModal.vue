@@ -53,6 +53,10 @@
   const updateSegments = (action, index) => {
     segments.update(action, index);
   };
+
+  const updateExerciseTypeID = (newID, segmentIndex) => {
+    workout.value.segments[segmentIndex].exerciseTypeID = newID;
+  };
 </script>
 <template>
   <q-dialog ref="dialogRef" @hide="onDialogHide">
@@ -67,6 +71,7 @@
         :key="ix"
         :segment="segment"
         @update="(action) => updateSegments(action, ix)"
+        @setExercise="(value) => updateExerciseTypeID(value, ix)"
       />
       <q-card-actions align="right">
         <q-btn color="primary" icon="close" round @click="onDialogCancel" />
