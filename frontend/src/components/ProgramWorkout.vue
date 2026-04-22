@@ -39,6 +39,11 @@
     updateWorkout();
   };
 
+  const updateSegmentPrescription = (prescription, index) => {
+    segments.list[index].prescription = prescription;
+    updateWorkout();
+  };
+
   const updateWorkout = () => {
     emits('update', rawWorkout.value);
   };
@@ -120,6 +125,7 @@
               updateSegmentExercise(value, ix);
             }
           "
+          @setPrescription="(value) => updateSegmentPrescription(value, ix)"
         />
       </div>
     </div>

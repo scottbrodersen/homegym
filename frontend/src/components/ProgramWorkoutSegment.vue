@@ -12,7 +12,7 @@
    */
   import { exerciseTypeStore } from '../modules/state';
   import * as styles from '../style.module.css';
-  import { inject, Suspense } from 'vue';
+  import { inject, Suspense, watch } from 'vue';
   import { states } from '../modules/utils.js';
   import ExerciseSelect from './ExerciseSelect.vue';
   import { QInput } from 'quasar';
@@ -20,7 +20,7 @@
   import * as programUtils from '../modules/programUtils';
 
   const props = defineProps({ segment: Object });
-  const emit = defineEmits(['update', 'setExercise']);
+  const emit = defineEmits(['update', 'setExercise', 'setPrescription']);
 
   const { state } = inject('state');
   const activityID = inject('activity');
@@ -31,6 +31,14 @@
   const setExercise = (exerciseID) => {
     emit('setExercise', exerciseID);
   };
+  watch(
+    () => {
+      return props.segment.prescription;
+    },
+    (newPrescription) => {
+      emit('setPrescription', newPrescription);
+    },
+  );
 </script>
 <template>
   <div>
