@@ -185,8 +185,8 @@ func (e ExerciseType) validate() error {
 
 	// Restrict to sensible combinations of intensity and volume types
 	if e.IntensityType == "weight" || e.IntensityType == "bodyweight" || e.IntensityType == "percentOfMax" {
-		if e.VolumeType != "count" {
-			return ErrInvalidExercise{Message: "weight-based intensities muse use count as volume type"}
+		if e.VolumeType == "time" {
+			return ErrInvalidExercise{Message: "weight-based intensities cannot use time as volume type"}
 		}
 	} else if e.IntensityType == "hrZone" {
 		if e.VolumeType != "time" {
