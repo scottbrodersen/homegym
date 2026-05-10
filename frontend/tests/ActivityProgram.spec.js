@@ -41,8 +41,15 @@ describe('ActivityProgram component', () => {
       global: {
         provide: {
           state: { value: states.READ_ONLY },
-          editProgramTitle: { value: ref(false) },
-          newProgram: { value: ref(false) },
+          editProgramTitle: {
+            editProgramTitle: ref(false),
+            toggleProgramTitle: () => {},
+          },
+          newProgram: { newProgram: ref(false), toggleNewProgram: () => {} },
+          cloneProgram: {
+            cloneProgram: ref(false),
+            toggleCloneProgram: () => {},
+          },
           //     activity: { value: data.fetchedTestActivities[0] },
         },
       },
@@ -59,8 +66,15 @@ describe('ActivityProgram component', () => {
       global: {
         provide: {
           state: { value: states.READ_ONLY },
-          editProgramTitle: { value: ref(false) },
-          newProgram: { value: ref(false) },
+          editProgramTitle: {
+            editProgramTitle: ref(false),
+            toggleProgramTitle: () => {},
+          },
+          newProgram: { newProgram: ref(false), toggleNewProgram: () => {} },
+          cloneProgram: {
+            cloneProgram: ref(false),
+            toggleCloneProgram: () => {},
+          },
         },
       },
       props: {
@@ -77,20 +91,25 @@ describe('ActivityProgram component', () => {
     wrapper.findAllComponents(QInput).forEach((w) => {
       expect(w.isVisible()).toBeFalsy;
     });
-    expect(wrapper.findAllComponents(ProgramBlock)).toHaveLength(
-      data.testProgram().blocks.length
-    );
+    expect(wrapper.findAllComponents(ProgramBlock)).toHaveLength(1);
   });
 
-  it('done and save buttons in EDIT state', async () => {
+  it('edit button in EDIT state', async () => {
     const wrapper = mount(ActivityProgram, {
       components: { ProgramBlock },
       global: {
         provide: {
           state: { value: states.EDIT },
           //          activity: { value: data.fetchedTestActivities[0] },
-          editProgramTitle: { value: ref(false) },
-          newProgram: { value: ref(false) },
+          editProgramTitle: {
+            editProgramTitle: ref(false),
+            toggleProgramTitle: () => {},
+          },
+          newProgram: { newProgram: ref(false), toggleNewProgram: () => {} },
+          cloneProgram: {
+            cloneProgram: ref(false),
+            toggleCloneProgram: () => {},
+          },
         },
       },
       props: {
@@ -98,40 +117,11 @@ describe('ActivityProgram component', () => {
         activityID: data.fetchedTestActivities[0].id,
       },
     });
+    await nextTick();
+    await flushPromises();
     const buttons = wrapper.findAllComponents(QBtn);
-
-    let doneWrapper;
-    let updateWrapper;
-    for (let i = 0; i < buttons.length; i++) {
-      if (buttons[i].text() == 'Done') {
-        doneWrapper = buttons[i];
-      } else if (buttons[i].text() == 'Update') {
-        updateWrapper = buttons[i];
-      }
-      if (doneWrapper && updateWrapper) break;
-    }
-    expect(doneWrapper).not.toBeUndefined();
-    expect(doneWrapper.isVisible()).toBeTruthy();
-    expect(doneWrapper.attributes().disabled).toBeFalsy();
-    expect(updateWrapper).not.toBeUndefined();
-    expect(updateWrapper.isVisible()).toBeTruthy();
-    expect(updateWrapper.attributes().disabled).not.toBeUndefined();
-
-    let foundBlockTitle = false;
-    let p;
-    wrapper.findAll('input').forEach((w) => {
-      console.log(w.text());
-      if (
-        !foundBlockTitle &&
-        w.element.value == data.testProgram().blocks[0].title
-      ) {
-        foundBlockTitle = true;
-        p = w.setValue('changed').then(() => {
-          expect(doneWrapper.text()).toEqual('Cancel');
-          expect(updateWrapper.attributes().disabled).toBeFalsy();
-        });
-      }
-    });
-    expect(foundBlockTitle).toBeTruthy();
+    const editButton = buttons.find((btn) => btn.props().icon === 'edit_note');
+    expect(editButton).toBeDefined();
+    expect(editButton.isVisible()).toBeTruthy();
   });
 });

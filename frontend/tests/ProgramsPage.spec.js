@@ -68,7 +68,7 @@ describe('ProgramsPage component', () => {
     const wrapper = mount(ProgramsPage, {
       components: { QSelect, QBtn, QDialog, ActivityProgram },
       attachTo: document.body,
-      props: { activity: data.fetchedTestActivities[0] },
+      props: { activityID: data.fetchedTestActivities[0] },
     });
 
     expect(wrapper.getComponent(ProgramSelect).isVisible()).toEqual(true);
@@ -84,7 +84,7 @@ describe('ProgramsPage component', () => {
       components: { QSelect, QBtn, QDialog, ActivityProgram },
       attachTo: document.body,
       props: {
-        activity: data.fetchedTestActivities[0],
+        activityID: data.fetchedTestActivities[0].id,
         programID: data.testProgramID,
       },
     });
@@ -92,7 +92,7 @@ describe('ProgramsPage component', () => {
     expect(wrapper.find('#edit').isDisabled()).toEqual(false);
     expect(wrapper.find('#start').isVisible()).toEqual(true);
     expect(wrapper.getComponent(ActivityProgram).props().programID).toEqual(
-      data.testProgramID
+      data.testProgramID,
     );
   });
 });

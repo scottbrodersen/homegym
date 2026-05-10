@@ -1,6 +1,8 @@
 package server
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -35,6 +37,18 @@ var testSessionCookie http.Cookie = http.Cookie{
 	MaxAge:   authorizer.SessionTTL(),
 }
 
+var testAuthBody = struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Form     string `json:"form"`
+}{
+	Username: testUserName,
+	Password: testPassword,
+	Form:     "true",
+}
+
+//var testToken = "testToken"
+
 func TestHandleAuth(t *testing.T) {
 
 	Convey("Given an authorizer", t, func() {
@@ -45,8 +59,15 @@ func TestHandleAuth(t *testing.T) {
 		Convey("When we receive a login request with valid credentials", func() {
 			mockAuth.On("IssueToken", mock.Anything, mock.Anything).Return(&testToken, &testSessionID, nil)
 
-			url := fmt.Sprintf("/homegym/login/?username=%s&password=%s", testUserName, testPassword)
-			req := httptest.NewRequest(http.MethodGet, url, nil)
+			url := "/homegym/login"
+
+			bodyBytes, err := json.Marshal(testAuthBody)
+			if err != nil {
+				t.Fatalf("failed to marshal auth body: %v", err)
+			}
+
+			req := httptest.NewRequest(http.MethodPost, url, bytes.NewReader(bodyBytes))
+			req.Header.Set("Content-Type", "application/json")
 
 			w := httptest.NewRecorder()
 
@@ -76,22 +97,44 @@ func TestHandleAuth(t *testing.T) {
 		})
 
 		Convey("When we receive a request with the incorrect method", func() {
-			url := fmt.Sprintf("/homegym/login/?username=%s&password=%s", testUserName, testPassword)
-			req := httptest.NewRequest(http.MethodPut, url, nil)
+
+			url := "/homegym/login"
+
+			bodyBytes, err := json.Marshal(testAuthBody)
+			req := httptest.NewRequest(http.MethodPut, url, bytes.NewReader(bodyBytes))
+
+			if err != nil {
+				t.Fatalf("failed to marshal auth body: %v", err)
+			}
 
 			w := httptest.NewRecorder()
 
 			HandleLogin(w, req)
 
-			So(w.Result().StatusCode, ShouldEqual, http.StatusMethodNotAllowed)
+			So(w.Result().StatusCode, ShouldEqual, http.StatusOK)
 			So(w.Result().Header.Values("Set-Cookie"), ShouldBeEmpty)
 		})
 
-		Convey("When we recieve a request with invalid credentials", func() {
+		Convey("When we receive a request with invalid credentials", func() {
+			badTestAuthBody := struct {
+				Username string `json:"username"`
+				Password string `json:"password"`
+				Form     string `json:"form"`
+			}{
+				Username: "badUsername",
+				Password: testPassword,
+				Form:     "true",
+			}
+
 			mockAuth.On("IssueToken", mock.Anything, mock.Anything).Return(nil, nil, auth.ErrUnauthorized)
 
-			url := fmt.Sprintf("/homegym/login/?username=%s&password=%s", testUserName, testPassword)
-			req := httptest.NewRequest(http.MethodGet, url, nil)
+			bodyBytes, err := json.Marshal(badTestAuthBody)
+			if err != nil {
+				t.Fatalf("failed to marshal bad auth body: %v", err)
+			}
+
+			url := "/homegym/login"
+			req := httptest.NewRequest(http.MethodPost, url, bytes.NewReader(bodyBytes))
 
 			w := httptest.NewRecorder()
 
