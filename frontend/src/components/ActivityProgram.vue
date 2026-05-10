@@ -23,7 +23,7 @@
 
   const { editProgramTitle, toggleProgramTitle } = inject('editProgramTitle');
   const { newProgram, toggleNewProgram } = inject('newProgram');
-  const { state } = inject('state');
+  const state = inject('state');
   const { cloneProgram, toggleCloneProgram } = inject('cloneProgram');
 
   provide('activity', props.activityID);

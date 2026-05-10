@@ -239,22 +239,22 @@ func TestPrograms(t *testing.T) {
 
 		Convey("When we get the active program instance", func() {
 			instanceIDBytes := [][]byte{([]byte)(fmt.Sprintf("%s:%s", testProgramID, testProgramInstanceID))}
-			// testPGInstance := testProgramInstance()
+			testPGInstance := testProgramInstance()
 
-			// // convert the test pg instance to [][]byte
-			// jsonPGI, err := json.Marshal(testPGInstance)
-			// if err != nil {
-			// 	fmt.Printf("Error marshalling test program instance: %v\n", err)
-			// 	return
-			// }
+			// convert the test pg instance to [][]byte
+			jsonPGI, err := json.Marshal(testPGInstance)
+			if err != nil {
+				t.Errorf("Error marshalling test program instance: %v\n", err)
+				return
+			}
 			db.On("GetActiveProgramInstancePage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(instanceIDBytes, nil)
-			//db.On("GetProgramInstancePage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return([][]byte{jsonPGI}, nil)
+			db.On("GetProgramInstancePage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return([][]byte{jsonPGI}, nil)
 
 			inst, err := ProgramManager.GetActiveProgramInstancesPage(testUserID, testActivityID, testProgramInstanceID, 1)
 
 			So(err, ShouldBeNil)
 			So(len(inst), ShouldEqual, 1)
-			So(inst[0], ShouldEqual, string(fmt.Sprintf("%s:%s", testProgramID, testProgramInstanceID)))
+			So(inst[0], ShouldEqual, testPGInstance)
 		})
 
 		Convey("When we deactivate the active program instance", func() {

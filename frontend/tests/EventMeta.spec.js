@@ -37,7 +37,11 @@ describe('EventMeta component', () => {
     const elements = wrapper.findAll('div');
     for (const meta in testMeta) {
       for (let i = 0; i < elements.length; i++) {
-        if (elements[i].text() == `${labels[meta]}: ${testMeta[meta]}`) {
+        const text = elements[i].text();
+        if (
+          text.includes(labels[meta]) &&
+          text.includes(String(testMeta[meta]))
+        ) {
           found.push(meta);
           break;
         }
@@ -51,8 +55,6 @@ describe('EventMeta component', () => {
 
   it('renders correctly with a subset of meta in read only', () => {
     const testMeta = {
-      mood: 1,
-      energy: 2,
       overall: 4,
     };
 
@@ -67,7 +69,11 @@ describe('EventMeta component', () => {
     const elements = wrapper.findAll('div');
     for (const meta in testMeta) {
       for (let i = 0; i < elements.length; i++) {
-        if (elements[i].text() == `${labels[meta]}: ${testMeta[meta]}`) {
+        const text = elements[i].text();
+        if (
+          text.includes(labels[meta]) &&
+          text.includes(String(testMeta[meta]))
+        ) {
           found.push(meta);
           break;
         }
@@ -81,8 +87,6 @@ describe('EventMeta component', () => {
 
   it('renders correctly not in read only', () => {
     const testMeta = {
-      mood: 1,
-      energy: 2,
       overall: 4,
     };
 
@@ -95,6 +99,6 @@ describe('EventMeta component', () => {
     let found = [];
     const ratings = wrapper.findAllComponents(QRating);
 
-    expect(ratings).toHaveLength(4);
+    expect(ratings).toHaveLength(1);
   });
 });

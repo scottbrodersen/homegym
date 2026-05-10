@@ -1,4 +1,9 @@
-import { config, enableAutoUnmount, mount } from '@vue/test-utils';
+import {
+  config,
+  enableAutoUnmount,
+  mount,
+  flushPromises,
+} from '@vue/test-utils';
 import ListActions from './../src/components/ListActions.vue';
 import { OrderedList } from '../src/modules/utils';
 import { QBtn, QMenu } from 'quasar';
@@ -18,28 +23,29 @@ describe('ListActions', () => {
     expect(wrapper.findAll('button')).toHaveLength(1);
   });
 
-  it('The menu items are rendered', () => {
+  it('The menu items are rendered', async () => {
     const wrapper = mount(ListActions);
-
-    console.log('listActions:');
-    console.log(wrapper.html());
 
     wrapper.get('button').trigger('click');
-    const menuWrapper = wrapper.getComponent(QMenu);
-    expect(menuWrapper).to.not.be.null;
-    console.log('menuwrapper:');
+    await flushPromises();
 
-    console.log(menuWrapper.html());
-
-    expect(menuWrapper.findAll('div.q-list')).toHaveLength(6);
+    // QMenu is teleported to the body, so search the document
+    const menuItems = document.querySelectorAll('div.q-item');
+    expect(menuItems).toHaveLength(6);
   });
 
-  it('The correct events are emitted', () => {
+  it('The correct events are emitted', async () => {
     const wrapper = mount(ListActions);
 
-    wrapper.findAll('div.q-item').forEach((btn) => {
-      btn.trigger('click');
+    wrapper.get('button').trigger('click');
+    await flushPromises();
+
+    // Click the menu items in the teleported menu
+    const menuItems = document.querySelectorAll('div.q-item');
+    menuItems.forEach((item) => {
+      item.click();
     });
+    await flushPromises();
 
     const emittedEvents = wrapper.emitted('update');
     expect(emittedEvents).toHaveLength(6);

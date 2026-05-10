@@ -357,7 +357,8 @@ func TestHandlePrograms(t *testing.T) {
 
 		Convey("When we receive a request to get the active program instances", func() {
 			piURL := fmt.Sprintf("%s/instances/active", url)
-			mpm.On("GetActiveProgramInstancesPage", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return([]string{testProgramInstanceID}, nil)
+			testInstance := testProgramInstance()
+			mpm.On("GetActiveProgramInstancesPage", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return([]programs.ProgramInstance{testInstance}, nil)
 
 			req := httptest.NewRequest(http.MethodGet, piURL, nil)
 			req = req.WithContext(testContext())
@@ -369,13 +370,14 @@ func TestHandlePrograms(t *testing.T) {
 			So(w.Result().StatusCode, ShouldEqual, http.StatusOK)
 			So(w.Result().Header.Get("content-type"), ShouldEqual, "application/json")
 
-			body := []string{}
+			body := []programs.ProgramInstance{}
 
 			if err := json.NewDecoder(w.Result().Body).Decode(&body); err != nil {
 				t.Fail()
 			}
 
-			So(body, ShouldResemble, []string{testProgramInstanceID})
+			So(body, ShouldHaveLength, 1)
+			So(body[0], ShouldResemble, testProgramInstance())
 		})
 
 		Convey("When we receive a request to deactivate an active program instance", func() {
