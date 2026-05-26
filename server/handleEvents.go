@@ -14,9 +14,10 @@ import (
 )
 
 type metrics struct {
-	Dates  []int64   `json:"dates"`
-	Volume []float32 `json:"volume"`
-	Load   []float32 `json:"load"`
+	Dates        []int64              `json:"dates"`
+	Volume       []float32            `json:"volume"`
+	Load         []float32            `json:"load"`
+	MaxIntensity []map[string]float32 `json:"maxIntensity"`
 }
 
 // EventsAi handles requests for events.
@@ -298,13 +299,15 @@ func getMetrics(username string, w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Calculate the metrics
-	// For each date, calculate the total volume and load
+	// For each date, calculate the total volume and load and max intensity for all exercises performed on that date.
 	totalVol := []float32{}
 	totalLoad := []float32{}
+	maxIntensity := []map[string]float32{}
 
 	for _, instances := range instancesStack {
 		volume := float32(0)
 		load := float32(0)
+		maxes := map[string]float32{}
 		for _, inst := range instances {
 			exerciseType, err := workoutlog.ExerciseManager.GetExerciseType(username, inst.TypeID)
 			if err != nil {
@@ -312,18 +315,22 @@ func getMetrics(username string, w http.ResponseWriter, r *http.Request) {
 				http.Error(w, `{"message": "could not find exercise type"}`, http.StatusInternalServerError)
 				return
 			}
-			instLoad, instVolume := exerciseType.CalculateMetrics(&inst)
+			instLoad, instVolume, instMaxIntensity := exerciseType.CalculateMetrics(&inst)
+
 			volume += instVolume
 			load += instLoad
+			maxes[exerciseType.ID] = instMaxIntensity
 		}
 		totalVol = append(totalVol, volume)
 		totalLoad = append(totalLoad, load)
+		maxIntensity = append(maxIntensity, maxes)
 	}
 
 	dateMetrics := metrics{
-		Dates:  dateStack,
-		Volume: totalVol,
-		Load:   totalLoad,
+		Dates:        dateStack,
+		Volume:       totalVol,
+		Load:         totalLoad,
+		MaxIntensity: maxIntensity,
 	}
 
 	body, err := json.Marshal(dateMetrics)

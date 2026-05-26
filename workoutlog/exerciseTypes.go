@@ -203,9 +203,10 @@ func (e ExerciseType) validate() error {
 }
 
 // CalculateMetrics returns the load and volume that was performed for an exercise instance.
-func (et ExerciseType) CalculateMetrics(ei *ExerciseInstance) (load, volume float32) {
+func (et ExerciseType) CalculateMetrics(ei *ExerciseInstance) (load, volume, maxIntensity float32) {
 	load = 0
 	volume = 0
+	maxIntensity = 0
 
 	volumeFactor := float32(1)
 
@@ -227,6 +228,9 @@ func (et ExerciseType) CalculateMetrics(ei *ExerciseInstance) (load, volume floa
 			for _, reps := range set {
 				volume = volume + reps*volumeFactor
 				load = load + segment.Intensity*reps*volumeFactor
+				if segment.Intensity > maxIntensity {
+					maxIntensity = segment.Intensity
+				}
 			}
 
 		}
