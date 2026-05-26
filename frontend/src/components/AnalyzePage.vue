@@ -7,8 +7,9 @@
    *
    * Exercise volume can be filtered by exercise type and date range.
    */
-  import { inject, onMounted, ref } from 'vue';
+  import { inject, onMounted, ref, toRaw } from 'vue';
   import * as utils from '../modules/utils';
+  import * as state from '../modules/state';
   import * as dateUtils from '../modules/dateUtils';
   import * as styles from '../style.module.css';
   import * as dailyStatsUtils from '../modules/dailyStatsUtils';
@@ -28,11 +29,13 @@
   const bucketSize = ref(1);
   const bucketOptions = ref([1, 7, 14, 28]);
 
-  let rawMetrics = { dates: [], load: [], volume: [] };
+  let rawMetrics = { dates: [], load: [], volume: [], maxIntensity: [] };
   // chart data for exercise metrics
   const metrics = ref({});
   // chart data for daily stats
   const dailyStats = ref([]);
+  // chart data for weight progression
+  const weightMap = ref({});
 
   /**
    * Sets the start date of the charted time period.
@@ -106,6 +109,26 @@
     );
   };
 
+  /** Creates a graph of exercise weights over time */
+  const weightChart = () => {
+    const exerciseIDs = Object.keys(toRaw(weightMap.value));
+
+    const weights = Object.values(toRaw(weightMap.value));
+    const exerciseNames = [];
+    for (let i = 0; i < exerciseIDs.length; i++) {
+      exerciseNames.push(state.exerciseTypeStore.get(exerciseIDs[i]).name);
+    }
+
+    analyzeUtils.getWeightChart(
+      document.getElementById('chartweight'),
+      endDate.value,
+      startDate.value,
+      metrics.value.dates,
+      exerciseNames,
+      weights,
+    );
+  };
+
   /**
    * Creates a graph of daily stats (e.g. sleep, mood, etc) over time
    */
@@ -165,6 +188,8 @@
 
           metrics.value = analyzeUtils.getDailyTotals(rawMetrics, bucketSize);
           exerciseChart();
+          weightMap.value = analyzeUtils.getWeightData(rawMetrics.maxIntensity);
+          weightChart();
         }
 
         // Get daily stats only on date changes
@@ -239,6 +264,10 @@
     </div>
     <div :class="[styles.analyzeChart]">
       <canvas id="chartvolume"></canvas>
+    </div>
+    <h3>Weight Progression</h3>
+    <div :class="[styles.analyzeChart]">
+      <canvas id="chartweight"></canvas>
     </div>
     <h3>Health Markers</h3>
 

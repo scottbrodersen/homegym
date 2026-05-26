@@ -4,7 +4,7 @@
 import * as utils from '../modules/utils';
 import * as dateUtils from '../modules/dateUtils';
 import * as state from '../modules/state';
-import Chart from 'chart.js/auto';
+import { Chart } from 'chart.js/auto';
 import 'date-fns';
 import 'chartjs-adapter-date-fns';
 import 'date-fns';
@@ -251,4 +251,98 @@ export const getVolumeChart = (
       },
     },
   });
+};
+
+/** Generates data for weight charts for a given map of weights with key exerciseID.
+ * @param {Array} weightMaps An array of maps with key exerciseID and value the weight.
+ * @returns An object with exercise Names as properties with values as an array of weights that can be used for charting.
+ */
+
+export const getWeightData = (weightMaps) => {
+  const weights = {};
+
+  // iterate weightMaps and for each map get the exercise names add it to weights as a property
+  weightMaps.forEach((weightMap) => {
+    for (const exID in weightMap) {
+      weights[exID] = [];
+    }
+  });
+
+  weightMaps.forEach((weightMap, index) => {
+    for (const exID in weights) {
+      if (weightMap[exID]) {
+        weights[exID].push(weightMap[exID]);
+      } else {
+        weights[exID].push(0);
+      }
+    }
+  });
+  return weights;
+};
+
+/**
+ * Generates a chart of exercise weights
+ * @param {*} element The id of the HTML element in which to insert the chart.
+ * @param {*} startDate The start date of the charted data.
+ * @param {*} endDate The end date of the charted data.
+ * @param {[string]} dates The labels for the x-axis.
+ * @param {[string]} exerciseNames The exercise names to chart.
+ * @param {[number]} weights The weight values to chart
+ * @returns
+ */
+export const getWeightChart = (
+  element,
+  startDate,
+  endDate,
+  dates,
+  exerciseNames,
+  weights,
+) => {
+  const existing = Chart.getChart(element);
+  if (existing) {
+    existing.destroy();
+  }
+  const datasets = [];
+  for (let i = 0; i < exerciseNames.length; i++) {
+    const data = dates.map((date, idx) => ({
+      x: date * 1000,
+      y: weights[i][idx] || 0,
+    }));
+    datasets.push(datasetFactory(exerciseNames[i], data, 'yWeight', i));
+  }
+
+  return new Chart(element, {
+    type: 'line',
+    data: {
+      labels: dates,
+      datasets: datasets,
+    },
+    options: {
+      maintainAspectRatio: true,
+      aspectRatio: 1,
+      scales: {
+        x: {
+          type: 'time',
+          max: startDate * 1000,
+          min: endDate * 1000,
+        },
+        yWeight: {
+          position: 'left',
+          title: {
+            text: 'Weight',
+          },
+        },
+      },
+    },
+  });
+};
+
+//** Factory for dataset objects for Chart.js */
+const datasetFactory = (label, data, yAxisID, order) => {
+  return {
+    label: label,
+    data: data,
+    yAxisID: yAxisID,
+    order: order,
+  };
 };
