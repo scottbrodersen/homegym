@@ -135,14 +135,17 @@
       };
 
       thisEvent.value.exercises[newIndex] = newInstance;
-    } else if (updated == {}) {
+    } else if (updated.parts.length == 0) {
       delete thisEvent.value.exercises[index];
 
       // normalize the indexes
       const normalized = {};
-      Object.values(thisEvent.value.exercises).forEach((exInst) => {
-        normalized[exInst.index] = exInst;
-      });
+      const exercises = Object.values(thisEvent.value.exercises);
+
+      for (let i = 0; i < exercises.length; i++) {
+        exercises[i].index = i;
+        normalized[i] = exercises[i];
+      }
 
       thisEvent.value.exercises = normalized;
     } else {
