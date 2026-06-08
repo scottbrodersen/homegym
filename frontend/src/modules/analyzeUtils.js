@@ -273,7 +273,7 @@ export const getWeightData = (weightMaps) => {
       if (weightMap[exID]) {
         weights[exID].push(weightMap[exID]);
       } else {
-        weights[exID].push(0);
+        weights[exID].push(null);
       }
     }
   });
@@ -306,7 +306,7 @@ export const getWeightChart = (
   for (let i = 0; i < exerciseNames.length; i++) {
     const data = dates.map((date, idx) => ({
       x: date * 1000,
-      y: weights[i][idx] || 0,
+      y: weights[i][idx] || null,
     }));
     datasets.push(datasetFactory(exerciseNames[i], data, 'yWeight', i));
   }
@@ -333,6 +333,7 @@ export const getWeightChart = (
           },
         },
       },
+      spanGaps: true,
     },
   });
 };
